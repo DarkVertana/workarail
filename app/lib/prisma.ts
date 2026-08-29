@@ -9,24 +9,23 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+// Local Postgres has no TLS listener, so only negotiate SSL when the URL asks for it.
+const connectionString = process.env.DATABASE_URL;
+const useSsl = /sslmode=(require|verify-ca|verify-full)/.test(
+  connectionString ?? "",
+);
+
+function createClient() {
+  const pool = new Pool({ connectionString, ssl: useSsl });
+  return new PrismaClient({ adapter: new PrismaPg(pool) });
+}
+
 let prismaInstance: PrismaClient;
 
 if (process.env.NODE_ENV === "production") {
-  const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: true,
-  });
-  const adapter = new PrismaPg(pool);
-  prismaInstance = new PrismaClient({ adapter });
+  prismaInstance = createClient();
 } else {
-  if (!globalForPrisma.prisma) {
-    const pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-      ssl: true,
-    });
-    const adapter = new PrismaPg(pool);
-    globalForPrisma.prisma = new PrismaClient({ adapter });
-  }
+  globalForPrisma.prisma ??= createClient();
   prismaInstance = globalForPrisma.prisma;
 }
 
