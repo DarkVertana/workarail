@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
-import { auth } from '@/app/lib/auth'
-import { headers } from 'next/headers'
-import { checkIsStaff } from '@/app/actions/auth'
+import { getActor } from '@/app/lib/authz'
+import { landingPathFor } from '@/app/actions/auth'
 import { getPendingCounts } from '@/app/actions/admin'
 import { PageActionProvider } from '@/app/ui/admin/page-action'
 import { SmallScreenNotice } from '@/app/ui/admin/small-screen-notice'
@@ -11,22 +10,22 @@ const RAIL = 'w-64'
 
 /** Same shell as the admin area, with the finance role's own menu. */
 export default async function FinanceLayout({ children }: LayoutProps<'/finance'>) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
-  
-  if (!session || !session.user) {
+  const actor = await getActor()
+
+  if (!actor) {
     redirect('/signin')
   }
 
-  const isStaff = await checkIsStaff(session.user.email)
-  if (isStaff) {
-    redirect('/crew')
+  // Finance is now a distinct role rather than a second door onto admin.
+  if (actor.user.role !== 'ADMIN' && actor.user.role !== 'FINANCE') {
+    redirect(await landingPathFor(actor.user.role))
   }
 
   const user = {
-    ...session.user,
-    avatarUrl: session.user.image,
+    id: actor.user.id,
+    name: actor.user.name,
+    email: actor.user.email,
+    avatarUrl: null,
   }
 
   const { pendingLeaves, pendingExpenses } = await getPendingCounts()

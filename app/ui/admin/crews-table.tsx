@@ -1,9 +1,9 @@
 'use client'
 
 import { useMemo, useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import {
-  staff,
-  today,
+  todayIso,
   type StaffMember,
   type StaffStatus,
 } from '@/app/lib/admin-data'
@@ -82,14 +82,15 @@ export function CrewsTable({
   initialStaff,
   todayDate,
 }: {
-  initialStaff?: StaffMember[]
+  initialStaff: StaffMember[]
   todayDate?: string
 }) {
-  const activeToday = todayDate || today
+  const activeToday = todayDate ?? todayIso()
   const [page, setPage] = useState(0)
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<StaffStatus | 'all'>('all')
   const [range, setRange] = useState<DateRange>('all')
+  const router = useRouter()
   const [hidden, setHidden] = useState<ReadonlySet<ColumnKey>>(new Set())
   const [openRow, setOpenRow] = useState<string | null>(null)
 
@@ -103,11 +104,15 @@ export function CrewsTable({
     }
   }, [addingStaff])
 
-  useRegisterPageAction('Add staff member', () => setAddingStaff(true))
+  // Onboarding moved to its own route. The modal it replaced collected nine
+  // fields and discarded the rest, and lost everything typed into it on a
+  // reload — neither is acceptable for a form that also captures payroll,
+  // bank and right-to-work data.
+  useRegisterPageAction('Add staff member', () => router.push('/admin/crews/new'))
 
   const visible = COLUMNS.filter((c) => !hidden.has(c.key))
 
-  const staffData = initialStaff || staff
+  const staffData = initialStaff
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()

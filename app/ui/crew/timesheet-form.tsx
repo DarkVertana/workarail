@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   attendanceHours,
   type AttendanceCode,
@@ -47,7 +48,9 @@ export function TimesheetForm({
 }) {
   const [codes, setCodes] = useState<AttendanceCode[]>(initial)
   const [submitted, setSubmitted] = useState(false)
+  const [pending, setPending] = useState(false)
   const toast = useToast()
+  const router = useRouter()
 
   const total = codes.reduce((n, c) => n + attendanceHours[c], 0)
   const changed = codes.some((c, i) => c !== initial[i])
@@ -166,22 +169,34 @@ export function TimesheetForm({
             </button>
             <button
               type="button"
+              disabled={pending}
+              aria-busy={pending}
               onClick={async () => {
+                if (pending) return // guards against a double submit
+                setPending(true)
                 try {
                   const res = await saveCrewTimesheet(codes)
-                  if (res.success) {
+                  if (res.ok) {
                     setSubmitted(true)
                     toast(`Timesheet submitted — ${total}h this week.`)
+                    router.refresh()
                   } else {
-                    toast('Failed to save timesheet.', 'error')
+                    // Show the reason the server gave rather than a generic
+                    // failure, so the person knows what to change.
+                    toast(res.error, 'error')
                   }
-                } catch (e) {
-                  toast('Failed to save timesheet.', 'error')
+                } catch {
+                  toast(
+                    'Could not reach the server. Check your connection and try again.',
+                    'error'
+                  )
+                } finally {
+                  setPending(false)
                 }
               }}
-              className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+              className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Submit timesheet
+              {pending ? 'Submitting…' : 'Submit timesheet'}
             </button>
           </div>
         </div>

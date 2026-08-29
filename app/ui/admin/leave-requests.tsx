@@ -1,10 +1,9 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import {
-  leaveRequests,
-  staff,
-  today,
+  todayIso,
   type LeaveStatus,
   type LeaveType,
   type StaffMember,
@@ -22,6 +21,21 @@ import { formatDays } from '@/app/lib/leave'
 
 const STATUS: Record<LeaveStatus, { label: string; badge: string; tone: string }> =
   {
+    draft: {
+      label: 'Draft',
+      badge: 'bg-stone-100 text-stone-700 dark:bg-stone-900 dark:text-stone-300',
+      tone: 'bg-stone-100 text-stone-700 dark:bg-stone-900 dark:text-stone-300',
+    },
+    cancelled: {
+      label: 'Cancelled',
+      badge: 'bg-stone-200 text-stone-700 dark:bg-stone-900 dark:text-stone-300',
+      tone: 'bg-stone-200 text-stone-700 dark:bg-stone-900 dark:text-stone-300',
+    },
+    taken: {
+      label: 'Taken',
+      badge: 'bg-sky-100 text-sky-800 dark:bg-sky-950/50 dark:text-sky-300',
+      tone: 'bg-sky-100 text-sky-800 dark:bg-sky-950/50 dark:text-sky-300',
+    },
     pending: {
       label: 'Pending',
       badge: 'bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300',
@@ -80,21 +94,24 @@ export function LeaveRequests({
   leaveContext,
   todayDate,
 }: {
-  initialLeaves?: LeaveRequest[]
-  initialStaff?: StaffMember[]
+  initialLeaves: LeaveRequest[]
+  initialStaff: StaffMember[]
   leaveContext?: LeaveContext
   todayDate?: string
 }) {
-  const leavesData = initialLeaves || leaveRequests
-  const staffData = initialStaff || staff
-  const activeToday = todayDate || today
+  const leavesData = initialLeaves
+  const staffData = initialStaff
+  const activeToday = todayDate ?? todayIso()
 
   const nameFor = (ref: string) =>
     staffData.find((p) => p.ref === ref)?.name ?? ref
   const roleFor = (ref: string) =>
     staffData.find((p) => p.ref === ref)?.role ?? ''
 
+  const router = useRouter()
   const [decisions, setDecisions] = useState<Record<string, LeaveStatus>>({})
+  /** Request whose decision is in flight, so its buttons can be disabled. */
+  const [pending, setPending] = useState<string | null>(null)
   const [status, setStatus] = useState<LeaveStatus | 'all'>('all')
   const [query, setQuery] = useState('')
   const toast = useToast()
@@ -124,16 +141,26 @@ export function LeaveRequests({
     (r) => r.status === 'approved' && r.from <= activeToday && r.to >= activeToday
   ).length
 
+  /**
+   * `decideLeaveRequest` reports refusals by returning `{ ok: false }` rather
+   * than throwing, so the previous try/catch never fired. An approver whose
+   * decision was rejected by a scope or state guard still saw a success toast
+   * and a row that appeared decided until the next reload.
+   */
   async function decide(id: string, next: 'approved' | 'rejected') {
-    setDecisions((prev) => ({ ...prev, [id]: next }))
     const who = nameFor(leavesData.find((r) => r.id === id)?.staffRef ?? '')
-    toast(`${who}'s request ${next}.`, next === 'rejected' ? 'info' : 'success')
-    try {
-      await decideLeaveRequest(id, next)
-    } catch (err) {
-      console.error(err)
-      toast('Failed to save decision in database.', 'error')
+    setPending(id)
+    const result = await decideLeaveRequest(id, next)
+    setPending(null)
+
+    if (!result.ok) {
+      toast(result.error, 'error')
+      return
     }
+
+    setDecisions((prev) => ({ ...prev, [id]: next }))
+    toast(`${who}'s request ${next}.`, next === 'rejected' ? 'info' : 'success')
+    router.refresh()
   }
 
   return (
@@ -168,7 +195,7 @@ export function LeaveRequests({
       <section className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 px-5 py-3 dark:border-zinc-800">
           <span className="text-sm text-zinc-500 dark:text-zinc-400">
-            {rows.length} of {leaveRequests.length} requests
+            {rows.length} of {leavesData.length} requests
           </span>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -296,15 +323,17 @@ export function LeaveRequests({
                           <div className="flex justify-end gap-2">
                             <button
                               type="button"
+                              disabled={pending === r.id}
                               onClick={() => decide(r.id, 'approved')}
-                              className="rounded-md bg-indigo-600 px-2.5 py-1 text-xs font-medium text-white transition hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+                              className="rounded-md bg-indigo-600 px-2.5 py-1 text-xs font-medium text-white transition hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 disabled:opacity-50"
                             >
-                              Approve
+                              {pending === r.id ? 'Saving…' : 'Approve'}
                             </button>
                             <button
                               type="button"
+                              disabled={pending === r.id}
                               onClick={() => decide(r.id, 'rejected')}
-                              className="rounded-md border border-zinc-300 px-2.5 py-1 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+                              className="rounded-md border border-zinc-300 px-2.5 py-1 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
                             >
                               Reject
                             </button>

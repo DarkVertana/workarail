@@ -1,36 +1,14 @@
-import { getSessionAndRole } from "@/app/lib/api-auth";
-import { getSettings, saveSettings } from "@/app/actions/admin";
-import { NextResponse } from "next/server";
+import { getSettings, saveSettings } from '@/app/actions/admin'
+import { handle, handleAction } from '@/app/lib/api-handler'
 
-export async function GET() {
-  const { errorResponse, isStaff } = await getSessionAndRole();
-  if (errorResponse) return errorResponse;
+export const GET = () => handle('GET /api/admin/settings', getSettings)
 
-  if (isStaff) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
-  try {
-    const settings = await getSettings();
-    return NextResponse.json(settings);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Failed to retrieve settings" }, { status: 500 });
-  }
-}
-
+/**
+ * `saveSettings` applies a patch rather than replacing the document, so a
+ * client sending one field no longer blanks the rest, and an omitted SMTP
+ * password leaves the stored one intact.
+ */
 export async function POST(request: Request) {
-  const { errorResponse, isStaff } = await getSessionAndRole();
-  if (errorResponse) return errorResponse;
-
-  if (isStaff) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
-  try {
-    const settings = await request.json();
-    const result = await saveSettings(settings);
-    return NextResponse.json({ success: true, settings: result });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Failed to save settings" }, { status: 500 });
-  }
+  const body = await request.json().catch(() => ({}))
+  return handleAction('POST /api/admin/settings', () => saveSettings(body))
 }

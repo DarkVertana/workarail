@@ -6,9 +6,7 @@ import { useRegisterPageAction } from '@/app/ui/admin/page-action'
 import { AttendanceEntryDialog } from '@/app/ui/admin/attendance-entry-dialog'
 import {
   attendanceHours,
-  attendanceWeek,
-  staff,
-  today,
+  todayIso,
   type AttendanceCode,
   type StaffMember,
 } from '@/app/lib/admin-data'
@@ -63,15 +61,15 @@ export function AttendanceTable({
   week,
   todayDate,
 }: {
-  initialStaff?: StaffMember[]
-  initialPatterns?: Record<string, string>
-  week?: string[]
+  initialStaff: StaffMember[]
+  initialPatterns: Record<string, string>
+  week: string[]
   todayDate?: string
 }) {
-  const staffData = initialStaff || staff
-  const patterns = initialPatterns || {}
-  const activeWeek = week || attendanceWeek
-  const activeToday = todayDate || today
+  const staffData = initialStaff
+  const patterns = initialPatterns
+  const activeWeek = week
+  const activeToday = todayDate ?? todayIso()
 
   const [adding, setAdding] = useState(false)
   useRegisterPageAction('Add entry', () => setAdding(true))

@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: 'My leave' }
 
 export default async function CrewLeavePage() {
   const data = await getCrewDashboardData()
-  const { me, myLeaveRequests, today, taken, totalLeaveDays } = data
+  const { myLeaveRequests, today, taken, totalLeaveDays } = data
 
   return (
     <div className="flex flex-col gap-6">
@@ -18,7 +18,6 @@ export default async function CrewLeavePage() {
       </div>
 
       <LeaveForm
-        staffRef={me.ref}
         existing={myLeaveRequests}
         today={today}
         taken={taken}

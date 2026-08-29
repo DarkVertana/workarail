@@ -57,14 +57,16 @@ export function AttachmentPreview({
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-2">
-              <a
-                href={target.file.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-md border border-zinc-300 px-2.5 py-1 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-              >
-                Open in new tab
-              </a>
+              {target.file.url ? (
+                <a
+                  href={target.file.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-md border border-zinc-300 px-2.5 py-1 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+                >
+                  Open in new tab
+                </a>
+              ) : null}
               <button
                 type="button"
                 onClick={onClose}
@@ -79,7 +81,22 @@ export function AttachmentPreview({
           </div>
 
           <div className="max-h-[70vh] overflow-auto bg-zinc-50 p-4">
-            {target.file.kind === 'image' ? (
+            {/*
+              Historical rows stored a browser blob: or inline data: URL as the
+              permanent reference. Those cannot be resolved from the server and
+              must never be turned back into a live href, so they are reported
+              as missing instead.
+            */}
+            {!target.file.url ? (
+              <p
+                role="status"
+                className="rounded-lg border border-amber-200 bg-amber-50 p-6 text-center text-sm text-amber-800"
+              >
+                This file is no longer available. It was uploaded before
+                attachments were stored properly and only ever existed in the
+                browser session that created it. Ask for it to be re-uploaded.
+              </p>
+            ) : target.file.kind === 'image' ? (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 src={target.file.url}

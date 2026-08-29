@@ -237,3 +237,71 @@ export function formatLeaveDate(iso: string) {
 export function formatDays(days: number) {
   return Number.isInteger(days) ? String(days) : days.toFixed(1)
 }
+
+// --- entitlement ------------------------------------------------------------
+
+/**
+ * A single employee's annual leave entitlement for a leave year.
+ *
+ * The previous calculation was `settings.leaveDays + settings.carryOver` for
+ * every employee, which gave a part-timer, a mid-year joiner and a leaver the
+ * same full-year allowance, and made carry-over an organisation-wide constant
+ * rather than a per-person balance rolled forward from the prior year.
+ *
+ * Two adjustments apply, in order:
+ *
+ *   1. **Part-time pro-rating.** Entitlement scales with contracted hours
+ *      against the organisation's full-time week. Someone on 22.5 of 37.5
+ *      hours accrues 60% of the days.
+ *   2. **Partial-year pro-rating.** Someone who joins or leaves mid-year
+ *      accrues only for the part of the leave year they are employed.
+ *
+ * `annualLeaveDays` on the staff record overrides step 1 outright, for
+ * contracts that state a figure explicitly. Carry-over is never pro-rated —
+ * it was already earned.
+ *
+ * Results are rounded to the nearest half day, which is the smallest unit the
+ * booking form can express.
+ */
+export function entitlementFor(
+  staff: {
+    joined: string
+    endDate?: string | null
+    weeklyHours?: number | null
+    annualLeaveDays?: number | null
+    carryOverDays?: number | null
+  },
+  leaveYear: { from: string; to: string },
+  defaults: { leaveDays: number; fullTimeWeeklyHours: number }
+): { entitlement: number; base: number; carryOver: number; proRataFactor: number } {
+  const carryOver = staff.carryOverDays ?? 0
+
+  const contracted = staff.weeklyHours ?? defaults.fullTimeWeeklyHours
+  const partTimeFactor =
+    staff.annualLeaveDays != null || defaults.fullTimeWeeklyHours <= 0
+      ? 1
+      : Math.min(1, contracted / defaults.fullTimeWeeklyHours)
+
+  const base = (staff.annualLeaveDays ?? defaults.leaveDays) * partTimeFactor
+
+  // The overlap between employment and the leave year.
+  const startsAt = staff.joined > leaveYear.from ? staff.joined : leaveYear.from
+  const endsAt =
+    staff.endDate && staff.endDate < leaveYear.to ? staff.endDate : leaveYear.to
+
+  const yearDays = daysInclusive(leaveYear.from, leaveYear.to)
+  const employedDays = endsAt < startsAt ? 0 : daysInclusive(startsAt, endsAt)
+  const proRataFactor = yearDays > 0 ? employedDays / yearDays : 0
+
+  const entitlement = roundHalf(base * proRataFactor) + carryOver
+  return { entitlement, base: roundHalf(base), carryOver, proRataFactor }
+}
+
+function daysInclusive(from: string, to: string): number {
+  const ms = Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)
+  return Math.round(ms / 86_400_000) + 1
+}
+
+function roundHalf(value: number): number {
+  return Math.round(value * 2) / 2
+}

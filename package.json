@@ -6,7 +6,24 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:migrate": "prisma migrate deploy",
+    "db:generate": "prisma generate",
+    "seed:admin": "tsx scripts/seed-admin.ts",
+    "verify": "npm run typecheck && npm run lint && npm run test",
+    "db:check": "tsx scripts/check-integrity.ts",
+    "db:check-constraints": "tsx scripts/check-constraints.ts",
+    "db:list-constraints": "tsx scripts/list-constraints.ts",
+    "db:reset": "tsx scripts/reset-db.ts",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:inventory": "tsx scripts/db-inventory.ts",
+    "db:verify-payroll": "tsx scripts/verify-payroll.ts",
+    "db:verify-sensitive": "tsx scripts/verify-sensitive.ts",
+    "db:refresh": "npm run db:reset && npm run db:seed",
+    "db:audit": "npm run db:check && npm run db:verify-payroll && npm run db:verify-sensitive"
   },
   "dependencies": {
     "@better-auth/prisma-adapter": "^1.7.2",
@@ -18,7 +35,8 @@
     "nodemailer": "^9.0.6",
     "pg": "^8.23.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "zod": "^4.5.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -32,6 +50,7 @@
     "prisma": "^7.10.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.12",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.11"
   }
 }

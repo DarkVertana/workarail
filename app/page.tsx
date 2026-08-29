@@ -1,21 +1,13 @@
 import { redirect } from 'next/navigation'
-import { auth } from '@/app/lib/auth'
-import { headers } from 'next/headers'
-import { checkIsStaff } from '@/app/actions/auth'
+import { getActor } from '@/app/lib/authz'
+import { landingPathFor } from '@/app/actions/auth'
 
+/**
+ * Session-based entry point. The landing area is chosen from the user's
+ * explicit role — never inferred from whether a Staff row happens to exist.
+ */
 export default async function Home() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
-
-  if (session && session.user) {
-    const isStaff = await checkIsStaff(session.user.email)
-    if (isStaff) {
-      redirect('/crew')
-    } else {
-      redirect('/admin/dashboard')
-    }
-  } else {
-    redirect('/signin')
-  }
+  const actor = await getActor()
+  if (!actor) redirect('/signin')
+  redirect(await landingPathFor(actor.user.role))
 }

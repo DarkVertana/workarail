@@ -7,17 +7,271 @@ generator client {
   output   = "../generated/prisma"
 }
 
+// ---------------------------------------------------------------------------
+// Enums
+//
+// Enum member names are the exact strings the application already stores, so
+// the database becomes the integrity layer without forcing a value migration
+// or a rewrite of every comparison in the UI.
+//
+// AttendanceCode is deliberately NOT an enum: the roster grid uses '-' for
+// "not scheduled", which is not a legal identifier. It is constrained by a
+// CHECK constraint instead (see migration 0002).
+// ---------------------------------------------------------------------------
+
+enum UserRole {
+  ADMIN
+  FINANCE
+  MANAGER
+  CREW
+}
+
+enum EmploymentStatus {
+  onboarding
+  active
+  suspended
+  notice
+  leaver
+  archived
+}
+
+/** Operational availability, distinct from employment status. */
+enum StaffAvailability {
+  on_site
+  available
+  off_shift
+}
+
+enum LeaveType {
+  annual
+  sick
+  unpaid
+  parental
+  compassionate
+}
+
+enum LeaveStatus {
+  draft
+  pending
+  approved
+  rejected
+  cancelled
+  taken
+}
+
+enum ExpenseStatus {
+  draft
+  submitted
+  approved
+  rejected
+  reimbursed
+  reconciled
+}
+
+enum ExpenseCategory {
+  travel
+  materials
+  equipment
+  meals
+  training
+  other
+}
+
+enum ExpenseMethod {
+  company_card
+  personal
+  cash
+}
+
+enum InvoiceStatus {
+  draft
+  pending
+  sent
+  partially_paid
+  paid
+  overdue
+  void
+  written_off
+}
+
+enum PaymentMethod {
+  bank_transfer
+  card
+  cheque
+  cash
+  other
+}
+
+enum PayrollStatus {
+  draft
+  approved
+  paid
+}
+
+enum TimesheetStatus {
+  draft
+  submitted
+  approved
+  rejected
+  locked
+}
+
+enum DocumentKind {
+  pts
+  medical
+  right_to_work
+  contract
+  certification
+  /** Passport, driving licence or national ID scan. */
+  government_id
+  /** P45, P60 or UTR confirmation. */
+  tax_document
+  /** NI number confirmation letter. */
+  ni_evidence
+  other
+}
+
+/**
+ * Collected only because HMRC and Network Rail medicals require it. Optional,
+ * and `prefer_not_to_say` is the default so the field is never coercive.
+ */
+enum Gender {
+  male
+  female
+  non_binary
+  prefer_not_to_say
+}
+
+/**
+ * How often the employee is paid. Drives the number of PAYE tax periods in a
+ * year and which NI earnings thresholds apply, so it is payroll input rather
+ * than presentation.
+ */
+enum PayFrequency {
+  weekly
+  fortnightly
+  four_weekly
+  monthly
+}
+
+/**
+ * How a tax code is operated.
+ *
+ * `cumulative` considers pay and tax for the whole tax year to date, so an
+ * over- or under-payment self-corrects at the next payday. `week1_month1`
+ * (HMRC's "X" suffix) treats every period in isolation, which is what a new
+ * starter without a P45 goes on until HMRC issues a cumulative code.
+ */
+enum TaxBasis {
+  cumulative
+  week1_month1
+}
+
+/**
+ * How an employee is paid. Distinct from `PaymentMethod`, which describes how
+ * a *client* settles an invoice.
+ */
+enum StaffPaymentMethod {
+  /** UK domestic bank transfer. */
+  bacs
+  /** Cross-border payment, requiring IBAN/BIC rather than sort code. */
+  international
+}
+
+enum DocumentStatus {
+  pending_review
+  valid
+  expiring
+  expired
+  rejected
+}
+
+enum ContractType {
+  permanent
+  fixed_term
+  agency
+  subcontractor
+  apprentice
+}
+
+enum AttachmentKind {
+  pdf
+  image
+}
+
+enum NotificationType {
+  leave_submitted
+  leave_decided
+  expense_submitted
+  expense_decided
+  expense_reimbursed
+  timesheet_submitted
+  timesheet_decided
+  invoice_issued
+  invoice_overdue
+  payment_received
+  payroll_ready
+  payslip_available
+  document_expiring
+  staff_invited
+  role_changed
+}
+
+enum AuditAction {
+  create
+  update
+  delete
+  approve
+  reject
+  cancel
+  login
+  logout
+  login_failed
+  role_change
+  offboard
+  suspend
+  reinstate
+  settings_change
+  payment
+  reimburse
+  issue
+  lock
+  unlock
+  write_off
+  /**
+   * A privileged read of data that is normally never returned — currently
+   * only the decryption of bank details for a payment run. Reads are not
+   * usually audited, but seeing an employee's account number is exactly the
+   * kind of access that has to be attributable after the fact.
+   */
+  view_sensitive
+}
+
+// ---------------------------------------------------------------------------
+// Identity
+// ---------------------------------------------------------------------------
+
 model User {
   id            String    @id @default(uuid())
   name          String
   email         String    @unique
   emailVerified Boolean   @default(false)
   image         String?
+  /** Explicit authorization. Never inferred from the absence of a Staff row. */
+  role          UserRole  @default(CREW)
+  isActive      Boolean   @default(true)
+  lastLoginAt   DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
   staff         Staff?
+
+  auditEvents   AuditLog[]      @relation("AuditActor")
+  notifications Notification[]
+
+  @@index([role])
+  @@index([isActive])
 }
 
 model Session {
@@ -28,8 +282,12 @@ model Session {
   updatedAt DateTime @updatedAt
   ipAddress String?
   userAgent String?
+  revokedAt DateTime?
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model Account {
@@ -45,161 +303,580 @@ model Account {
   refreshTokenExpiresAt DateTime?
   scope                 String?
   password              String?
+  passwordChangedAt     DateTime?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   issuer                String    @default("local:credential")
 
   @@unique([providerId, accountId])
   @@unique([issuer, accountId])
+  @@index([userId])
 }
 
 model Verification {
-  id         String   @id
+  id         String    @id
   identifier String
   value      String
   expiresAt  DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([identifier])
+  @@index([expiresAt])
 }
 
+// ---------------------------------------------------------------------------
+// Organisation
+// ---------------------------------------------------------------------------
+
 model Crew {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  staff     Staff[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(uuid())
+  name         String   @unique
+  /** Case-insensitive duplicate guard; maintained by the service layer. */
+  nameKey      String   @unique
+  site         String?
+  supervisorRef String?
+  supervisor   Staff?   @relation("CrewSupervisor", fields: [supervisorRef], references: [ref], onDelete: SetNull)
+  isActive     Boolean  @default(true)
+  staff        Staff[]
+  jobs         Job[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([isActive])
 }
 
 model Job {
-  id        String   @id
-  title     String
-  staff     Staff[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String    @id @default(uuid())
+  /** Human-facing job number, e.g. "JOB-0041". */
+  reference  String    @unique
+  title      String
+  clientId   String?
+  client     Client?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  crewId     String?
+  crew       Crew?     @relation(fields: [crewId], references: [id], onDelete: SetNull)
+  location   String?
+  costCode   String?
+  /** Charge-out rate to the client, in pence per day. */
+  dayRatePence Int?
+  startDate  DateTime?
+  endDate    DateTime?
+  isActive   Boolean   @default(true)
+  staff      Staff[]
+  attendance Attendance[]
+  invoices   Invoice[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([clientId])
+  @@index([crewId])
+  @@index([isActive])
 }
 
 model Staff {
-  ref          String          @id
-  name         String
-  email        String          @unique
-  phone        String
-  role         String
-  crewId       String
-  crew         Crew            @relation(fields: [crewId], references: [id])
+  ref    String @id
+  /** Legal name, exactly as it appears on the contract and payslip. */
+  name   String
+  /**
+   * What colleagues actually call them, shown on the roster where set.
+   * Never used on payroll or compliance documents, which need the legal name.
+   */
+  preferredName String?
+  /** Work email. Doubles as the login identity, hence unique. */
+  email  String @unique
+  /** Work phone. */
+  phone  String
+  /** Personal email, for correspondence after access is revoked (e.g. P45). */
+  personalEmail String?
+  /** Personal phone, for out-of-hours and emergency contact by HR. */
+  personalPhone String?
+
+  // Employment
+  /** Operational trade, e.g. "Track Operative". Drives crew composition. */
+  role              String
+  /** Contractual job title as it appears on the contract and the payslip. */
+  jobTitle          String?
+  employmentStatus  EmploymentStatus  @default(active)
+  availability      StaffAvailability @default(off_shift)
+  contractType      ContractType      @default(permanent)
+  joined            DateTime
+  /** End of probation. Null once passed or where none applies. */
+  probationEndDate  DateTime?
+  endDate           DateTime?
+  noticeDate        DateTime?
+  leaverReason      String?
+  suspendedAt       DateTime?
+  suspensionReason  String?
+
+  /**
+   * Annual leave entitlement in days for a full leave year. Null falls back to
+   * the organisation default; set per-employee for part-time and contract
+   * staff, whose entitlement is pro-rated from `weeklyHours`.
+   */
+  annualLeaveDays   Float?
+  /** Days carried into the current leave year for this employee specifically. */
+  carryOverDays     Float             @default(0)
+  /** Contracted hours per week; drives utilisation rather than a hardcoded 45. */
+  weeklyHours       Float             @default(37.5)
+  /** Base pay in pence per day. Payroll reads rates from StaffPayRate. */
+  dayRatePence      Int?
+
+  // Assignment
+  crewId       String?
+  crew         Crew?   @relation(fields: [crewId], references: [id], onDelete: SetNull)
   currentJobId String?
-  currentJob   Job?            @relation(fields: [currentJobId], references: [id])
-  status       String          // 'on-site' | 'available' | 'off-shift'
-  joined       DateTime
-  birthday     String          // MM-DD
-  userId       String?         @unique
-  user         User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
-  attendance   Attendance[]
+  currentJob   Job?    @relation(fields: [currentJobId], references: [id], onDelete: SetNull)
+  managerRef   String?
+  manager      Staff?  @relation("StaffManager", fields: [managerRef], references: [ref], onDelete: SetNull)
+  reports      Staff[] @relation("StaffManager")
+  crewsLed     Crew[]  @relation("CrewSupervisor")
+
+  // Personal
+  /**
+   * Full date of birth. Genuinely required: it sets the NI category (under 21
+   * and over state pension age are rated differently) and Network Rail
+   * medicals are age-banded.
+   */
+  dateOfBirth DateTime?
+  /** 'MM-DD' — drives the celebrations board without exposing the birth year. */
+  birthday    String?
+  gender      Gender?
+  /** Free text rather than an enum: the list of nationalities is open. */
+  nationality String?
+  addressLine1 String?
+  addressLine2 String?
+  addressCity  String?
+  addressPostcode String?
+  addressCountry  String?  @default("United Kingdom")
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  emergencyContactRelation String?
+
+  /** Anything else HR or ops should see on this file. Not shown to the employee. */
+  internalNotes String?
+
+  /**
+   * Payroll identity.
+   *
+   * The tax code, tax basis and NI category are NOT here: they are
+   * effective-dated on `StaffPayrollProfile` so that changing a code mid-year
+   * cannot retrospectively alter what an earlier payslip was calculated from.
+   * Bank details live on `StaffBankAccount` for the same reason, and because
+   * they need stricter access control than the rest of this row.
+   *
+   * The NI number stays here because it identifies the person rather than a
+   * dated payroll arrangement. It is sensitive and is stripped from every
+   * response that is not explicitly privileged.
+   */
+  niNumber   String?
+
+  /** How often this employee is paid. Sets the PAYE period length. */
+  payFrequency PayFrequency @default(monthly)
+
+  payrollProfiles StaffPayrollProfile[]
+  bankAccounts    StaffBankAccount[]
+
+  // Lifecycle
+  userId    String?  @unique
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  deletedAt DateTime?
+
+  attendance    Attendance[]
+  timesheets    Timesheet[]
   leaveRequests LeaveRequest[]
-  expenses     Expense[]
-  payroll      PayrollRecord[]
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
+  expenses      Expense[]
+  payroll       PayrollRecord[]
+  documents     StaffDocument[]
+  payRates      StaffPayRate[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([crewId])
   @@index([currentJobId])
+  @@index([managerRef])
+  @@index([employmentStatus])
+  @@index([availability])
+  @@index([email])
+  @@index([deletedAt])
+}
+
+/** Pay rates are effective-dated so historical payroll stays reproducible. */
+model StaffPayRate {
+  id            String    @id @default(uuid())
+  staffRef      String
+  staff         Staff     @relation(fields: [staffRef], references: [ref], onDelete: Restrict)
+  dayRatePence  Int
+  hourlyRatePence Int?
+  effectiveFrom DateTime
+  effectiveTo   DateTime?
+  createdById   String?
+  createdAt     DateTime  @default(now())
+
+  @@index([staffRef, effectiveFrom])
+}
+
+/**
+ * An employee's PAYE arrangement, effective-dated.
+ *
+ * HMRC changes tax codes mid-year routinely (benefits in kind, underpayments
+ * coded out, marriage allowance). Storing the code as a single mutable column
+ * on `Staff` meant that reissuing a payslip after a code change recalculated
+ * it with the *new* code, silently rewriting history. Each change is a new row
+ * here, and payroll reads the row effective on the pay date.
+ */
+model StaffPayrollProfile {
+  id       String @id @default(uuid())
+  staffRef String
+  staff    Staff  @relation(fields: [staffRef], references: [ref], onDelete: Restrict)
+
+  /** e.g. "1257L", "BR", "K475", "S1257L", "1257L X". Validated on write. */
+  taxCode  String
+  basis    TaxBasis @default(cumulative)
+  /** HMRC NI table letter: A, B, C, H, J, M, V, Z. */
+  niCategory String @default("A")
+
+  /**
+   * Student loan plan in operation, if any: 1, 2, 4, or 5. Postgraduate loans
+   * are tracked separately because they run concurrently with a plan loan.
+   */
+  studentLoanPlan Int?
+  postgradLoan    Boolean @default(false)
+
+  effectiveFrom DateTime
+  /** Null means "current". Closed off when a later profile supersedes it. */
+  effectiveTo   DateTime?
+
+  /** Where the change came from — a P45, a P6/P9 coding notice, or manual. */
+  source      String?
+  createdById String?
+  createdAt   DateTime @default(now())
+
+  @@index([staffRef, effectiveFrom])
+}
+
+/**
+ * Where an employee's net pay is sent.
+ *
+ * Separate from `Staff` for three reasons: it is effective-dated so a
+ * historical payslip can show which account it was actually paid into; an
+ * employee can hold more than one account over time; and it needs tighter
+ * access control than the rest of the staff row, which is far easier to
+ * guarantee when the sensitive columns are not selected by default.
+ *
+ * The account number and sort code are stored encrypted. `accountLast4` and
+ * `sortCodeLast2` are plaintext derivations kept purely so the UI can show a
+ * masked identifier without decrypting anything.
+ */
+model StaffBankAccount {
+  id       String @id @default(uuid())
+  staffRef String
+  staff    Staff  @relation(fields: [staffRef], references: [ref], onDelete: Restrict)
+
+  /** Must match the name on the account, which may differ from the legal name. */
+  accountHolderName String
+  bankName          String?
+  method            StaffPaymentMethod @default(bacs)
+
+  /** AES-GCM ciphertext. Never returned to the browser. */
+  accountNumberEnc String
+  sortCodeEnc      String
+  /** Masked display values, safe to render: "****1234", "**-**-12". */
+  accountLast4     String
+  sortCodeLast2    String
+
+  /** Populated for `international` only; also encrypted. */
+  ibanEnc String?
+  bicEnc  String?
+  /** Masked IBAN tail for display. */
+  ibanLast4 String?
+
+  /**
+   * Exactly one account per employee may be primary at a time, enforced by a
+   * partial unique index in the migration. Payroll pays the primary account.
+   */
+  isPrimary     Boolean  @default(true)
+  effectiveFrom DateTime
+  effectiveTo   DateTime?
+
+  /**
+   * Set when finance has confirmed the details against a bank statement or
+   * similar. Payroll refuses to pay an unverified account.
+   */
+  verifiedAt   DateTime?
+  verifiedById String?
+
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([staffRef, effectiveFrom])
+  @@index([staffRef, isPrimary])
+}
+
+model StaffDocument {
+  id           String         @id @default(uuid())
+  staffRef     String
+  staff        Staff          @relation(fields: [staffRef], references: [ref], onDelete: Restrict)
+  kind         DocumentKind
+  /** Card / certificate number where applicable. */
+  reference    String?
+  status       DocumentStatus @default(pending_review)
+  issuedOn     DateTime?
+  expiresOn    DateTime?
+  attachmentId String?
+  attachment   Attachment?    @relation(fields: [attachmentId], references: [id], onDelete: SetNull)
+  uploadedById String?
+  notes        String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([staffRef, kind])
+  @@index([expiresOn])
   @@index([status])
 }
 
+// ---------------------------------------------------------------------------
+// Time
+// ---------------------------------------------------------------------------
+
+/** A week of attendance owned by one employee, carrying the approval state. */
+model Timesheet {
+  id           String          @id @default(uuid())
+  staffRef     String
+  staff        Staff           @relation(fields: [staffRef], references: [ref], onDelete: Restrict)
+  /** Monday of the week, UTC midnight. */
+  weekStart    DateTime
+  status       TimesheetStatus @default(draft)
+  submittedAt  DateTime?
+  decidedAt    DateTime?
+  decidedById  String?
+  rejectionReason String?
+  lockedAt     DateTime?
+  attendance   Attendance[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@unique([staffRef, weekStart])
+  @@index([status])
+  @@index([weekStart])
+}
+
 model Attendance {
-  id        String   @id @default(uuid())
-  staffRef  String
-  staff     Staff    @relation(fields: [staffRef], references: [ref], onDelete: Cascade)
-  date      DateTime
-  code      String   // 'P' | 'H' | 'L' | 'A' | '-'
+  id       String @id @default(uuid())
+  staffRef String
+  staff    Staff  @relation(fields: [staffRef], references: [ref], onDelete: Restrict)
+  date     DateTime
+  /** 'P' | 'H' | 'L' | 'A' | '-' — enforced by a CHECK constraint. */
+  code     String
+  /** Recorded hours; falls back to the code's nominal value when null. */
+  hours    Float?
+  jobId    String?
+  job      Job?   @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  notes    String?
+  timesheetId String?
+  timesheet   Timesheet? @relation(fields: [timesheetId], references: [id], onDelete: SetNull)
+  /** 'crew' when self-submitted, 'admin' when entered by the office. */
+  source   String  @default("admin")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([staffRef, date])
+  @@index([date])
+  @@index([jobId])
+  @@index([timesheetId])
 }
 
 model LeaveRequest {
-  id        String   @id
-  staffRef  String
-  staff     Staff    @relation(fields: [staffRef], references: [ref], onDelete: Cascade)
-  type      String   // 'annual' | 'sick' | 'unpaid' | 'parental' | 'compassionate'
-  from      DateTime
-  to        DateTime
+  id       String      @id
+  staffRef String
+  staff    Staff       @relation(fields: [staffRef], references: [ref], onDelete: Restrict)
+  type     LeaveType
+  from     DateTime
+  to       DateTime
   /** Working days deducted, halves included — 4.5 is a valid request. */
-  days      Float
-  /** Which half of the first day it starts in: 'morning' | 'afternoon'. */
-  startAt   String   @default("morning")
-  /** Which half of the last day it runs to: 'lunchtime' | 'end_of_day'. */
-  endAt     String   @default("end_of_day")
+  days     Float
+  /** Which half of the first day it starts in. */
+  startAt  String      @default("morning")
+  /** Which half of the last day it runs to. */
+  endAt    String      @default("end_of_day")
   /** Whether these days come off the annual allowance. */
-  deducts   Boolean  @default(true)
-  reason    String
-  status    String   // 'pending' | 'approved' | 'rejected'
+  deducts  Boolean     @default(true)
+  reason   String
+  status   LeaveStatus @default(pending)
   submitted DateTime
   decidedAt DateTime?
+  decidedById String?
+  decisionNote String?
+  cancelledAt DateTime?
+  /** Allowance year the deduction belongs to. */
+  leaveYear Int
+  attachmentId String?
+  attachment   Attachment? @relation(fields: [attachmentId], references: [id], onDelete: SetNull)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([staffRef])
   @@index([status])
+  @@index([staffRef, from, to])
+  @@index([leaveYear])
 }
 
+// ---------------------------------------------------------------------------
+// Money
+// ---------------------------------------------------------------------------
+
 model Attachment {
-  id        String    @id @default(uuid())
-  name      String
-  kind      String    // 'pdf' | 'image'
-  size      String
-  url       String
-  invoicesDoc Invoice[] @relation("InvoiceDocument")
-  invoicesPrf Invoice[] @relation("InvoiceProof")
-  expenses   Expense[]
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id          String         @id @default(uuid())
+  name        String
+  kind        AttachmentKind
+  mimeType    String         @default("application/octet-stream")
+  sizeBytes   Int            @default(0)
+  /** Opaque storage key. Never a blob: or data: URL. */
+  storageKey  String         @unique
+  checksum    String?
+  uploadedById String?
+  invoicesDoc Invoice[]      @relation("InvoiceDocument")
+  invoicesPrf Invoice[]      @relation("InvoiceProof")
+  expenses    Expense[]
+  documents   StaffDocument[]
+  leaveRequests LeaveRequest[]
+  payments    Payment[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 }
 
 model Client {
-  id        String    @id @default(uuid())
-  name      String    @unique
+  id            String  @id @default(uuid())
+  name          String  @unique
+  /** Lower-cased, trimmed name. Blocks case-variant duplicates. */
+  nameKey       String  @unique
+  legalName     String?
+  companyNumber String?
+  vatNumber     String?
+  billingAddressLine1 String?
+  billingAddressLine2 String?
+  billingCity      String?
+  billingPostcode  String?
+  primaryContactName  String?
+  primaryContactEmail String?
+  primaryContactPhone String?
+  /** Days from issue to due. */
+  paymentTermsDays Int    @default(30)
+  currency         String @default("GBP")
+  creditLimitPence Int?
+  isActive         Boolean @default(true)
+  notes            String?
   invoices  Invoice[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  jobs      Job[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive])
 }
 
 model Invoice {
-  id          String      @id
-  clientId    String
-  client      Client      @relation(fields: [clientId], references: [id])
-  reference   String
+  id        String        @id
+  clientId  String
+  client    Client        @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  jobId     String?
+  job       Job?          @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  reference String
+  /** Net of VAT. Line items are the source of truth when present. */
+  netPence  Int           @default(0)
+  vatPence  Int           @default(0)
+  /** Gross total. Derived from line items; never negative. */
   amountPence Int
-  issued      DateTime
-  due         DateTime
-  status      String      // 'paid' | 'pending' | 'overdue' | 'draft'
-  documentId  String?
-  document    Attachment? @relation("InvoiceDocument", fields: [documentId], references: [id])
-  proofId     String?
-  proof       Attachment? @relation("InvoiceProof", fields: [proofId], references: [id])
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  currency  String        @default("GBP")
+  poNumber  String?
+  notes     String?
+  issued    DateTime
+  due       DateTime
+  /** Derived from payments and dates — never chosen freely in the UI. */
+  status    InvoiceStatus @default(draft)
+  sentAt    DateTime?
+  paidAt    DateTime?
+  voidedAt  DateTime?
+  voidReason String?
+  createdById String?
 
+  lineItems InvoiceLineItem[]
+  payments  Payment[]
+
+  documentId String?
+  document   Attachment? @relation("InvoiceDocument", fields: [documentId], references: [id], onDelete: SetNull)
+  proofId    String?
+  proof      Attachment? @relation("InvoiceProof", fields: [proofId], references: [id], onDelete: SetNull)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@unique([clientId, reference])
   @@index([clientId])
   @@index([status])
   @@index([issued])
+  @@index([due])
+}
+
+model InvoiceLineItem {
+  id            String  @id @default(uuid())
+  invoiceId     String
+  invoice       Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  description   String
+  quantity      Float   @default(1)
+  unitPricePence Int
+  /** Basis points, so 20% is 2000 — no floating point in the money path. */
+  vatRateBasisPoints Int @default(2000)
+  netPence      Int
+  vatPence      Int
+  position      Int     @default(0)
+  createdAt     DateTime @default(now())
+
+  @@index([invoiceId])
+}
+
+model Payment {
+  id          String        @id @default(uuid())
+  invoiceId   String
+  invoice     Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
+  amountPence Int
+  receivedOn  DateTime
+  method      PaymentMethod @default(bank_transfer)
+  /** Idempotency key — a retried submission cannot double-record a payment. */
+  reference   String        @unique
+  notes       String?
+  proofId     String?
+  proof       Attachment?   @relation(fields: [proofId], references: [id], onDelete: SetNull)
+  recordedById String?
+  createdAt   DateTime      @default(now())
+
+  @@index([invoiceId])
+  @@index([receivedOn])
 }
 
 model Expense {
-  id          String      @id
+  id          String          @id
   date        DateTime
-  category    String      // 'travel' | 'materials' | 'equipment' | 'meals' | 'training' | 'other'
+  category    ExpenseCategory
   merchant    String
   description String
   amountPence Int
+  vatPence    Int             @default(0)
   staffRef    String
-  staff       Staff       @relation(fields: [staffRef], references: [ref], onDelete: Cascade)
-  method      String      // 'company-card' | 'personal' | 'cash'
-  status      String      // 'submitted' | 'approved' | 'reimbursed' | 'rejected'
+  staff       Staff           @relation(fields: [staffRef], references: [ref], onDelete: Restrict)
+  jobId       String?
+  method      ExpenseMethod
+  status      ExpenseStatus   @default(submitted)
+  approvedById String?
+  approvedAt   DateTime?
+  rejectionReason String?
+  reimbursedAt DateTime?
+  paymentReference String?
+  reconciledAt DateTime?
   receiptId   String?
-  receipt     Attachment? @relation(fields: [receiptId], references: [id])
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  receipt     Attachment?     @relation(fields: [receiptId], references: [id], onDelete: SetNull)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
   @@index([staffRef])
   @@index([status])
@@ -207,33 +884,138 @@ model Expense {
 }
 
 model PayrollRecord {
-  id           String    @id @default(uuid())
+  id           String        @id @default(uuid())
   staffRef     String
-  staff        Staff     @relation(fields: [staffRef], references: [ref], onDelete: Cascade)
+  staff        Staff         @relation(fields: [staffRef], references: [ref], onDelete: Restrict)
   year         Int
   month        Int
+  /** Base gross before adjustments, in pence. */
+  baseGrossPence Int         @default(0)
   grossPence   Int
   taxPence     Int
   niPence      Int
   pensionPence Int
   netPence     Int
-  status       String    // 'paid' | 'pending'
+  /**
+   * Provenance: the exact PAYE inputs this run used, copied in at calculation
+   * time. These are deliberately denormalised rather than joined at read time
+   * — a payslip must keep showing the code it was calculated with even after
+   * HMRC issues a new one.
+   */
+  taxCode      String        @default("1257L")
+  taxBasis     TaxBasis      @default(cumulative)
+  niCategory   String        @default("A")
+  payFrequency PayFrequency  @default(monthly)
+  /** April-start year of the tax year, e.g. 2026 for 2026/27. */
+  taxYearStart Int           @default(2026)
+  /** HMRC tax period: month 1-12, or week 1-53, within the tax year. */
+  taxPeriod    Int           @default(1)
+
+  /** Pay subject to income tax this period, after any allowance-free amounts. */
+  taxablePence Int           @default(0)
+  studentLoanPence Int       @default(0)
+  postgradLoanPence Int      @default(0)
+
+  /**
+   * Cumulative figures for the tax year INCLUDING this period. Cumulative PAYE
+   * is computed from these, and they are stored so a later period never has to
+   * re-derive history by replaying every earlier run.
+   */
+  ytdGrossPence    Int       @default(0)
+  ytdTaxablePence  Int       @default(0)
+  ytdTaxPence      Int       @default(0)
+  ytdNiPence       Int       @default(0)
+  ytdPensionPence  Int       @default(0)
+
+  /** The bank account paid, so a later change of details cannot rewrite it. */
+  bankAccountId String?
+
+  dayRatePence Int?
+  daysWorked   Float         @default(0)
+  calculationVersion String  @default("simplified-v1")
+  status       PayrollStatus @default(draft)
+  approvedById String?
+  approvedAt   DateTime?
+  lockedAt     DateTime?
   paidOn       DateTime?
-  reference    String    @unique
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  reference    String        @unique
+  adjustments  PayrollAdjustment[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   @@unique([staffRef, year, month])
+  @@index([year, month])
+  @@index([status])
 }
 
-model SmtpSettings {
-  id        String   @id @default("default")
-  host      String
-  port      Int
-  secure    Boolean  @default(false)
-  user      String
-  pass      String
-  from      String
-  createdAt DateTime @default(now())
+model PayrollAdjustment {
+  id          String   @id @default(uuid())
+  payrollId   String
+  payroll     PayrollRecord @relation(fields: [payrollId], references: [id], onDelete: Restrict)
+  /** Signed: positive is an addition, negative a deduction. */
+  amountPence Int
+  label       String
+  /** The reason the operator typed. Never discarded. */
+  reason      String
+  taxable     Boolean  @default(true)
+  effectiveDate DateTime
+  createdById String?
+  approvedById String?
+  createdAt   DateTime @default(now())
+
+  @@index([payrollId])
+}
+
+// ---------------------------------------------------------------------------
+// Platform
+// ---------------------------------------------------------------------------
+
+/** Single authoritative settings store. Replaces app/lib/settings.json. */
+model Setting {
+  key       String   @id
+  value     Json
+  /** Marks values that must never be returned to a client. */
+  isSecret  Boolean  @default(false)
+  updatedById String?
   updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id          String      @id @default(uuid())
+  actorUserId String?
+  actor       User?       @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  actorEmail  String?
+  action      AuditAction
+  entity      String
+  entityId    String
+  summary     String?
+  before      Json?
+  after       Json?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime    @default(now())
+
+  @@index([entity, entityId])
+  @@index([actorUserId, createdAt])
+  @@index([createdAt])
+}
+
+model Notification {
+  id         String           @id @default(uuid())
+  userId     String
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type       NotificationType
+  title      String
+  body       String
+  /** Deep link the recipient is allowed to follow. */
+  actionUrl  String?
+  entity     String?
+  entityId   String?
+  readAt     DateTime?
+  emailedAt  DateTime?
+  createdAt  DateTime         @default(now())
+
+  @@index([userId, readAt])
+  @@index([createdAt])
 }

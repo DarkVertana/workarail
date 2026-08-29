@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { type ComponentType } from 'react'
-import { expenses, leaveRequests } from '@/app/lib/admin-data'
 import { LogoMark } from '@/app/ui/logo-mark'
 import { signOut } from '@/app/actions/auth'
 
@@ -29,7 +28,6 @@ export const ADMIN_NAV: NavGroup[] = [
         href: '/admin/leaves',
         label: 'Leaves',
         icon: CalendarIcon,
-        badge: leaveRequests.filter((r) => r.status === 'pending').length,
       },
       // Birthdays and work anniversaries.
       { href: '/admin/celebrations', label: 'Celebrations', icon: CakeIcon },
@@ -43,7 +41,6 @@ export const ADMIN_NAV: NavGroup[] = [
         href: '/admin/expenses',
         label: 'Expenses',
         icon: ReceiptIcon,
-        badge: expenses.filter((e) => e.status === 'submitted').length,
       },
       { href: '/admin/payroll', label: 'Payroll', icon: CardIcon },
       { href: '/admin/analytics', label: 'Analytics', icon: ChartIcon },
@@ -262,7 +259,7 @@ export function AdminSidebar({
           href: '/admin/leaves',
           label: 'Leaves',
           icon: CalendarIcon,
-          badge: pendingLeaves !== undefined ? (pendingLeaves > 0 ? pendingLeaves : undefined) : (leaveRequests.filter((r) => r.status === 'pending').length || undefined),
+          badge: pendingLeaves && pendingLeaves > 0 ? pendingLeaves : undefined,
         },
         { href: '/admin/celebrations', label: 'Celebrations', icon: CakeIcon },
       ],
@@ -275,7 +272,7 @@ export function AdminSidebar({
           href: '/admin/expenses',
           label: 'Expenses',
           icon: ReceiptIcon,
-          badge: pendingExpenses !== undefined ? (pendingExpenses > 0 ? pendingExpenses : undefined) : (expenses.filter((e) => e.status === 'submitted').length || undefined),
+          badge: pendingExpenses && pendingExpenses > 0 ? pendingExpenses : undefined,
         },
         { href: '/admin/payroll', label: 'Payroll', icon: CardIcon },
         { href: '/admin/analytics', label: 'Analytics', icon: ChartIcon },

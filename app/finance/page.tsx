@@ -50,7 +50,7 @@ export default async function FinanceDashboardPage() {
   const payrollCostPence = payrollRuns.reduce((n, r) => n + r.grossPence, 0)
   const claimsToPay = expenses.filter(
     (e) =>
-      e.method !== 'company-card' &&
+      e.method !== 'company_card' &&
       (e.status === 'submitted' || e.status === 'approved')
   )
 
@@ -64,7 +64,7 @@ export default async function FinanceDashboardPage() {
     (n, p) => {
       const pat = attendancePatterns[p.ref] || ''
       let sum = 0
-      for (let c of pat) {
+      for (const c of pat) {
         sum += attendanceHours[c as AttendanceCode] || 0
       }
       return n + sum
@@ -118,7 +118,7 @@ export default async function FinanceDashboardPage() {
             <Row href="/finance/attendance" label="Hours this week" value={`${weekHours}h`} detail={`${staff.length} people`} />
             <Row href="/finance/attendance" label="In today" value={String(codesToday.filter((c) => c === 'P' || c === 'H').length)} detail={`${codesToday.filter((c) => c === 'A').length} absent`} />
             <Row href="/finance/leave" label="Leave to approve" value={String(pendingLeave.length)} detail={`${pendingLeave.reduce((n, r) => n + r.days, 0)} days requested`} />
-            <Row href="/finance/payroll" label="Employees on payroll" value={String(payrollRuns.length)} detail={`${payrollRuns.filter((r) => r.status === 'pending').length} still to run`} />
+            <Row href="/finance/payroll" label="Employees on payroll" value={String(payrollRuns.length)} detail={`${payrollRuns.filter((r) => r.status === 'draft').length} still to run`} />
           </ul>
         </section>
       </div>

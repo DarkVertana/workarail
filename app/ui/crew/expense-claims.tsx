@@ -1,6 +1,7 @@
 'use client'
 
 import { useId, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   formatMoney,
   type Expense,
@@ -14,6 +15,7 @@ import {
 import { StatusPill } from '@/app/ui/crew/status-pill'
 import { useToast } from '@/app/ui/toast'
 import { submitCrewExpense } from '@/app/actions/crew'
+import { uploadAttachment, type AttachmentRef } from '@/app/ui/upload'
 
 const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
@@ -27,7 +29,7 @@ const CATEGORY: Record<ExpenseCategory, string> = {
 }
 
 const METHOD: Record<PaymentMethod, string> = {
-  'company-card': 'Company card',
+  company_card: 'Company card',
   personal: 'Personal',
   cash: 'Cash',
 }
@@ -37,24 +39,13 @@ function shortDate(iso: string) {
   return `${Number(d)} ${MON[Number(m) - 1]}`
 }
 
-function fileToDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result as string)
-    reader.onerror = reject
-    reader.readAsDataURL(file)
-  })
-}
-
 const field =
   'h-9 w-full rounded-lg border border-zinc-300 bg-white px-3 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/40'
 
 export function ExpenseClaims({
-  staffRef,
   existing,
   today,
 }: {
-  staffRef: string
   existing: Expense[]
   today: string
 }) {
@@ -62,14 +53,16 @@ export function ExpenseClaims({
   const [error, setError] = useState<string | null>(null)
   const [fileName, setFileName] = useState<string | null>(null)
   const [preview, setPreview] = useState<PreviewTarget | null>(null)
+  const [submitting, setSubmitting] = useState(false)
   const toast = useToast()
+  const router = useRouter()
   const id = useId()
 
   const all = existing
   const owed = all
     .filter(
       (e) =>
-        e.method !== 'company-card' &&
+        e.method !== 'company_card' &&
         (e.status === 'submitted' || e.status === 'approved')
     )
     .reduce((n, e) => n + e.amountPence, 0)
@@ -108,25 +101,16 @@ export function ExpenseClaims({
                 return
               }
 
-              const file = data.get('receipt')
-              let receipt: { name: string; kind: 'pdf' | 'image'; size: string; url: string } | null = null
-              if (file instanceof File && file.size > 0) {
-                try {
-                  const dataUrl = await fileToDataUrl(file)
-                  receipt = {
-                    name: file.name,
-                    kind: file.type === 'application/pdf' ? 'pdf' : 'image',
-                    size: `${Math.max(1, Math.round(file.size / 1024))} KB`,
-                    url: dataUrl,
-                  }
-                } catch (fileErr) {
-                  setError('Failed to process receipt file.')
-                  return
-                }
-              }
-
+              if (submitting) return
+              setSubmitting(true)
               try {
-                await submitCrewExpense({
+                const file = data.get('receipt')
+                let receipt: AttachmentRef | null = null
+                if (file instanceof File && file.size > 0) {
+                  receipt = await uploadAttachment(file)
+                }
+
+                const result = await submitCrewExpense({
                   date: String(data.get('date')),
                   category: data.get('category') as string,
                   merchant: String(data.get('merchant')).trim(),
@@ -136,12 +120,24 @@ export function ExpenseClaims({
                   receipt,
                 })
 
+                if (!result.ok) {
+                  setError(result.error)
+                  return
+                }
+
                 setError(null)
                 setOpen(false)
                 setFileName(null)
                 toast('Claim submitted for review.')
-              } catch (err: any) {
-                setError(err.message || 'Failed to submit expense claim.')
+                router.refresh()
+              } catch (err) {
+                setError(
+                  err instanceof Error
+                    ? err.message
+                    : 'Could not reach the server. Check your connection and try again.'
+                )
+              } finally {
+                setSubmitting(false)
               }
             }}
           >
@@ -203,9 +199,10 @@ export function ExpenseClaims({
             <div className="mt-4 flex justify-end">
               <button
                 type="submit"
-                className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+                disabled={submitting}
+                className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Submit claim
+                {submitting ? 'Submitting…' : 'Submit claim'}
               </button>
             </div>
           </form>

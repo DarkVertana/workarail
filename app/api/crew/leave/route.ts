@@ -1,24 +1,44 @@
-import { getSessionAndRole } from "@/app/lib/api-auth";
-import { submitCrewLeaveRequest } from "@/app/actions/crew";
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server'
+import { submitCrewLeaveRequest } from '@/app/actions/crew'
+import { errorResponse } from '@/app/lib/errors'
 
+/**
+ * Submits leave for the signed-in employee.
+ *
+ * The request body no longer carries `days`: the deduction is recomputed
+ * server-side from the dates, the working pattern and the holiday table, so a
+ * caller cannot book a fortnight and declare it costs half a day.
+ */
 export async function POST(request: Request) {
-  const { errorResponse, isStaff } = await getSessionAndRole();
-  if (errorResponse) return errorResponse;
-
-  if (!isStaff) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
   try {
-    const body = await request.json();
-    const { type, from, to, days, reason } = body;
-    if (!type || !from || !to || typeof days !== "number" || !reason) {
-      return NextResponse.json({ error: "Missing or invalid fields in request body" }, { status: 400 });
+    const body = await request.json().catch(() => null)
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json(
+        { error: 'Send a JSON body.', code: 'bad_request' },
+        { status: 400 }
+      )
     }
-    const result = await submitCrewLeaveRequest({ type, from, to, days, reason });
-    return NextResponse.json(result);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Failed to submit leave request" }, { status: 500 });
+
+    const { type, from, to, reason, startAt, endAt } = body as Record<string, unknown>
+
+    const result = await submitCrewLeaveRequest({
+      type: String(type ?? ''),
+      from: String(from ?? ''),
+      to: String(to ?? ''),
+      reason: reason === undefined ? undefined : String(reason),
+      startAt: startAt === undefined ? undefined : String(startAt),
+      endAt: endAt === undefined ? undefined : String(endAt),
+    })
+
+    if ('error' in result) {
+      return NextResponse.json(
+        { error: result.error, code: 'validation' },
+        { status: 422 }
+      )
+    }
+
+    return NextResponse.json(result, { status: 201 })
+  } catch (err) {
+    return errorResponse(err, 'POST /api/crew/leave')
   }
 }

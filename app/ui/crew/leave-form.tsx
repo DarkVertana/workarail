@@ -1,6 +1,7 @@
 'use client'
 
 import { useId, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   type LeaveRequest,
   type LeaveType,
@@ -40,13 +41,11 @@ const field =
   'h-9 w-full rounded-lg border border-zinc-300 bg-white px-3 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/40'
 
 export function LeaveForm({
-  staffRef,
   existing,
   today,
   taken,
   totalLeaveDays,
 }: {
-  staffRef: string
   existing: LeaveRequest[]
   today: string
   taken: number
@@ -54,7 +53,9 @@ export function LeaveForm({
 }) {
   const [error, setError] = useState<string | null>(null)
   const [open, setOpen] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
   const toast = useToast()
+  const router = useRouter()
   const id = useId()
 
   const all = existing
@@ -111,19 +112,34 @@ export function LeaveForm({
                 return
               }
 
+              // `days` above is only a preview. The server recomputes the
+              // deduction from the dates, the working pattern and the holiday
+              // table, and its answer is the one that gets stored.
+              if (submitting) return
+              setSubmitting(true)
               try {
-                await submitCrewLeaveRequest({
+                const result = await submitCrewLeaveRequest({
                   type,
                   from,
                   to,
-                  days,
                   reason,
                 })
+
+                if ('error' in result) {
+                  setError(result.error)
+                  return
+                }
+
                 setError(null)
                 setOpen(false)
-                toast(`Request submitted for ${days} day${days === 1 ? '' : 's'}.`)
-              } catch (err: any) {
-                setError(err.message || 'Failed to submit request.')
+                toast(
+                  `Request submitted for ${result.days} day${result.days === 1 ? '' : 's'}.`
+                )
+                router.refresh()
+              } catch {
+                setError('Could not reach the server. Check your connection and try again.')
+              } finally {
+                setSubmitting(false)
               }
             }}
           >

@@ -1,0 +1,3 @@
+# Local attachment storage. Contents are user uploads, never committed.
+*
+!.gitignore

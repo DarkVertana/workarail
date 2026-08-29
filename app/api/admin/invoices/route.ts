@@ -1,40 +1,14 @@
-import { getSessionAndRole } from "@/app/lib/api-auth";
-import { getInvoices, addInvoice } from "@/app/actions/admin";
-import { NextResponse } from "next/server";
+import { addInvoice, getInvoices } from '@/app/actions/admin'
+import { handle, handleAction } from '@/app/lib/api-handler'
 
-export async function GET() {
-  const { errorResponse, isStaff } = await getSessionAndRole();
-  if (errorResponse) return errorResponse;
+export const GET = () => handle('GET /api/admin/invoices', getInvoices)
 
-  if (isStaff) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
-  try {
-    const invoices = await getInvoices();
-    return NextResponse.json(invoices);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Failed to retrieve invoices" }, { status: 500 });
-  }
-}
-
+/**
+ * The body is passed through untouched: `addInvoice` validates it against the
+ * invoice schema. The hand-rolled presence checks that used to live here
+ * accepted shapes the action then rejected, and rejected some it accepts.
+ */
 export async function POST(request: Request) {
-  const { errorResponse, isStaff } = await getSessionAndRole();
-  if (errorResponse) return errorResponse;
-
-  if (isStaff) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
-  try {
-    const body = await request.json();
-    const { clientName, reference, amountPence, issued, due, status } = body;
-    if (!clientName || !reference || typeof amountPence !== "number" || !issued || !due || !status) {
-      return NextResponse.json({ error: "Missing or invalid required fields in request body" }, { status: 400 });
-    }
-    const result = await addInvoice({ clientName, reference, amountPence, issued, due, status });
-    return NextResponse.json(result);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Failed to create invoice" }, { status: 500 });
-  }
+  const body = await request.json().catch(() => ({}))
+  return handleAction('POST /api/admin/invoices', () => addInvoice(body), { status: 201 })
 }

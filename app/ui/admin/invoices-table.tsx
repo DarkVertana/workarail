@@ -3,8 +3,7 @@
 import { useState, useEffect } from 'react'
 import {
   formatMoney,
-  invoices,
-  today,
+  todayIso,
   type Attachment,
   type Invoice,
   type InvoiceStatus,
@@ -27,6 +26,26 @@ function shortDate(iso: string) {
 
 const STATUS: Record<InvoiceStatus, { label: string; badge: string; tone: string }> =
   {
+    sent: {
+      label: 'Sent',
+      badge: 'bg-sky-100 text-sky-800',
+      tone: 'bg-sky-100 text-sky-800',
+    },
+    partially_paid: {
+      label: 'Part paid',
+      badge: 'bg-indigo-100 text-indigo-800',
+      tone: 'bg-indigo-100 text-indigo-800',
+    },
+    void: {
+      label: 'Void',
+      badge: 'bg-stone-200 text-stone-700',
+      tone: 'bg-stone-200 text-stone-700',
+    },
+    written_off: {
+      label: 'Written off',
+      badge: 'bg-stone-200 text-stone-700',
+      tone: 'bg-stone-200 text-stone-700',
+    },
     paid: {
       label: 'Paid',
       badge: 'bg-[#0ca30c]/12 text-[#006300] dark:text-[#0ca30c]',
@@ -50,8 +69,11 @@ const STATUS: Record<InvoiceStatus, { label: string; badge: string; tone: string
   }
 
 /** The one attachment this invoice carries, wrapped for the shared viewer. */
-function targetFor(inv: Invoice, todayStr: string): PreviewTarget {
+function targetFor(inv: Invoice, todayStr: string): PreviewTarget | null {
   const file = inv.document ?? inv.proof
+  // An invoice may legitimately carry no attachment; the caller renders
+  // nothing rather than opening an empty viewer.
+  if (!file) return null
   const role = inv.document ? 'Invoice document' : 'Payment proof'
   return {
     file,
@@ -70,11 +92,11 @@ export function InvoicesTable({
   initialInvoices,
   todayDate,
 }: {
-  initialInvoices?: Invoice[]
+  initialInvoices: Invoice[]
   todayDate?: string
 }) {
-  const invoicesData = initialInvoices || invoices
-  const activeToday = todayDate || today
+  const invoicesData = initialInvoices
+  const activeToday = todayDate ?? todayIso()
   const [status, setStatus] = useState<InvoiceStatus | 'all'>('all')
   const [query, setQuery] = useState('')
   const [preview, setPreview] = useState<PreviewTarget | null>(null)

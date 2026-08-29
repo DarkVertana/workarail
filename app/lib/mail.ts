@@ -1,58 +1,55 @@
-import nodemailer from "nodemailer";
-import { prisma } from "./prisma";
+import 'server-only'
+
+import nodemailer from 'nodemailer'
+import { getSmtpCredentials } from './settings'
 
 export interface SendEmailArgs {
-  to: string;
-  subject: string;
-  html: string;
+  to: string
+  subject: string
+  html: string
 }
 
-export async function sendEmail({ to, subject, html }: SendEmailArgs) {
-  // Load fallback settings from environment variables
-  let host = process.env.SMTP_HOST || "";
-  let port = Number(process.env.SMTP_PORT) || 587;
-  let secure = process.env.SMTP_SECURE === "true";
-  let user = process.env.SMTP_USER || "";
-  let pass = process.env.SMTP_PASS || "";
-  let from = process.env.SMTP_FROM || "noreply@workarail.com";
+/**
+ * Sends mail using the credentials held in the settings store, falling back to
+ * environment variables when the store has not been configured.
+ *
+ * Returns whether the message was actually handed to a mail server, so callers
+ * can tell the difference between "sent" and "silently dropped because SMTP is
+ * not configured" — previously both looked identical to the caller.
+ */
+export async function sendEmail({ to, subject, html }: SendEmailArgs): Promise<boolean> {
+  const stored = await getSmtpCredentials()
 
-  // Try retrieving SMTP settings from database
-  try {
-    const smtp = await prisma.smtpSettings.findUnique({
-      where: { id: "default" },
-    });
-    if (smtp) {
-      if (smtp.host) host = smtp.host;
-      if (smtp.port) port = smtp.port;
-      if (smtp.secure !== undefined) secure = smtp.secure;
-      if (smtp.user) user = smtp.user;
-      if (smtp.pass) pass = smtp.pass;
-      if (smtp.from) from = smtp.from;
-    }
-  } catch (err) {
-    console.error("Error fetching SMTP settings from DB, using fallback env settings:", err);
-  }
+  const host = stored?.host ?? process.env.SMTP_HOST ?? ''
+  const port = stored?.port ?? Number(process.env.SMTP_PORT) ?? 587
+  const user = stored?.user ?? process.env.SMTP_USER ?? ''
+  const pass = stored?.pass ?? process.env.SMTP_PASS ?? ''
+  const from = stored?.from ?? process.env.SMTP_FROM ?? 'noreply@workarail.com'
 
   if (!host || !user || !pass) {
-    console.warn("SMTP settings are not fully configured. Email was not sent.");
-    return;
+    console.warn('[mail] SMTP is not configured; message not sent', { to, subject })
+    return false
   }
 
-  const transporter = nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465, // secure: true is only for port 465, port 587 uses STARTTLS (secure: false)
-    auth: {
-      user,
-      pass,
-    },
-  });
+  try {
+    const transporter = nodemailer.createTransport({
+      host,
+      port,
+      // Implicit TLS on 465; STARTTLS on 587 and friends.
+      secure: port === 465,
+      auth: { user, pass },
+    })
 
-  const fromName = process.env.SMTP_FROM_NAME || "Work à Rail";
-  await transporter.sendMail({
-    from: `"${fromName}" <${from}>`,
-    to,
-    subject,
-    html,
-  });
+    const fromName = process.env.SMTP_FROM_NAME || 'Work à Rail'
+    await transporter.sendMail({
+      from: `"${fromName}" <${from}>`,
+      to,
+      subject,
+      html,
+    })
+    return true
+  } catch (err) {
+    console.error('[mail] delivery failed', { to, subject, err })
+    return false
+  }
 }

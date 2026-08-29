@@ -3,7 +3,6 @@
 import { useEffect, useRef } from 'react'
 import {
   formatMoney,
-  payPeriod,
   type PayrollRecord,
   type StaffMember,
 } from '@/app/lib/admin-data'
@@ -11,9 +10,16 @@ import { STAT_ICON } from '@/app/ui/admin/stat-card'
 
 export type PayslipAdjustment = { label: string; amountPence: number }
 
+/**
+ * A payslip only identifies the employee — it never shows their crew, current
+ * job or utilisation. Asking for the full `StaffMember` view model forced
+ * callers holding a plain staff record to cast, which hid real mismatches.
+ */
+export type PayslipPerson = Pick<StaffMember, 'name' | 'ref' | 'email' | 'role'>
+
 export type PayslipTarget = {
   record: PayrollRecord
-  person: StaffMember
+  person: PayslipPerson
   /** One-off additions or deductions applied to this run. */
   adjustments?: PayslipAdjustment[]
 }
@@ -97,9 +103,16 @@ function Sheet({
   adjustments = [],
 }: {
   record: PayrollRecord
-  person: StaffMember
+  person: PayslipPerson
   adjustments?: PayslipAdjustment[]
 }) {
+  const periodLabel = record.reference.match(/(\d{4})-?(\d{2})$/)
+    ? (() => {
+        const m = record.reference.match(/(\d{4})-?(\d{2})$/)!
+        return `${MON[Number(m[2]) - 1]} ${m[1]}`
+      })()
+    : 'Current period'
+
   const deductions = record.taxPence + record.niPence + record.pensionPence
   // Gross already includes them; showing the base separately keeps the slip
   // reconcilable line by line.
@@ -114,7 +127,9 @@ function Sheet({
             Work à Rail
           </p>
           <p className="mt-0.5 text-xs text-zinc-500">
-            Payment slip · {payPeriod.label}
+            {/* The slip states its own period, not whatever the current run
+                happens to be — an old payslip must not relabel itself. */}
+            Payment slip · {periodLabel}
           </p>
         </div>
         <div className="text-right">

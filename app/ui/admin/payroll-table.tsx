@@ -1,12 +1,9 @@
 'use client'
 
 import { useEffect, useId, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import {
-  computePay,
   formatMoney,
-  payPeriod,
-  payrollRuns,
-  staff,
   type PayrollRecord,
   type PayrollStatus,
   type StaffMember,
@@ -24,10 +21,15 @@ const STATUS: Record<PayrollStatus, { label: string; badge: string; tone: string
       badge: 'bg-[#0ca30c]/12 text-[#006300]',
       tone: 'bg-[#0ca30c]/12 text-[#006300]',
     },
-    pending: {
-      label: 'Pending',
+    draft: {
+      label: 'Draft',
       badge: 'bg-amber-100 text-amber-800',
       tone: 'bg-amber-100 text-amber-800',
+    },
+    approved: {
+      label: 'Approved',
+      badge: 'bg-sky-100 text-sky-800',
+      tone: 'bg-sky-100 text-sky-800',
     },
   }
 
@@ -36,13 +38,13 @@ export function PayrollTable({
   initialStaff,
   activePayPeriod,
 }: {
-  initialPayrollRuns?: PayrollRecord[]
-  initialStaff?: StaffMember[]
-  activePayPeriod?: { year: number; month: number; label: string }
+  initialPayrollRuns: PayrollRecord[]
+  initialStaff: StaffMember[]
+  activePayPeriod: { year: number; month: number; label: string }
 }) {
-  const payrollRunsData = initialPayrollRuns || payrollRuns
-  const staffData = initialStaff || staff
-  const period = activePayPeriod || payPeriod
+  const payrollRunsData = initialPayrollRuns
+  const staffData = initialStaff
+  const period = activePayPeriod
 
   const personFor = (ref: string) => staffData.find((p) => p.ref === ref)
 
@@ -52,19 +54,14 @@ export function PayrollTable({
   const [adjustments, setAdjustments] = useState<Adjustment[]>([])
   const [adding, setAdding] = useState(false)
   const toast = useToast()
+  const router = useRouter()
 
   useRegisterPageAction('Add adjustment', () => setAdding(true))
 
-  // Apply adjustments to gross, then recompute the whole deduction stack with
-  // the same formula the seeded rows used — never patch net directly.
-  const runs: PayrollRecord[] = payrollRunsData.map((base) => {
-    const delta = adjustments
-      .filter((a) => a.staffRef === base.staffRef)
-      .reduce((n, a) => n + a.amountPence, 0)
-    if (delta === 0) return base
-    const grossPence = base.grossPence + delta
-    return { ...base, grossPence, ...computePay(grossPence) }
-  })
+  // Figures come from the server, which recomputes the whole deduction stack
+  // from base pay plus every stored adjustment. The browser no longer runs its
+  // own copy of the payroll formula, so the two cannot disagree.
+  const runs: PayrollRecord[] = payrollRunsData
 
   const q = query.trim().toLowerCase()
   const rows = runs
@@ -87,7 +84,7 @@ export function PayrollTable({
   const gross = sum((r) => r.grossPence)
   const deductions = sum((r) => r.taxPence + r.niPence + r.pensionPence)
   const net = sum((r) => r.netPence)
-  const pending = runs.filter((r) => r.status === 'pending').length
+  const pending = runs.filter((r) => r.status === 'draft').length
 
   return (
     <div className="flex flex-col gap-6">
@@ -95,7 +92,7 @@ export function PayrollTable({
         <MoneyCard label="Gross pay" pence={gross} hint={`${runs.length} employees`} tone="bg-zinc-100 text-zinc-700" icon={<WalletIcon />} />
         <MoneyCard label="Deductions" pence={deductions} hint="Tax, NI, pension" tone="bg-indigo-100 text-indigo-700" icon={<MinusIcon />} />
         <MoneyCard label="Net pay" pence={net} hint={period.label} tone={STATUS.paid.tone} icon={<CheckIcon />} />
-        <StatCard label="Awaiting run" value={pending} tone={STATUS.pending.tone} icon={<ClockIcon />} />
+        <StatCard label="Awaiting run" value={pending} tone={STATUS.draft.tone} icon={<ClockIcon />} />
       </div>
 
       <section className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
@@ -243,17 +240,32 @@ export function PayrollTable({
         open={adding}
         onClose={() => setAdding(false)}
         onAdd={async (a) => {
-          setAdjustments((prev) => [...prev, a])
-          setAdding(false)
           const who =
             staffData.find((p) => p.ref === a.staffRef)?.name ?? a.staffRef
-          toast(`${a.label} applied to ${who}. Deductions recalculated.`)
-          try {
-            await addPayrollAdjustment(a.staffRef, a.label, a.amountPence)
-          } catch (err) {
-            console.error(err)
-            toast('Failed to save adjustment in database.', 'error')
+
+          // Confirm with the server before reporting success. This previously
+          // toasted "applied" and updated the table first, so a rejected write
+          // left the operator believing an adjustment had been saved.
+          const result = await addPayrollAdjustment({
+            staffRef: a.staffRef,
+            year: period.year,
+            month: period.month,
+            label: a.label,
+            reason: a.reason,
+            amountPence: a.amountPence,
+            taxable: a.taxable ?? true,
+            effectiveDate: a.effectiveDate,
+          })
+
+          if (!result.ok) {
+            toast(result.error, 'error')
+            return
           }
+
+          setAdjustments((prev) => [...prev, a])
+          setAdding(false)
+          toast(`${a.label} applied to ${who}. Deductions recalculated.`)
+          router.refresh()
         }}
         staff={staffData}
       />
@@ -266,9 +278,16 @@ export function PayrollTable({
 /** A one-off addition or deduction on top of an employee's normal pay. */
 export type Adjustment = {
   staffRef: string
+  /** Short name for the line, e.g. 'Overtime bonus'. */
   label: string
   /** Signed pence: positive adds to gross, negative takes off. */
   amountPence: number
+  /** The justification. Persisted with the adjustment, never discarded. */
+  reason: string
+  /** Whether the amount is subject to tax and NI. */
+  taxable: boolean
+  /** ISO date the adjustment takes effect. */
+  effectiveDate: string
 }
 
 function AddAdjustmentDialog({
@@ -279,11 +298,12 @@ function AddAdjustmentDialog({
 }: {
   open: boolean
   onClose: () => void
-  onAdd: (a: Adjustment) => void
+  onAdd: (a: Adjustment) => void | Promise<void>
   staff: StaffMember[]
 }) {
   const ref = useRef<HTMLDialogElement>(null)
   const [error, setError] = useState<string | null>(null)
+  const [pending, setPending] = useState(false)
   const id = useId()
 
   useEffect(() => {
@@ -308,22 +328,39 @@ function AddAdjustmentDialog({
       className="m-auto w-[min(32rem,92vw)] rounded-xl border border-zinc-200 bg-white p-0 backdrop:bg-black/50"
     >
       <form
-        onSubmit={(event) => {
+        onSubmit={async (event) => {
           event.preventDefault()
-          const data = new FormData(event.currentTarget)
+          if (pending) return // guards against a double submit
+          const form = event.currentTarget
+          const data = new FormData(form)
+
           const amount = Number(data.get('amount'))
           if (!Number.isFinite(amount) || amount <= 0) {
             setError('Enter an amount greater than zero.')
             return
           }
+          const reason = String(data.get('reason') ?? '').trim()
+          if (reason.length < 3) {
+            setError('Explain why this adjustment is being made.')
+            return
+          }
+
           const sign = data.get('kind') === 'deduction' ? -1 : 1
-          onAdd({
-            staffRef: String(data.get('staffRef')),
-            label: String(data.get('label')).trim(),
-            amountPence: sign * Math.round(amount * 100),
-          })
-          event.currentTarget.reset()
           setError(null)
+          setPending(true)
+          try {
+            await onAdd({
+              staffRef: String(data.get('staffRef')),
+              label: String(data.get('label')).trim(),
+              amountPence: sign * Math.round(amount * 100),
+              reason,
+              taxable: data.get('taxable') !== 'no',
+              effectiveDate: String(data.get('effectiveDate')),
+            })
+            form.reset()
+          } finally {
+            setPending(false)
+          }
         }}
       >
         <div className="flex items-center justify-between gap-4 border-b border-zinc-200 px-5 py-3">
@@ -364,7 +401,7 @@ function AddAdjustmentDialog({
           </label>
 
           <label className={labelCls} htmlFor={`${id}-label`}>
-            Reason
+            Description
             <input
               id={`${id}-label`}
               name="label"
@@ -372,6 +409,23 @@ function AddAdjustmentDialog({
               placeholder="Overtime bonus"
               className={field}
             />
+          </label>
+
+          <label className={labelCls} htmlFor={`${id}-reason`}>
+            Reason for the adjustment
+            <textarea
+              id={`${id}-reason`}
+              name="reason"
+              required
+              minLength={3}
+              rows={2}
+              aria-describedby={`${id}-reason-hint`}
+              placeholder="Six hours of overtime on the Vale depot night shift, approved by the site manager."
+              className={field}
+            />
+            <span id={`${id}-reason-hint`} className="text-xs font-normal text-zinc-500">
+              Kept with the payroll record so the figure can be explained later.
+            </span>
           </label>
 
           <div className="grid grid-cols-2 gap-4">
@@ -397,9 +451,32 @@ function AddAdjustmentDialog({
             </label>
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <label className={labelCls} htmlFor={`${id}-effective`}>
+              Effective date
+              <input
+                id={`${id}-effective`}
+                name="effectiveDate"
+                type="date"
+                required
+                defaultValue={new Date().toISOString().slice(0, 10)}
+                className={field}
+              />
+            </label>
+            <label className={labelCls} htmlFor={`${id}-taxable`}>
+              Taxable
+              <select id={`${id}-taxable`} name="taxable" className={field}>
+                <option value="yes">Subject to tax and NI</option>
+                <option value="no">Not taxable</option>
+              </select>
+            </label>
+          </div>
+
           <p className="text-xs text-zinc-500">
-            Tax, National Insurance and pension are recalculated on the new
-            gross, so the payslip stays consistent.
+            Tax, National Insurance and pension are recalculated on the server
+            from base pay plus every adjustment, so the payslip stays
+            consistent. Figures are a simplified estimate, not a statutory HMRC
+            calculation.
           </p>
         </div>
 
@@ -413,9 +490,11 @@ function AddAdjustmentDialog({
           </button>
           <button
             type="submit"
-            className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+            disabled={pending}
+            aria-busy={pending}
+            className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Add adjustment
+            {pending ? 'Saving…' : 'Add adjustment'}
           </button>
         </div>
       </form>

@@ -126,6 +126,9 @@ exports.Prisma.UserScalarFieldEnum = {
   email: 'email',
   emailVerified: 'emailVerified',
   image: 'image',
+  role: 'role',
+  isActive: 'isActive',
+  lastLoginAt: 'lastLoginAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -138,6 +141,7 @@ exports.Prisma.SessionScalarFieldEnum = {
   updatedAt: 'updatedAt',
   ipAddress: 'ipAddress',
   userAgent: 'userAgent',
+  revokedAt: 'revokedAt',
   userId: 'userId'
 };
 
@@ -153,6 +157,7 @@ exports.Prisma.AccountScalarFieldEnum = {
   refreshTokenExpiresAt: 'refreshTokenExpiresAt',
   scope: 'scope',
   password: 'password',
+  passwordChangedAt: 'passwordChangedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   issuer: 'issuer'
@@ -163,6 +168,7 @@ exports.Prisma.VerificationScalarFieldEnum = {
   identifier: 'identifier',
   value: 'value',
   expiresAt: 'expiresAt',
+  consumedAt: 'consumedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -170,13 +176,26 @@ exports.Prisma.VerificationScalarFieldEnum = {
 exports.Prisma.CrewScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  nameKey: 'nameKey',
+  site: 'site',
+  supervisorRef: 'supervisorRef',
+  isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
 
 exports.Prisma.JobScalarFieldEnum = {
   id: 'id',
+  reference: 'reference',
   title: 'title',
+  clientId: 'clientId',
+  crewId: 'crewId',
+  location: 'location',
+  costCode: 'costCode',
+  dayRatePence: 'dayRatePence',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -184,15 +203,125 @@ exports.Prisma.JobScalarFieldEnum = {
 exports.Prisma.StaffScalarFieldEnum = {
   ref: 'ref',
   name: 'name',
+  preferredName: 'preferredName',
   email: 'email',
   phone: 'phone',
+  personalEmail: 'personalEmail',
+  personalPhone: 'personalPhone',
   role: 'role',
+  jobTitle: 'jobTitle',
+  employmentStatus: 'employmentStatus',
+  availability: 'availability',
+  contractType: 'contractType',
+  joined: 'joined',
+  probationEndDate: 'probationEndDate',
+  endDate: 'endDate',
+  noticeDate: 'noticeDate',
+  leaverReason: 'leaverReason',
+  suspendedAt: 'suspendedAt',
+  suspensionReason: 'suspensionReason',
+  annualLeaveDays: 'annualLeaveDays',
+  carryOverDays: 'carryOverDays',
+  weeklyHours: 'weeklyHours',
+  dayRatePence: 'dayRatePence',
   crewId: 'crewId',
   currentJobId: 'currentJobId',
-  status: 'status',
-  joined: 'joined',
+  managerRef: 'managerRef',
+  dateOfBirth: 'dateOfBirth',
   birthday: 'birthday',
+  gender: 'gender',
+  nationality: 'nationality',
+  addressLine1: 'addressLine1',
+  addressLine2: 'addressLine2',
+  addressCity: 'addressCity',
+  addressPostcode: 'addressPostcode',
+  addressCountry: 'addressCountry',
+  emergencyContactName: 'emergencyContactName',
+  emergencyContactPhone: 'emergencyContactPhone',
+  emergencyContactRelation: 'emergencyContactRelation',
+  internalNotes: 'internalNotes',
+  niNumber: 'niNumber',
+  payFrequency: 'payFrequency',
   userId: 'userId',
+  deletedAt: 'deletedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.StaffPayRateScalarFieldEnum = {
+  id: 'id',
+  staffRef: 'staffRef',
+  dayRatePence: 'dayRatePence',
+  hourlyRatePence: 'hourlyRatePence',
+  effectiveFrom: 'effectiveFrom',
+  effectiveTo: 'effectiveTo',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.StaffPayrollProfileScalarFieldEnum = {
+  id: 'id',
+  staffRef: 'staffRef',
+  taxCode: 'taxCode',
+  basis: 'basis',
+  niCategory: 'niCategory',
+  studentLoanPlan: 'studentLoanPlan',
+  postgradLoan: 'postgradLoan',
+  effectiveFrom: 'effectiveFrom',
+  effectiveTo: 'effectiveTo',
+  source: 'source',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.StaffBankAccountScalarFieldEnum = {
+  id: 'id',
+  staffRef: 'staffRef',
+  accountHolderName: 'accountHolderName',
+  bankName: 'bankName',
+  method: 'method',
+  accountNumberEnc: 'accountNumberEnc',
+  sortCodeEnc: 'sortCodeEnc',
+  accountLast4: 'accountLast4',
+  sortCodeLast2: 'sortCodeLast2',
+  ibanEnc: 'ibanEnc',
+  bicEnc: 'bicEnc',
+  ibanLast4: 'ibanLast4',
+  isPrimary: 'isPrimary',
+  effectiveFrom: 'effectiveFrom',
+  effectiveTo: 'effectiveTo',
+  verifiedAt: 'verifiedAt',
+  verifiedById: 'verifiedById',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.StaffDocumentScalarFieldEnum = {
+  id: 'id',
+  staffRef: 'staffRef',
+  kind: 'kind',
+  reference: 'reference',
+  status: 'status',
+  issuedOn: 'issuedOn',
+  expiresOn: 'expiresOn',
+  attachmentId: 'attachmentId',
+  uploadedById: 'uploadedById',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TimesheetScalarFieldEnum = {
+  id: 'id',
+  staffRef: 'staffRef',
+  weekStart: 'weekStart',
+  status: 'status',
+  submittedAt: 'submittedAt',
+  decidedAt: 'decidedAt',
+  decidedById: 'decidedById',
+  rejectionReason: 'rejectionReason',
+  lockedAt: 'lockedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -202,6 +331,11 @@ exports.Prisma.AttendanceScalarFieldEnum = {
   staffRef: 'staffRef',
   date: 'date',
   code: 'code',
+  hours: 'hours',
+  jobId: 'jobId',
+  notes: 'notes',
+  timesheetId: 'timesheetId',
+  source: 'source',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -213,9 +347,18 @@ exports.Prisma.LeaveRequestScalarFieldEnum = {
   from: 'from',
   to: 'to',
   days: 'days',
+  startAt: 'startAt',
+  endAt: 'endAt',
+  deducts: 'deducts',
   reason: 'reason',
   status: 'status',
   submitted: 'submitted',
+  decidedAt: 'decidedAt',
+  decidedById: 'decidedById',
+  decisionNote: 'decisionNote',
+  cancelledAt: 'cancelledAt',
+  leaveYear: 'leaveYear',
+  attachmentId: 'attachmentId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -224,8 +367,11 @@ exports.Prisma.AttachmentScalarFieldEnum = {
   id: 'id',
   name: 'name',
   kind: 'kind',
-  size: 'size',
-  url: 'url',
+  mimeType: 'mimeType',
+  sizeBytes: 'sizeBytes',
+  storageKey: 'storageKey',
+  checksum: 'checksum',
+  uploadedById: 'uploadedById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -233,6 +379,22 @@ exports.Prisma.AttachmentScalarFieldEnum = {
 exports.Prisma.ClientScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  nameKey: 'nameKey',
+  legalName: 'legalName',
+  companyNumber: 'companyNumber',
+  vatNumber: 'vatNumber',
+  billingAddressLine1: 'billingAddressLine1',
+  billingAddressLine2: 'billingAddressLine2',
+  billingCity: 'billingCity',
+  billingPostcode: 'billingPostcode',
+  primaryContactName: 'primaryContactName',
+  primaryContactEmail: 'primaryContactEmail',
+  primaryContactPhone: 'primaryContactPhone',
+  paymentTermsDays: 'paymentTermsDays',
+  currency: 'currency',
+  creditLimitPence: 'creditLimitPence',
+  isActive: 'isActive',
+  notes: 'notes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -240,15 +402,52 @@ exports.Prisma.ClientScalarFieldEnum = {
 exports.Prisma.InvoiceScalarFieldEnum = {
   id: 'id',
   clientId: 'clientId',
+  jobId: 'jobId',
   reference: 'reference',
+  netPence: 'netPence',
+  vatPence: 'vatPence',
   amountPence: 'amountPence',
+  currency: 'currency',
+  poNumber: 'poNumber',
+  notes: 'notes',
   issued: 'issued',
   due: 'due',
   status: 'status',
+  sentAt: 'sentAt',
+  paidAt: 'paidAt',
+  voidedAt: 'voidedAt',
+  voidReason: 'voidReason',
+  createdById: 'createdById',
   documentId: 'documentId',
   proofId: 'proofId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.InvoiceLineItemScalarFieldEnum = {
+  id: 'id',
+  invoiceId: 'invoiceId',
+  description: 'description',
+  quantity: 'quantity',
+  unitPricePence: 'unitPricePence',
+  vatRateBasisPoints: 'vatRateBasisPoints',
+  netPence: 'netPence',
+  vatPence: 'vatPence',
+  position: 'position',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.PaymentScalarFieldEnum = {
+  id: 'id',
+  invoiceId: 'invoiceId',
+  amountPence: 'amountPence',
+  receivedOn: 'receivedOn',
+  method: 'method',
+  reference: 'reference',
+  notes: 'notes',
+  proofId: 'proofId',
+  recordedById: 'recordedById',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.ExpenseScalarFieldEnum = {
@@ -258,9 +457,17 @@ exports.Prisma.ExpenseScalarFieldEnum = {
   merchant: 'merchant',
   description: 'description',
   amountPence: 'amountPence',
+  vatPence: 'vatPence',
   staffRef: 'staffRef',
+  jobId: 'jobId',
   method: 'method',
   status: 'status',
+  approvedById: 'approvedById',
+  approvedAt: 'approvedAt',
+  rejectionReason: 'rejectionReason',
+  reimbursedAt: 'reimbursedAt',
+  paymentReference: 'paymentReference',
+  reconciledAt: 'reconciledAt',
   receiptId: 'receiptId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -271,33 +478,103 @@ exports.Prisma.PayrollRecordScalarFieldEnum = {
   staffRef: 'staffRef',
   year: 'year',
   month: 'month',
+  baseGrossPence: 'baseGrossPence',
   grossPence: 'grossPence',
   taxPence: 'taxPence',
   niPence: 'niPence',
   pensionPence: 'pensionPence',
   netPence: 'netPence',
+  taxCode: 'taxCode',
+  taxBasis: 'taxBasis',
+  niCategory: 'niCategory',
+  payFrequency: 'payFrequency',
+  taxYearStart: 'taxYearStart',
+  taxPeriod: 'taxPeriod',
+  taxablePence: 'taxablePence',
+  studentLoanPence: 'studentLoanPence',
+  postgradLoanPence: 'postgradLoanPence',
+  ytdGrossPence: 'ytdGrossPence',
+  ytdTaxablePence: 'ytdTaxablePence',
+  ytdTaxPence: 'ytdTaxPence',
+  ytdNiPence: 'ytdNiPence',
+  ytdPensionPence: 'ytdPensionPence',
+  bankAccountId: 'bankAccountId',
+  dayRatePence: 'dayRatePence',
+  daysWorked: 'daysWorked',
+  calculationVersion: 'calculationVersion',
   status: 'status',
+  approvedById: 'approvedById',
+  approvedAt: 'approvedAt',
+  lockedAt: 'lockedAt',
   paidOn: 'paidOn',
   reference: 'reference',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.SmtpSettingsScalarFieldEnum = {
+exports.Prisma.PayrollAdjustmentScalarFieldEnum = {
   id: 'id',
-  host: 'host',
-  port: 'port',
-  secure: 'secure',
-  user: 'user',
-  pass: 'pass',
-  from: 'from',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  payrollId: 'payrollId',
+  amountPence: 'amountPence',
+  label: 'label',
+  reason: 'reason',
+  taxable: 'taxable',
+  effectiveDate: 'effectiveDate',
+  createdById: 'createdById',
+  approvedById: 'approvedById',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.SettingScalarFieldEnum = {
+  key: 'key',
+  value: 'value',
+  isSecret: 'isSecret',
+  updatedById: 'updatedById',
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.AuditLogScalarFieldEnum = {
+  id: 'id',
+  actorUserId: 'actorUserId',
+  actorEmail: 'actorEmail',
+  action: 'action',
+  entity: 'entity',
+  entityId: 'entityId',
+  summary: 'summary',
+  before: 'before',
+  after: 'after',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.NotificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  type: 'type',
+  title: 'title',
+  body: 'body',
+  actionUrl: 'actionUrl',
+  entity: 'entity',
+  entityId: 'entityId',
+  readAt: 'readAt',
+  emailedAt: 'emailedAt',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -310,6 +587,205 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+exports.UserRole = exports.$Enums.UserRole = {
+  ADMIN: 'ADMIN',
+  FINANCE: 'FINANCE',
+  MANAGER: 'MANAGER',
+  CREW: 'CREW'
+};
+
+exports.EmploymentStatus = exports.$Enums.EmploymentStatus = {
+  onboarding: 'onboarding',
+  active: 'active',
+  suspended: 'suspended',
+  notice: 'notice',
+  leaver: 'leaver',
+  archived: 'archived'
+};
+
+exports.StaffAvailability = exports.$Enums.StaffAvailability = {
+  on_site: 'on_site',
+  available: 'available',
+  off_shift: 'off_shift'
+};
+
+exports.ContractType = exports.$Enums.ContractType = {
+  permanent: 'permanent',
+  fixed_term: 'fixed_term',
+  agency: 'agency',
+  subcontractor: 'subcontractor',
+  apprentice: 'apprentice'
+};
+
+exports.Gender = exports.$Enums.Gender = {
+  male: 'male',
+  female: 'female',
+  non_binary: 'non_binary',
+  prefer_not_to_say: 'prefer_not_to_say'
+};
+
+exports.PayFrequency = exports.$Enums.PayFrequency = {
+  weekly: 'weekly',
+  fortnightly: 'fortnightly',
+  four_weekly: 'four_weekly',
+  monthly: 'monthly'
+};
+
+exports.TaxBasis = exports.$Enums.TaxBasis = {
+  cumulative: 'cumulative',
+  week1_month1: 'week1_month1'
+};
+
+exports.StaffPaymentMethod = exports.$Enums.StaffPaymentMethod = {
+  bacs: 'bacs',
+  international: 'international'
+};
+
+exports.DocumentKind = exports.$Enums.DocumentKind = {
+  pts: 'pts',
+  medical: 'medical',
+  right_to_work: 'right_to_work',
+  contract: 'contract',
+  certification: 'certification',
+  government_id: 'government_id',
+  tax_document: 'tax_document',
+  ni_evidence: 'ni_evidence',
+  other: 'other'
+};
+
+exports.DocumentStatus = exports.$Enums.DocumentStatus = {
+  pending_review: 'pending_review',
+  valid: 'valid',
+  expiring: 'expiring',
+  expired: 'expired',
+  rejected: 'rejected'
+};
+
+exports.TimesheetStatus = exports.$Enums.TimesheetStatus = {
+  draft: 'draft',
+  submitted: 'submitted',
+  approved: 'approved',
+  rejected: 'rejected',
+  locked: 'locked'
+};
+
+exports.LeaveType = exports.$Enums.LeaveType = {
+  annual: 'annual',
+  sick: 'sick',
+  unpaid: 'unpaid',
+  parental: 'parental',
+  compassionate: 'compassionate'
+};
+
+exports.LeaveStatus = exports.$Enums.LeaveStatus = {
+  draft: 'draft',
+  pending: 'pending',
+  approved: 'approved',
+  rejected: 'rejected',
+  cancelled: 'cancelled',
+  taken: 'taken'
+};
+
+exports.AttachmentKind = exports.$Enums.AttachmentKind = {
+  pdf: 'pdf',
+  image: 'image'
+};
+
+exports.InvoiceStatus = exports.$Enums.InvoiceStatus = {
+  draft: 'draft',
+  pending: 'pending',
+  sent: 'sent',
+  partially_paid: 'partially_paid',
+  paid: 'paid',
+  overdue: 'overdue',
+  void: 'void',
+  written_off: 'written_off'
+};
+
+exports.PaymentMethod = exports.$Enums.PaymentMethod = {
+  bank_transfer: 'bank_transfer',
+  card: 'card',
+  cheque: 'cheque',
+  cash: 'cash',
+  other: 'other'
+};
+
+exports.ExpenseCategory = exports.$Enums.ExpenseCategory = {
+  travel: 'travel',
+  materials: 'materials',
+  equipment: 'equipment',
+  meals: 'meals',
+  training: 'training',
+  other: 'other'
+};
+
+exports.ExpenseMethod = exports.$Enums.ExpenseMethod = {
+  company_card: 'company_card',
+  personal: 'personal',
+  cash: 'cash'
+};
+
+exports.ExpenseStatus = exports.$Enums.ExpenseStatus = {
+  draft: 'draft',
+  submitted: 'submitted',
+  approved: 'approved',
+  rejected: 'rejected',
+  reimbursed: 'reimbursed',
+  reconciled: 'reconciled'
+};
+
+exports.PayrollStatus = exports.$Enums.PayrollStatus = {
+  draft: 'draft',
+  approved: 'approved',
+  paid: 'paid'
+};
+
+exports.AuditAction = exports.$Enums.AuditAction = {
+  create: 'create',
+  update: 'update',
+  delete: 'delete',
+  approve: 'approve',
+  reject: 'reject',
+  cancel: 'cancel',
+  login: 'login',
+  logout: 'logout',
+  login_failed: 'login_failed',
+  role_change: 'role_change',
+  offboard: 'offboard',
+  suspend: 'suspend',
+  reinstate: 'reinstate',
+  settings_change: 'settings_change',
+  payment: 'payment',
+  reimburse: 'reimburse',
+  issue: 'issue',
+  lock: 'lock',
+  unlock: 'unlock',
+  write_off: 'write_off',
+  view_sensitive: 'view_sensitive'
+};
+
+exports.NotificationType = exports.$Enums.NotificationType = {
+  leave_submitted: 'leave_submitted',
+  leave_decided: 'leave_decided',
+  expense_submitted: 'expense_submitted',
+  expense_decided: 'expense_decided',
+  expense_reimbursed: 'expense_reimbursed',
+  timesheet_submitted: 'timesheet_submitted',
+  timesheet_decided: 'timesheet_decided',
+  invoice_issued: 'invoice_issued',
+  invoice_overdue: 'invoice_overdue',
+  payment_received: 'payment_received',
+  payroll_ready: 'payroll_ready',
+  payslip_available: 'payslip_available',
+  document_expiring: 'document_expiring',
+  staff_invited: 'staff_invited',
+  role_changed: 'role_changed'
+};
 
 exports.Prisma.ModelName = {
   User: 'User',
@@ -319,14 +795,24 @@ exports.Prisma.ModelName = {
   Crew: 'Crew',
   Job: 'Job',
   Staff: 'Staff',
+  StaffPayRate: 'StaffPayRate',
+  StaffPayrollProfile: 'StaffPayrollProfile',
+  StaffBankAccount: 'StaffBankAccount',
+  StaffDocument: 'StaffDocument',
+  Timesheet: 'Timesheet',
   Attendance: 'Attendance',
   LeaveRequest: 'LeaveRequest',
   Attachment: 'Attachment',
   Client: 'Client',
   Invoice: 'Invoice',
+  InvoiceLineItem: 'InvoiceLineItem',
+  Payment: 'Payment',
   Expense: 'Expense',
   PayrollRecord: 'PayrollRecord',
-  SmtpSettings: 'SmtpSettings'
+  PayrollAdjustment: 'PayrollAdjustment',
+  Setting: 'Setting',
+  AuditLog: 'AuditLog',
+  Notification: 'Notification'
 };
 
 /**

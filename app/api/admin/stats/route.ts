@@ -1,19 +1,17 @@
-import { getSessionAndRole } from "@/app/lib/api-auth";
-import { getDashboardStats } from "@/app/actions/admin";
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server'
 
+import { getDashboardStats } from '@/app/actions/admin'
+import { errorResponse } from '@/app/lib/errors'
+
+/**
+ * The check here used to be `if (isStaff) return 403`, which granted the stats
+ * to anyone who merely lacked a staff record. `getDashboardStats` requires an
+ * explicit privileged role instead.
+ */
 export async function GET() {
-  const { errorResponse, isStaff } = await getSessionAndRole();
-  if (errorResponse) return errorResponse;
-
-  if (isStaff) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
   try {
-    const stats = await getDashboardStats();
-    return NextResponse.json(stats);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Failed to retrieve dashboard stats" }, { status: 500 });
+    return NextResponse.json(await getDashboardStats())
+  } catch (err) {
+    return errorResponse(err, 'GET /api/admin/stats')
   }
 }

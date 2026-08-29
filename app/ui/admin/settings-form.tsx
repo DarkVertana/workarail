@@ -1,10 +1,12 @@
 'use client'
 
 import { useEffect, useId, useRef, useState } from 'react'
-import { PAY_ALLOWANCE_PENCE, formatMoney } from '@/app/lib/admin-data'
+import { formatMoney } from '@/app/lib/admin-data'
 import { useRegisterPageAction } from '@/app/ui/admin/page-action'
 import { useToast } from '@/app/ui/toast'
 import { saveSettings } from '@/app/actions/admin'
+import type { AppSettings } from '@/app/lib/settings'
+import { useRouter } from 'next/navigation'
 
 const SECTIONS = [
   { id: 'organisation', label: 'Organisation', icon: BuildingIcon },
@@ -25,11 +27,13 @@ export function SettingsForm({
   initialSettings,
 }: {
   holidays?: React.ReactNode
-  initialSettings: any
+  initialSettings: AppSettings
 }) {
   const formRef = useRef<HTMLFormElement>(null)
   const [dirty, setDirty] = useState(false)
+  const [saving, setSaving] = useState(false)
   const toast = useToast()
+  const router = useRouter()
   const settings = initialSettings
 
   useRegisterPageAction('Save changes', () =>
@@ -53,8 +57,8 @@ export function SettingsForm({
         onChange={() => setDirty(true)}
         onSubmit={async (e) => {
           e.preventDefault()
-          setDirty(false)
-          toast('Settings saved.')
+          if (saving) return
+          setSaving(true)
           try {
             const data = new FormData(e.currentTarget)
             const settingsObj = {
@@ -63,7 +67,7 @@ export function SettingsForm({
               timezone: String(data.get('timezone')),
               currency: String(data.get('currency')),
               payday: String(data.get('payday')),
-              allowance: String(data.get('allowance')),
+              allowancePence: Math.round(Number(data.get('allowance')) * 100),
               tax: Number(data.get('tax')),
               ni: Number(data.get('ni')),
               pension: Number(data.get('pension')),
@@ -75,20 +79,34 @@ export function SettingsForm({
               notifyExpenses: data.get('notifyExpenses') === 'on',
               notifyPayroll: data.get('notifyPayroll') === 'on',
               notifyCelebrations: data.get('notifyCelebrations') === 'on',
-              sessionTimeout: String(data.get('sessionTimeout')),
-              twoFactor: data.get('twoFactor') === 'on',
-              auditLog: data.get('auditLog') === 'on',
               smtpHost: String(data.get('smtpHost') || ''),
               smtpPort: Number(data.get('smtpPort') || 587),
               smtpSecure: data.get('smtpSecure') === 'on',
               smtpUser: String(data.get('smtpUser') || ''),
-              smtpPass: String(data.get('smtpPass') || ''),
               smtpFrom: String(data.get('smtpFrom') || ''),
             }
-            await saveSettings(settingsObj)
+
+            // The password field renders empty because the stored secret is
+            // never sent to the browser. Only forward it when the admin
+            // actually typed a new one, otherwise saving any other setting
+            // would blank the SMTP credentials.
+            const smtpPass = String(data.get('smtpPass') || '')
+            const patch = smtpPass ? { ...settingsObj, smtpPass } : settingsObj
+
+            const result = await saveSettings(patch)
+            if (!result.ok) {
+              toast(result.error, 'error')
+              return
+            }
+
+            setDirty(false)
+            toast('Settings saved.')
+            router.refresh()
           } catch (err) {
             console.error(err)
-            toast('Failed to save settings.', 'error')
+            toast('Could not reach the server. Your changes were not saved.', 'error')
+          } finally {
+            setSaving(false)
           }
         }}
         onReset={() => setDirty(false)}
@@ -121,8 +139,14 @@ export function SettingsForm({
           <Row label="Pay day">
             <Select name="payday" defaultValue={settings.payday} options={['Last working day', '25th of the month', '1st of the month']} />
           </Row>
-          <Row label="Personal allowance" hint={`Currently ${formatMoney(Number(settings.allowance) * 100)} per month.`}>
-            <input name="allowance" type="number" step="0.01" defaultValue={settings.allowance} className={control} />
+          <Row label="Personal allowance" hint={`Currently ${formatMoney(settings.allowancePence)} per month.`}>
+            <input
+              name="allowance"
+              type="number"
+              step="0.01"
+              defaultValue={(settings.allowancePence / 100).toFixed(2)}
+              className={control}
+            />
           </Row>
           <Row label="Deduction rates" hint="Applied to pay above the allowance." group>
             <div className="grid grid-cols-3 gap-3">
@@ -170,11 +194,24 @@ export function SettingsForm({
           title="Security"
           description="Who can reach the admin area and how sessions behave."
         >
-          <Row label="Session timeout" hint="Signed out after this long without activity.">
-            <Select name="sessionTimeout" defaultValue={settings.sessionTimeout} options={['1 hour', '8 hours', '24 hours', 'Never']} />
+          {/* This section previously offered a session timeout, a "require
+              two-factor" switch and an "keep an audit log" switch. None were
+              stored or read by anything, so an admin could turn on two-factor
+              and be told it was enforced when it was not. They are described
+              here as they actually behave until each is implemented. */}
+          <Row label="Sessions" hint="Sessions last 7 days and refresh on use.">
+            <p className="text-sm text-zinc-600">Managed by the authentication service.</p>
           </Row>
-          <Toggle name="twoFactor" label="Require two-factor" hint="Every admin must confirm sign-in with a second factor." defaultChecked={settings.twoFactor} />
-          <Toggle name="auditLog" label="Keep an audit log" hint="Record approvals, pay runs and setting changes." defaultChecked={settings.auditLog} />
+          <Row label="Two-factor" hint="Not available yet.">
+            <p className="text-sm text-zinc-600">
+              Sign-in currently requires a password, or Google when configured.
+            </p>
+          </Row>
+          <Row label="Audit log" hint="Always on and cannot be disabled.">
+            <p className="text-sm text-zinc-600">
+              Approvals, pay runs, staff changes and setting changes are recorded.
+            </p>
+          </Row>
         </Section>
 
         <Section
@@ -192,8 +229,23 @@ export function SettingsForm({
           <Row label="Username" hint="The login user for the SMTP server.">
             <input name="smtpUser" defaultValue={settings.smtpUser} placeholder="user@gmail.com" className={control} />
           </Row>
-          <Row label="Password" hint="The password or App Password for the SMTP server.">
-            <input name="smtpPass" type="password" defaultValue={settings.smtpPass} placeholder="••••••••••••••••" className={control} />
+          <Row
+            label="Password"
+            hint={
+              settings.smtpPasswordSet
+                ? 'A password is stored. Leave this blank to keep it, or type a new one to replace it.'
+                : 'The password or App Password for the SMTP server.'
+            }
+          >
+            {/* Write-only: the stored secret is encrypted at rest and never
+                sent to the browser, so this field always starts empty. */}
+            <input
+              name="smtpPass"
+              type="password"
+              autoComplete="new-password"
+              placeholder={settings.smtpPasswordSet ? '••••••••••••••••' : 'Not set'}
+              className={control}
+            />
           </Row>
           <Row label="Sender email" hint="The address shown in the 'From' field (e.g. noreply@workarail.com).">
             <input name="smtpFrom" defaultValue={settings.smtpFrom} placeholder="noreply@workarail.com" className={control} />

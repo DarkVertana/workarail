@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { LogoMark } from '@/app/ui/logo-mark'
+import { signOut } from '@/app/actions/auth'
 
 const NAV = [
   { href: '/crew', label: 'Overview' },
@@ -11,6 +12,23 @@ const NAV = [
   { href: '/crew/expenses', label: 'Expenses' },
   { href: '/crew/payslips', label: 'Payslips' },
 ]
+
+function SignOutIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="size-4"
+    >
+      <path d="M15 17l5-5-5-5M20 12H9M12 3H6a1.5 1.5 0 0 0-1.5 1.5v15A1.5 1.5 0 0 0 6 21h6" />
+    </svg>
+  )
+}
 
 function initials(name: string) {
   const p = name.trim().split(/\s+/)
@@ -75,6 +93,20 @@ export function CrewTopNav({ person }: { person: { name: string; role: string } 
           >
             {initials(person.name)}
           </span>
+
+          {/* A plain form posting to the sign-out action, so it still works
+              without client JavaScript and clears the session server-side. */}
+          <form action={signOut}>
+            <button
+              type="submit"
+              aria-label="Sign out"
+              title="Sign out"
+              className="flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+            >
+              <SignOutIcon />
+              <span className="hidden lg:block">Sign out</span>
+            </button>
+          </form>
         </div>
       </div>
     </header>

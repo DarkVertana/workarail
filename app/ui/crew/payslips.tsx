@@ -4,15 +4,18 @@ import { useState } from 'react'
 import {
   formatMoney,
   type PayrollRecord,
-  type StaffMember,
 } from '@/app/lib/admin-data'
-import { PayslipDialog, type PayslipTarget } from '@/app/ui/admin/payslip'
+import {
+  PayslipDialog,
+  type PayslipPerson,
+  type PayslipTarget,
+} from '@/app/ui/admin/payslip'
 
 export function CrewPayslips({
   person,
   record,
 }: {
-  person: StaffMember
+  person: PayslipPerson
   record: (PayrollRecord & { month: number; year: number }) | null
 }) {
   const [slip, setSlip] = useState<PayslipTarget | null>(null)

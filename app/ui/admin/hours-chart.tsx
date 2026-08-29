@@ -1,7 +1,7 @@
 'use client'
 
 import { useId, useState } from 'react'
-import { weeklyHours, today, type DayHours } from '@/app/lib/admin-data'
+import { todayIso, type DayHours } from '@/app/lib/admin-data'
 
 const W = 1200
 const H = 260
@@ -35,11 +35,11 @@ export function HoursChart({
   initialHours,
   todayDate,
 }: {
-  initialHours?: DayHours[]
+  initialHours: DayHours[]
   todayDate?: string
 }) {
-  const data = initialHours || weeklyHours()
-  const activeToday = todayDate || today
+  const data = initialHours
+  const activeToday = todayDate ?? todayIso()
   const [active, setActive] = useState<number | null>(null)
   const [showTable, setShowTable] = useState(false)
   const titleId = useId()

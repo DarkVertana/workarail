@@ -7,7 +7,9 @@ export const metadata: Metadata = { title: 'My payslips' }
 export default async function CrewPayslipsPage() {
   const me = await getCrewSession()
 
-  const formattedRecord = await getCrewLatestPayslip(me.ref)
+  // No argument: the action resolves the subject from the session, so the page
+  // cannot ask for someone else's slip.
+  const formattedRecord = await getCrewLatestPayslip()
 
   return (
     <div className="flex flex-col gap-6">
@@ -20,7 +22,7 @@ export default async function CrewPayslipsPage() {
         </p>
       </div>
 
-      <CrewPayslips person={me as any} record={formattedRecord as any} />
+      <CrewPayslips person={me} record={formattedRecord} />
     </div>
   )
 }

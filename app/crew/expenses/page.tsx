@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: 'My expenses' }
 
 export default async function CrewExpensesPage() {
   const data = await getCrewDashboardData()
-  const { me, myExpenses, today } = data
+  const { myExpenses, today } = data
 
   return (
     <div className="flex flex-col gap-6">
@@ -19,7 +19,7 @@ export default async function CrewExpensesPage() {
         </p>
       </div>
 
-      <ExpenseClaims staffRef={me.ref} existing={myExpenses} today={today} />
+      <ExpenseClaims existing={myExpenses} today={today} />
     </div>
   )
 }

@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
-import { auth } from '@/app/lib/auth'
-import { headers } from 'next/headers'
-import { checkIsStaff } from '@/app/actions/auth'
+import { getActor } from '@/app/lib/authz'
+import { landingPathFor } from '@/app/actions/auth'
 import { getPendingCounts } from '@/app/actions/admin'
 import { PageActionProvider } from '@/app/ui/admin/page-action'
 import { AdminSidebar } from '@/app/ui/admin/sidebar'
@@ -11,22 +10,24 @@ import { AdminTopbar } from '@/app/ui/admin/topbar'
 const RAIL = 'w-64'
 
 export default async function AdminLayout({ children }: LayoutProps<'/admin'>) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
-  
-  if (!session || !session.user) {
+  const actor = await getActor()
+
+  if (!actor) {
     redirect('/signin')
   }
 
-  const isStaff = await checkIsStaff(session.user.email)
-  if (isStaff) {
-    redirect('/crew')
+  // Presentation gate only — every action and route enforces its own
+  // authorization. MANAGER is admitted for the approval screens; ADMIN has
+  // the full area.
+  if (actor.user.role !== 'ADMIN' && actor.user.role !== 'MANAGER') {
+    redirect(await landingPathFor(actor.user.role))
   }
 
   const user = {
-    ...session.user,
-    avatarUrl: session.user.image,
+    id: actor.user.id,
+    name: actor.user.name,
+    email: actor.user.email,
+    avatarUrl: null,
   }
 
   const { pendingLeaves, pendingExpenses } = await getPendingCounts()

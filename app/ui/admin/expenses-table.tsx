@@ -4,11 +4,9 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { useRegisterPageAction } from '@/app/ui/admin/page-action'
 import { useToast } from '@/app/ui/toast'
 import {
-  expenses,
   formatMoney,
-  staff,
-  today,
-  type Attachment,
+  todayIso,
+
   type Expense,
   type ExpenseCategory,
   type ExpenseStatus,
@@ -21,6 +19,15 @@ import {
 } from '@/app/ui/admin/attachment-preview'
 import { STAT_ICON, StatCard } from '@/app/ui/admin/stat-card'
 import { decideExpense, addExpense } from '@/app/actions/admin'
+import { uploadAttachment, formatBytes, type AttachmentRef } from '@/app/ui/upload'
+import { useRouter } from 'next/navigation'
+
+/**
+ * What the form submits. It carries the durable storage reference for the
+ * receipt, whereas `Expense` carries the display shape (formatted size and a
+ * fetchable URL) that the table renders.
+ */
+type NewExpense = Omit<Expense, 'receipt'> & { receipt: AttachmentRef | null }
 
 const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
@@ -39,13 +46,23 @@ const CATEGORY: Record<ExpenseCategory, string> = {
 }
 
 const METHOD: Record<PaymentMethod, string> = {
-  'company-card': 'Company card',
+  company_card: 'Company card',
   personal: 'Personal',
   cash: 'Cash',
 }
 
 const STATUS: Record<ExpenseStatus, { label: string; badge: string; tone: string }> =
   {
+    draft: {
+      label: 'Draft',
+      badge: 'bg-stone-100 text-stone-700',
+      tone: 'bg-stone-100 text-stone-700',
+    },
+    reconciled: {
+      label: 'Reconciled',
+      badge: 'bg-sky-100 text-sky-800',
+      tone: 'bg-sky-100 text-sky-800',
+    },
     submitted: {
       label: 'Submitted',
       badge: 'bg-amber-100 text-amber-800',
@@ -80,17 +97,27 @@ export function ExpensesTable({
   initialStaff,
   todayDate,
 }: {
-  initialExpenses?: Expense[]
-  initialStaff?: StaffMember[]
+  initialExpenses: Expense[]
+  initialStaff: StaffMember[]
   todayDate?: string
 }) {
-  const expensesData = initialExpenses || expenses
-  const staffData = initialStaff || staff
-  const activeToday = todayDate || today
+  const expensesData = initialExpenses
+  const staffData = initialStaff
+  const activeToday = todayDate ?? todayIso()
 
   const nameFor = (ref: string) => staffData.find((p) => p.ref === ref)?.name ?? ref
 
   const [decisions, setDecisions] = useState<Record<string, ExpenseStatus>>({})
+  /** Id of the row whose decision is in flight, so buttons can be disabled. */
+  const [pending, setPending] = useState<string | null>(null)
+  /**
+   * The decision awaiting a reason or a payment reference. The server refuses
+   * a rejection without a reason and a reimbursement without a reference, so
+   * they are collected before the call rather than discovered after it.
+   */
+  const [prompting, setPrompting] = useState<
+    { id: string; decision: 'rejected' | 'reimbursed' } | null
+  >(null)
   const [status, setStatus] = useState<ExpenseStatus | 'all'>('all')
   const [category, setCategory] = useState<ExpenseCategory | 'all'>('all')
   const [query, setQuery] = useState('')
@@ -98,6 +125,7 @@ export function ExpensesTable({
   const [added, setAdded] = useState<Expense[]>([])
   const [adding, setAdding] = useState(false)
   const toast = useToast()
+  const router = useRouter()
 
   // Renders in the topbar rather than this toolbar.
   useRegisterPageAction('Add expense', () => setAdding(true))
@@ -123,24 +151,44 @@ export function ExpensesTable({
 
   // Owed back to people who paid out of pocket and haven't been repaid yet.
   const owed = all.filter(
-    (e) => e.method !== 'company-card' && (e.status === 'approved' || e.status === 'submitted')
+    (e) => e.method !== 'company_card' && (e.status === 'approved' || e.status === 'submitted')
   )
 
-  async function decide(id: string, next: ExpenseStatus) {
-    setDecisions((prev) => ({ ...prev, [id]: next }))
-    const verb =
-      next === 'approved'
-        ? 'approved'
-        : next === 'rejected'
-          ? 'rejected'
-          : 'marked reimbursed'
-    toast(`Expense ${id} ${verb}.`, next === 'rejected' ? 'info' : 'success')
-    try {
-      await decideExpense(id, next as 'approved' | 'rejected' | 'reimbursed')
-    } catch (err) {
-      console.error(err)
-      toast('Failed to save status in database.', 'error')
+  /**
+   * Applies a decision, and only claims it happened once the server agrees.
+   *
+   * The previous version wrote the optimistic status, fired a success toast,
+   * and then called the action inside a try/catch. `decideExpense` returns an
+   * `ActionResult` rather than throwing, so the catch never ran and a failure
+   * was invisible until the page was reloaded and the row reverted.
+   *
+   * It also sent no reason and no payment reference. The server requires a
+   * reason to reject and a payment reference to reimburse, so *every*
+   * rejection and *every* reimbursement failed validation while the operator
+   * was shown a green toast — an expense could appear reimbursed when no money
+   * had been recorded as paid.
+   */
+  async function decide(
+    id: string,
+    next: 'approved' | 'rejected' | 'reimbursed',
+    detail?: { reason?: string; paymentReference?: string }
+  ) {
+    setPending(id)
+    const result = await decideExpense(id, next, detail)
+    setPending(null)
+
+    if (!result.ok) {
+      toast(result.error, 'error')
+      return
     }
+
+    setDecisions((prev) => ({ ...prev, [id]: next as ExpenseStatus }))
+    const verb =
+      next === 'approved' ? 'approved'
+      : next === 'rejected' ? 'rejected'
+      : 'marked reimbursed'
+    toast(`Expense ${id} ${verb}.`, next === 'rejected' ? 'info' : 'success')
+    router.refresh()
   }
 
   return (
@@ -316,15 +364,19 @@ export function ExpensesTable({
                           <div className="flex justify-end gap-2">
                             <button
                               type="button"
+                              disabled={pending === e.id}
                               onClick={() => decide(e.id, 'approved')}
-                              className="rounded-md bg-indigo-600 px-2.5 py-1 text-xs font-medium text-white transition hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+                              className="rounded-md bg-indigo-600 px-2.5 py-1 text-xs font-medium text-white transition hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 disabled:opacity-50"
                             >
-                              Approve
+                              {pending === e.id ? 'Saving…' : 'Approve'}
                             </button>
                             <button
                               type="button"
-                              onClick={() => decide(e.id, 'rejected')}
-                              className="rounded-md border border-zinc-300 px-2.5 py-1 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+                              disabled={pending === e.id}
+                              onClick={() =>
+                                setPrompting({ id: e.id, decision: 'rejected' })
+                              }
+                              className="rounded-md border border-zinc-300 px-2.5 py-1 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 disabled:opacity-50"
                             >
                               Reject
                             </button>
@@ -333,8 +385,11 @@ export function ExpensesTable({
                           <div className="flex justify-end">
                             <button
                               type="button"
-                              onClick={() => decide(e.id, 'reimbursed')}
-                              className="rounded-md border border-zinc-300 px-2.5 py-1 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+                              disabled={pending === e.id}
+                              onClick={() =>
+                                setPrompting({ id: e.id, decision: 'reimbursed' })
+                              }
+                              className="rounded-md border border-zinc-300 px-2.5 py-1 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 disabled:opacity-50"
                             >
                               Mark reimbursed
                             </button>
@@ -350,19 +405,48 @@ export function ExpensesTable({
         </div>
       </section>
 
+      {/* Keyed so each new prompt mounts a fresh, empty field. */}
+      <DecisionDialog
+        key={prompting ? `${prompting.id}:${prompting.decision}` : 'none'}
+        prompt={prompting}
+        onClose={() => setPrompting(null)}
+        onConfirm={async (value) => {
+          if (!prompting) return
+          const { id, decision } = prompting
+          setPrompting(null)
+          await decide(
+            id,
+            decision,
+            decision === 'rejected'
+              ? { reason: value }
+              : { paymentReference: value }
+          )
+        }}
+      />
+
       <AddExpenseDialog
         open={adding}
         onClose={() => setAdding(false)}
         onAdd={async (e) => {
-          setAdded((prev) => [e, ...prev])
+          // Confirm the write before claiming it happened: the previous version
+          // showed a success toast and listed the row even when the save failed.
+          const result = await addExpense(e)
+          if (!result.ok) return result.error
+
+          const row: Expense = {
+            ...e,
+            receipt: e.receipt && {
+              name: e.receipt.name,
+              kind: e.receipt.kind,
+              size: formatBytes(e.receipt.sizeBytes),
+              url: `/api/files/${e.receipt.storageKey}`,
+            },
+          }
+          setAdded((prev) => [row, ...prev])
           setAdding(false)
           toast(`Expense ${e.id} added for approval.`)
-          try {
-            await addExpense(e)
-          } catch (err) {
-            console.error(err)
-            toast('Failed to save expense in database.', 'error')
-          }
+          router.refresh()
+          return null
         }}
         nextId={`EX-${4022 + all.length}`}
         staff={staffData}
@@ -375,10 +459,76 @@ export function ExpensesTable({
 }
 
 /**
- * New expense claim. The receipt is a real upload: the picked file is exposed
- * via an object URL, so the preview shows the actual document rather than a
- * stand-in. That URL lives for this tab only — real storage replaces it.
+ * New expense claim. The receipt is uploaded to storage before the claim is
+ * saved, so `onAdd` carries a durable reference rather than an object URL that
+ * dies with the tab.
  */
+/**
+ * Collects the one piece of text the server requires to complete a decision:
+ * a reason when rejecting, a payment reference when reimbursing.
+ */
+function DecisionDialog({
+  prompt,
+  onClose,
+  onConfirm,
+}: {
+  prompt: { id: string; decision: 'rejected' | 'reimbursed' } | null
+  onClose: () => void
+  onConfirm: (value: string) => void | Promise<void>
+}) {
+  const [value, setValue] = useState('')
+  const fieldId = useId()
+
+  if (!prompt) return null
+
+  const rejecting = prompt.decision === 'rejected'
+  const label = rejecting ? 'Reason for rejection' : 'Payment reference'
+  const hint = rejecting
+    ? 'The claimant sees this, so explain what needs to change.'
+    : 'The bank reference or payment run this was settled in.'
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/40 p-4">
+      <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-xl">
+        <h2 className="text-sm font-semibold text-zinc-900">
+          {rejecting ? 'Reject expense' : 'Mark reimbursed'} {prompt.id}
+        </h2>
+        <label
+          htmlFor={fieldId}
+          className="mt-4 block text-xs font-medium text-zinc-700"
+        >
+          {label}
+        </label>
+        <input
+          id={fieldId}
+          autoFocus
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+        />
+        <p className="mt-1 text-xs text-zinc-500">{hint}</p>
+        <div className="mt-5 flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            disabled={value.trim().length === 0}
+            onClick={() => onConfirm(value.trim())}
+            className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-indigo-500 disabled:opacity-50"
+          >
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function AddExpenseDialog({
   open,
   onClose,
@@ -389,15 +539,17 @@ function AddExpenseDialog({
 }: {
   open: boolean
   onClose: () => void
-  onAdd: (expense: Expense) => void
+  /** Resolves to an error message to display, or null when the save stuck. */
+  onAdd: (expense: NewExpense) => Promise<string | null>
   nextId: string
   staff: StaffMember[]
   todayDate?: string
 }) {
-  const activeToday = todayDate || today
+  const activeToday = todayDate ?? todayIso()
   const ref = useRef<HTMLDialogElement>(null)
   const [fileName, setFileName] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
   const id = useId()
 
   // Refs can't be read during render — drive the dialog from an effect,
@@ -409,8 +561,9 @@ function AddExpenseDialog({
     if (!open && el.open) el.close()
   }, [open])
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (submitting) return
     const form = event.currentTarget
     const data = new FormData(form)
 
@@ -420,34 +573,45 @@ function AddExpenseDialog({
       return
     }
 
-    const file = data.get('receipt')
-    let receipt: Attachment | null = null
-    if (file instanceof File && file.size > 0) {
-      receipt = {
-        name: file.name,
-        kind: file.type === 'application/pdf' ? 'pdf' : 'image',
-        size: `${Math.max(1, Math.round(file.size / 1024))} KB`,
-        url: URL.createObjectURL(file),
+    setSubmitting(true)
+    try {
+      const file = data.get('receipt')
+      let receipt: AttachmentRef | null = null
+      if (file instanceof File && file.size > 0) {
+        receipt = await uploadAttachment(file)
       }
+
+      const failure = await onAdd({
+        id: nextId,
+        date: String(data.get('date')),
+        category: data.get('category') as ExpenseCategory,
+        merchant: String(data.get('merchant')).trim(),
+        description: String(data.get('description')).trim(),
+        // Pounds in, pence stored — rounded once, here.
+        amountPence: Math.round(amount * 100),
+        staffRef: String(data.get('staffRef')),
+        method: data.get('method') as PaymentMethod,
+        status: 'submitted',
+        receipt,
+      })
+
+      if (failure) {
+        setError(failure)
+        return
+      }
+
+      form.reset()
+      setFileName(null)
+      setError(null)
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Could not reach the server. Check your connection and try again.'
+      )
+    } finally {
+      setSubmitting(false)
     }
-
-    onAdd({
-      id: nextId,
-      date: String(data.get('date')),
-      category: data.get('category') as ExpenseCategory,
-      merchant: String(data.get('merchant')).trim(),
-      description: String(data.get('description')).trim(),
-      // Pounds in, pence stored — rounded once, here.
-      amountPence: Math.round(amount * 100),
-      staffRef: String(data.get('staffRef')),
-      method: data.get('method') as PaymentMethod,
-      status: 'submitted',
-      receipt,
-    })
-
-    form.reset()
-    setFileName(null)
-    setError(null)
   }
 
   const field =

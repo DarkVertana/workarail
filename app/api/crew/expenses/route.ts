@@ -1,24 +1,22 @@
-import { getSessionAndRole } from "@/app/lib/api-auth";
-import { submitCrewExpense } from "@/app/actions/crew";
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server'
 
+import { submitCrewExpense } from '@/app/actions/crew'
+import { errorResponse } from '@/app/lib/errors'
+
+/**
+ * Field-presence checks used to live here and duplicated (imperfectly) what
+ * the action validates. The action owns validation and authorisation now; this
+ * route only translates the outcome into HTTP.
+ */
 export async function POST(request: Request) {
-  const { errorResponse, isStaff } = await getSessionAndRole();
-  if (errorResponse) return errorResponse;
-
-  if (!isStaff) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
   try {
-    const body = await request.json();
-    const { date, category, merchant, description, amountPence, method, receipt } = body;
-    if (!date || !category || !merchant || !description || typeof amountPence !== "number" || !method) {
-      return NextResponse.json({ error: "Missing or invalid fields in request body" }, { status: 400 });
+    const body = await request.json()
+    const result = await submitCrewExpense(body)
+    if (!result.ok) {
+      return NextResponse.json({ error: result.error, code: result.code }, { status: 400 })
     }
-    const result = await submitCrewExpense({ date, category, merchant, description, amountPence, method, receipt });
-    return NextResponse.json(result);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Failed to submit expense" }, { status: 500 });
+    return NextResponse.json(result.data, { status: 201 })
+  } catch (err) {
+    return errorResponse(err, 'POST /api/crew/expenses')
   }
 }
