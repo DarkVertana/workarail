@@ -1,6 +1,7 @@
 'use client'
 
-import { useMemo, useState, useEffect } from 'react'
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
+import Link from 'next/link'
 import {
   staff,
   today,
@@ -8,9 +9,18 @@ import {
   type StaffStatus,
 } from '@/app/lib/admin-data'
 import { useRegisterPageAction } from '@/app/ui/admin/page-action'
-import { getCrews, addCrew, addStaffMember } from '@/app/actions/admin'
+import { useRouter } from 'next/navigation'
+import {
+  addCrew,
+  assignStaffToJob,
+  deleteStaffMember,
+  setStaffStatus,
+} from '@/app/actions/admin'
+import { useToast } from '@/app/ui/toast'
 
 const PAGE_SIZE = 10
+
+type Job = { id: string; title: string }
 
 /** First and last initial — the avatar stands in for a photo. */
 function initials(name: string) {
@@ -80,9 +90,11 @@ const pagerButtonClass =
 
 export function CrewsTable({
   initialStaff,
+  jobs = [],
   todayDate,
 }: {
   initialStaff?: StaffMember[]
+  jobs?: Job[]
   todayDate?: string
 }) {
   const activeToday = todayDate || today
@@ -93,17 +105,12 @@ export function CrewsTable({
   const [hidden, setHidden] = useState<ReadonlySet<ColumnKey>>(new Set())
   const [openRow, setOpenRow] = useState<string | null>(null)
 
-  const [crews, setCrews] = useState<Array<{ id: string; name: string }>>([])
-  const [addingStaff, setAddingStaff] = useState(false)
   const [addingCrew, setAddingCrew] = useState(false)
+  const router = useRouter()
 
-  useEffect(() => {
-    if (addingStaff) {
-      getCrews().then(setCrews)
-    }
-  }, [addingStaff])
-
-  useRegisterPageAction('Add staff member', () => setAddingStaff(true))
+  useRegisterPageAction('Add staff member', () =>
+    router.push('/admin/crews/new')
+  )
 
   const visible = COLUMNS.filter((c) => !hidden.has(c.key))
 
@@ -333,10 +340,12 @@ export function CrewsTable({
                   <td className="px-5 py-3">
                     <RowActions
                       person={person}
+                      jobs={jobs}
                       open={openRow === person.ref}
                       onToggle={() =>
                         setOpenRow((r) => (r === person.ref ? null : person.ref))
                       }
+                      onClose={() => setOpenRow(null)}
                     />
                   </td>
                 </tr>
@@ -420,193 +429,6 @@ export function CrewsTable({
                 <button
                   type="button"
                   onClick={() => setAddingCrew(false)}
-                  className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
-                >
-                  Save
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {addingStaff && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm overflow-y-auto">
-          <div className="my-8 w-full max-w-lg rounded-xl border border-zinc-200 bg-white p-6 shadow-xl dark:border-zinc-800 dark:bg-zinc-950">
-            <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Add Staff Member</h3>
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault()
-                const form = e.currentTarget
-                const formData = new FormData(form)
-                const ref = formData.get('ref') as string
-                const name = formData.get('name') as string
-                const email = formData.get('email') as string
-                const phone = formData.get('phone') as string
-                const role = formData.get('role') as string
-                const crewId = formData.get('crewId') as string
-                const status = formData.get('status') as string
-                const joined = formData.get('joined') as string
-                const birthday = formData.get('birthday') as string
-
-                try {
-                  await addStaffMember({
-                    ref,
-                    name,
-                    email,
-                    phone,
-                    role,
-                    crewId,
-                    status,
-                    joined,
-                    birthday,
-                  })
-                  setAddingStaff(false)
-                } catch (err) {
-                  alert(String(err))
-                }
-              }}
-              className="mt-4 flex flex-col gap-4"
-            >
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Employee ID
-                  </label>
-                  <input
-                    type="text"
-                    name="ref"
-                    required
-                    placeholder="e.g. EMP-015"
-                    className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    required
-                    placeholder="e.g. Jane Doe"
-                    className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    required
-                    placeholder="e.g. jane@workarail.com"
-                    className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    required
-                    placeholder="e.g. +44 7700 900077"
-                    className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Role
-                  </label>
-                  <input
-                    type="text"
-                    name="role"
-                    required
-                    placeholder="e.g. Track Technician"
-                    className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Crew Assignment
-                  </label>
-                  <select
-                    name="crewId"
-                    required
-                    className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300"
-                  >
-                    <option value="">Select a crew...</option>
-                    {crews.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Status
-                  </label>
-                  <select
-                    name="status"
-                    required
-                    className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300"
-                  >
-                    <option value="available">Available</option>
-                    <option value="on-site">On site</option>
-                    <option value="off-shift">Off shift</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Date Joined
-                  </label>
-                  <input
-                    type="date"
-                    name="joined"
-                    required
-                    defaultValue={new Date().toISOString().split('T')[0]}
-                    className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Birthday (MM-DD)
-                  </label>
-                  <input
-                    type="text"
-                    name="birthday"
-                    required
-                    placeholder="e.g. 10-24"
-                    pattern="^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"
-                    title="Please use MM-DD format"
-                    className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2 mt-4">
-                <button
-                  type="button"
-                  onClick={() => setAddingStaff(false)}
                   className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
                 >
                   Cancel
@@ -758,41 +580,292 @@ function Cell({ column, person }: { column: ColumnKey; person: StaffMember }) {
   }
 }
 
+const menuItemClass =
+  'flex items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-sm text-zinc-700 transition hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 disabled:cursor-not-allowed disabled:opacity-50 dark:text-zinc-300 dark:hover:bg-zinc-800'
+
+/** 'WR-1042 · Platform 3 resurfacing' -> 'WR-1042' */
+function jobIdOf(label: string | null) {
+  return label ? (label.split(' · ')[0]?.trim() ?? null) : null
+}
+
 function RowActions({
   person,
+  jobs,
   open,
   onToggle,
+  onClose,
 }: {
   person: StaffMember
+  jobs: Job[]
   open: boolean
   onToggle: () => void
+  onClose: () => void
 }) {
+  const router = useRouter()
+  const toast = useToast()
+  const [pending, startTransition] = useTransition()
+  const [panel, setPanel] = useState<'root' | 'job' | 'status'>('root')
+  const [confirmingRemove, setConfirmingRemove] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  // Escape and outside clicks dismiss the menu, as a menu should.
+  useEffect(() => {
+    if (!open) return
+
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose()
+    }
+    function onPointerDown(e: PointerEvent) {
+      if (!containerRef.current?.contains(e.target as Node)) onClose()
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    document.addEventListener('pointerdown', onPointerDown)
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      document.removeEventListener('pointerdown', onPointerDown)
+    }
+  }, [open, onClose])
+
+  function run(
+    action: () => Promise<{ ok?: true; error?: string }>,
+    success: string
+  ) {
+    startTransition(async () => {
+      const result = await action()
+      if (result.error) {
+        toast(result.error, 'error')
+        return
+      }
+      toast(success)
+      onClose()
+      router.refresh()
+    })
+  }
+
+  const currentJobId = jobIdOf(person.currentJob)
+
   return (
-    <div className="relative flex justify-end">
+    <div ref={containerRef} className="relative flex justify-end">
       <button
         type="button"
-        onClick={onToggle}
+        onClick={() => {
+          setPanel('root') // reopening always starts at the top level
+          onToggle()
+        }}
         aria-expanded={open}
+        aria-haspopup="menu"
         aria-label={`Actions for ${person.name}`}
         className="rounded-md p-1 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
       >
         <DotsIcon />
       </button>
+
       {open ? (
-        // TODO: none of these are wired — add Server Actions behind them.
-        <div className="absolute top-full right-0 z-20 mt-1 flex min-w-36 flex-col gap-0.5 rounded-lg border border-zinc-200 bg-white p-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-900">
-          {['View profile', 'Edit', 'Assign to job'].map((label) => (
-            <button
-              key={label}
-              type="button"
-              className="rounded-md px-2 py-1.5 text-left text-sm text-zinc-700 transition hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-zinc-300 dark:hover:bg-zinc-800"
-            >
-              {label}
-            </button>
-          ))}
+        <div
+          role="menu"
+          aria-label={`Actions for ${person.name}`}
+          className="absolute top-full right-0 z-20 mt-1 flex min-w-52 flex-col gap-0.5 rounded-lg border border-zinc-200 bg-white p-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-900"
+        >
+          {panel === 'root' ? (
+            <>
+              <Link
+                href={`/admin/crews/${person.ref}`}
+                role="menuitem"
+                className={menuItemClass}
+              >
+                View profile
+              </Link>
+              <Link
+                href={`/admin/crews/${person.ref}/edit`}
+                role="menuitem"
+                className={menuItemClass}
+              >
+                Edit
+              </Link>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => setPanel('job')}
+                className={menuItemClass}
+              >
+                Assign to job
+                <ChevronRightIcon />
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => setPanel('status')}
+                className={menuItemClass}
+              >
+                Set status
+                <ChevronRightIcon />
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  navigator.clipboard.writeText(person.email)
+                  toast('Email copied.')
+                  onClose()
+                }}
+                className={menuItemClass}
+              >
+                Copy email
+              </button>
+              <div
+                role="separator"
+                className="my-0.5 h-px bg-zinc-100 dark:bg-zinc-800"
+              />
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => setConfirmingRemove(true)}
+                className={`${menuItemClass} text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40`}
+              >
+                Remove
+              </button>
+            </>
+          ) : null}
+
+          {panel === 'job' ? (
+            <>
+              <MenuBack onClick={() => setPanel('root')}>Assign to job</MenuBack>
+              <button
+                type="button"
+                role="menuitem"
+                disabled={pending || currentJobId === null}
+                onClick={() =>
+                  run(
+                    () => assignStaffToJob(person.ref, null),
+                    `${person.name} is now unassigned.`
+                  )
+                }
+                className={menuItemClass}
+              >
+                Not assigned
+                {currentJobId === null ? <CheckIcon /> : null}
+              </button>
+              {jobs.length === 0 ? (
+                <p className="px-2 py-1.5 text-xs text-zinc-500">
+                  No jobs exist yet.
+                </p>
+              ) : (
+                jobs.map((job) => (
+                  <button
+                    key={job.id}
+                    type="button"
+                    role="menuitem"
+                    disabled={pending || job.id === currentJobId}
+                    onClick={() =>
+                      run(
+                        () => assignStaffToJob(person.ref, job.id),
+                        `${person.name} assigned to ${job.id}.`
+                      )
+                    }
+                    className={menuItemClass}
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate font-medium">{job.id}</span>
+                      <span className="block truncate text-xs text-zinc-500">
+                        {job.title}
+                      </span>
+                    </span>
+                    {job.id === currentJobId ? <CheckIcon /> : null}
+                  </button>
+                ))
+              )}
+            </>
+          ) : null}
+
+          {panel === 'status' ? (
+            <>
+              <MenuBack onClick={() => setPanel('root')}>Set status</MenuBack>
+              {STATUS_ORDER.map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  role="menuitem"
+                  disabled={pending || key === person.status}
+                  onClick={() =>
+                    run(
+                      () => setStaffStatus(person.ref, key),
+                      `${person.name} is now ${STATUS[key].label.toLowerCase()}.`
+                    )
+                  }
+                  className={menuItemClass}
+                >
+                  <span className="flex items-center gap-2">
+                    <span
+                      aria-hidden="true"
+                      className="size-1.5 shrink-0 rounded-full"
+                      style={{ background: STATUS[key].dot }}
+                    />
+                    {STATUS[key].label}
+                  </span>
+                  {key === person.status ? <CheckIcon /> : null}
+                </button>
+              ))}
+            </>
+          ) : null}
+        </div>
+      ) : null}
+
+      {confirmingRemove ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 text-left backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-white p-6 shadow-xl dark:border-zinc-800 dark:bg-zinc-950">
+            <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+              Remove {person.name}?
+            </h3>
+            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+              This deletes their employee file, attendance, leave, expenses,
+              payroll history and login. It cannot be undone.
+            </p>
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmingRemove(false)}
+                className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={pending}
+                onClick={() =>
+                  run(
+                    () => deleteStaffMember(person.ref),
+                    `${person.name} removed.`
+                  )
+                }
+                className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-500 disabled:opacity-60"
+              >
+                {pending ? 'Removing…' : 'Remove employee'}
+              </button>
+            </div>
+          </div>
         </div>
       ) : null}
     </div>
+  )
+}
+
+function MenuBack({
+  onClick,
+  children,
+}: {
+  onClick: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-xs font-semibold text-zinc-500 transition hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:hover:bg-zinc-800"
+    >
+      <ChevronLeftIcon />
+      {children}
+    </button>
   )
 }
 
@@ -866,6 +939,30 @@ function PlusIcon() {
   return (
     <svg {...ICON}>
       <path d="M12 5v14M5 12h14" />
+    </svg>
+  )
+}
+
+function ChevronRightIcon() {
+  return (
+    <svg {...ICON} className="size-3.5 shrink-0 text-zinc-400">
+      <path d="m9.5 6.5 5.5 5.5-5.5 5.5" />
+    </svg>
+  )
+}
+
+function ChevronLeftIcon() {
+  return (
+    <svg {...ICON} className="size-3.5 shrink-0">
+      <path d="m14.5 6.5-5.5 5.5 5.5 5.5" />
+    </svg>
+  )
+}
+
+function CheckIcon() {
+  return (
+    <svg {...ICON} className="size-3.5 shrink-0 text-indigo-600">
+      <path d="m5.5 12.5 4 4 9-9" />
     </svg>
   )
 }

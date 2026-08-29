@@ -34,9 +34,15 @@ yarn-error.log*
 .env*
 .env
 
+# staff document uploads
+/uploads
+
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# uploaded staff documents
+/public/uploads

@@ -91,18 +91,79 @@ model Staff {
   status       String          // 'on-site' | 'available' | 'off-shift'
   joined       DateTime
   birthday     String          // MM-DD
+  preferredName     String?
+  dateOfBirth       DateTime?
+  gender            String?
+  nationality       String?
+  personalEmail     String?
+  personalPhone     String?
+  addressLine1      String?
+  addressLine2      String?
+  city              String?
+  postcode          String?
+  country           String?
+  emergencyName     String?
+  emergencyPhone    String?
+  emergencyRelation String?
+  employmentType    String?
+  workLocation      String?
+  contractEnd       DateTime?
+  probationEnd      DateTime?
+  hoursPerWeek      Float?
+  niNumber          String?
+  taxId             String?
+  taxCode           String?
+  taxResidency      String?
+  bankAccountName   String?
+  bankSortCode      String?
+  bankAccountNumber String?
+  iban              String?
+  govIdType         String?
+  govIdNumber       String?
+  govIdCountry      String?
+  govIdExpiry       DateTime?
+  rightToWork       String?
+  visaType          String?
+  visaExpiry        DateTime?
+  ptsNumber         String?
+  ptsExpiry         DateTime?
+  medicalExpiry     DateTime?
+  studentLoan       Boolean  @default(false)
+  lineManager       String?
+  noticePeriod      String?
+  payType           String?
+  payRatePence      Int?
+  notes             String?
   userId       String?         @unique
   user         User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
   attendance   Attendance[]
   leaveRequests LeaveRequest[]
   expenses     Expense[]
   payroll      PayrollRecord[]
+  documents    StaffDocument[]
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
 
   @@index([crewId])
   @@index([currentJobId])
   @@index([status])
+}
+
+model StaffDocument {
+  id        String    @id @default(uuid())
+  staffRef  String
+  staff     Staff     @relation(fields: [staffRef], references: [ref], onDelete: Cascade)
+  category  String
+  title     String
+  reference String?
+  issuedOn  DateTime?
+  expiresOn DateTime?
+  fileName  String?
+  url       String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([staffRef])
 }
 
 model Attendance {

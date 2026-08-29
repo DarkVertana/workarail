@@ -1,8 +1,9 @@
-import "dotenv/config";
-import pg from "pg";
 import crypto from "crypto";
+import { prisma } from "../app/lib/prisma";
 
-const { Pool } = pg;
+const ADMIN_EMAIL = "admin@workarail.com";
+const ADMIN_PASSWORD = "Pass1234";
+const ADMIN_NAME = "Work à Rail Admin";
 
 function hashPassword(password: string): string {
   const salt = crypto.randomBytes(16).toString("hex");
@@ -11,56 +12,55 @@ function hashPassword(password: string): string {
 }
 
 async function main() {
-  const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: true,
+  console.log(`Seeding sample admin ${ADMIN_EMAIL}...`);
+
+  const existing = await prisma.user.findUnique({
+    where: { email: ADMIN_EMAIL },
+    include: { staff: true },
   });
 
-  try {
-    const client = await pool.connect();
-    console.log("Connected to database. Seeding admin user...");
-
-    // Clean up existing admin if present to avoid conflicts
-    await client.query(
-      `DELETE FROM "Account" WHERE "userId" IN (SELECT id FROM "User" WHERE email = $1)`,
-      ["shubhamd@tvita.in"]
+  if (existing?.staff) {
+    throw new Error(
+      `${ADMIN_EMAIL} is linked to a staff record. Admins must not have a Staff row.`
     );
-    await client.query(
-      `DELETE FROM "User" WHERE email = $1`,
-      ["shubhamd@tvita.in"]
-    );
-
-    const userId = crypto.randomUUID();
-    const accountId = crypto.randomUUID();
-    const hashedPassword = hashPassword("Pass1234");
-    const now = new Date();
-
-    // 1. Insert into User
-    await client.query(
-      `INSERT INTO "User" (
-        "id", "name", "email", "emailVerified", "image", "createdAt", "updatedAt"
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-      [userId, "Shubham D", "shubhamd@tvita.in", true, null, now, now]
-    );
-    console.log("✅ Inserted user into 'User' table.");
-
-    // 2. Insert into Account
-    await client.query(
-      `INSERT INTO "Account" (
-        "id", "accountId", "providerId", "userId", "password", "issuer", "createdAt", "updatedAt"
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-      [accountId, userId, "credential", userId, hashedPassword, "local:credential", now, now]
-    );
-    console.log("✅ Inserted credential account into 'Account' table.");
-
-    console.log("🎉 Seed finished successfully!");
-    client.release();
-  } catch (error) {
-    console.error("❌ Failed to seed admin user:", error);
-    process.exit(1);
-  } finally {
-    await pool.end();
   }
+
+  if (existing) {
+    await prisma.account.deleteMany({ where: { userId: existing.id } });
+    await prisma.user.delete({ where: { id: existing.id } });
+  }
+
+  const userId = crypto.randomUUID();
+  const hashedPassword = hashPassword(ADMIN_PASSWORD);
+
+  await prisma.user.create({
+    data: {
+      id: userId,
+      name: ADMIN_NAME,
+      email: ADMIN_EMAIL,
+      emailVerified: true,
+      accounts: {
+        create: {
+          id: crypto.randomUUID(),
+          accountId: userId,
+          providerId: "credential",
+          password: hashedPassword,
+          issuer: "local:credential",
+        },
+      },
+    },
+  });
+
+  console.log("Sample admin ready:");
+  console.log(`  email:    ${ADMIN_EMAIL}`);
+  console.log(`  password: ${ADMIN_PASSWORD}`);
 }
 
-main();
+main()
+  .catch((error) => {
+    console.error("Failed to seed admin user:", error);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

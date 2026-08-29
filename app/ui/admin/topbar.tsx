@@ -5,6 +5,11 @@ import { usePageActionValue } from '@/app/ui/admin/page-action'
 
 /** Title-case the last path segment: /admin/crews -> "Crews". */
 function pageLabel(pathname: string) {
+  if (pathname === '/admin/crews/new') return 'Add staff member'
+  // /admin/crews/EMP-001 and /admin/crews/EMP-001/edit — the employee ID is not
+  // a title, so name the page after what you are doing to it.
+  const staffFile = pathname.match(/^\/admin\/crews\/(?!new$)([^/]+)(\/edit)?$/)
+  if (staffFile) return staffFile[2] ? 'Edit staff member' : 'Staff profile'
   const segment = pathname.split('/').filter(Boolean).pop() ?? 'admin'
   return segment
     .split('-')
@@ -20,6 +25,7 @@ function pageLabel(pathname: string) {
  */
 export const ADMIN_ACTIONS: Record<string, string> = {
   '/admin/crews': 'Add staff member',
+  '/admin/crews/new': 'Save staff member',
   '/admin/timesheets': 'Add entry',
   '/admin/leaves': 'New request',
   '/admin/invoices': 'New invoice',

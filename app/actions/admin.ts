@@ -231,6 +231,125 @@ export async function getStaff(week?: string[]): Promise<StaffMember[]> {
   });
 }
 
+export type StaffDetail = Awaited<ReturnType<typeof getStaffMember>>;
+
+/** Full employee file for the profile and edit pages. Dates come back as ISO
+ *  strings so the object can cross the server/client boundary unchanged. */
+export async function getStaffMember(ref: string) {
+  const row = await prisma.staff.findUnique({
+    where: { ref },
+    include: {
+      crew: true,
+      currentJob: true,
+      documents: { orderBy: { createdAt: "desc" } },
+    },
+  });
+  if (!row) return null;
+
+  const iso = (d: Date | null) => (d ? toIsoDateString(d) : null);
+
+  return {
+    ...row,
+    joined: toIsoDateString(row.joined),
+    dateOfBirth: iso(row.dateOfBirth),
+    contractEnd: iso(row.contractEnd),
+    probationEnd: iso(row.probationEnd),
+    govIdExpiry: iso(row.govIdExpiry),
+    visaExpiry: iso(row.visaExpiry),
+    ptsExpiry: iso(row.ptsExpiry),
+    medicalExpiry: iso(row.medicalExpiry),
+    createdAt: toIsoDateString(row.createdAt),
+    updatedAt: toIsoDateString(row.updatedAt),
+    crewName: row.crew?.name ?? "",
+    currentJobLabel: row.currentJob
+      ? `${row.currentJob.id} · ${row.currentJob.title}`
+      : null,
+    documents: row.documents.map((doc) => ({
+      id: doc.id,
+      category: doc.category,
+      title: doc.title,
+      reference: doc.reference,
+      issuedOn: iso(doc.issuedOn),
+      expiresOn: iso(doc.expiresOn),
+      fileName: doc.fileName,
+      url: doc.url,
+    })),
+  };
+}
+
+export async function getJobs() {
+  return prisma.job.findMany({ orderBy: { id: "asc" } });
+}
+
+const STAFF_STATUSES = ["on-site", "available", "off-shift"] as const;
+
+/** Assign or clear the current job. Assigning also puts them on site, and
+ *  clearing frees them up, so the roster status never contradicts the job. */
+export async function assignStaffToJob(ref: string, jobId: string | null) {
+  if (jobId) {
+    const job = await prisma.job.findUnique({ where: { id: jobId } });
+    if (!job) return { error: `Job ${jobId} no longer exists.` };
+  }
+
+  try {
+    await prisma.staff.update({
+      where: { ref },
+      data: {
+        currentJobId: jobId,
+        status: jobId ? "on-site" : "available",
+      },
+    });
+  } catch {
+    return { error: `Could not update ${ref}.` };
+  }
+
+  revalidatePath("/admin/crews");
+  revalidatePath(`/admin/crews/${ref}`);
+  revalidatePath("/admin/dashboard");
+  return { ok: true as const };
+}
+
+export async function setStaffStatus(ref: string, status: string) {
+  if (!STAFF_STATUSES.includes(status as (typeof STAFF_STATUSES)[number])) {
+    return { error: `Unknown status "${status}".` };
+  }
+
+  try {
+    await prisma.staff.update({
+      where: { ref },
+      // Someone who is off shift or merely available is not on a job.
+      data: { status, ...(status === "on-site" ? {} : { currentJobId: null }) },
+    });
+  } catch {
+    return { error: `Could not update ${ref}.` };
+  }
+
+  revalidatePath("/admin/crews");
+  revalidatePath(`/admin/crews/${ref}`);
+  revalidatePath("/admin/dashboard");
+  return { ok: true as const };
+}
+
+/** Removes the employee and everything hanging off them. The linked login is
+ *  removed too, otherwise the person could still sign in to the crew app. */
+export async function deleteStaffMember(ref: string) {
+  const row = await prisma.staff.findUnique({ where: { ref } });
+  if (!row) return { error: `${ref} no longer exists.` };
+
+  try {
+    await prisma.staff.delete({ where: { ref } });
+    if (row.userId) {
+      await prisma.user.delete({ where: { id: row.userId } });
+    }
+  } catch {
+    return { error: `Could not remove ${ref}.` };
+  }
+
+  revalidatePath("/admin/crews");
+  revalidatePath("/admin/dashboard");
+  return { ok: true as const };
+}
+
 /* --- Timesheet/Attendance Actions --- */
 export async function getTimesheetData() {
   const now = new Date();
@@ -435,7 +554,9 @@ export async function getInvoices(): Promise<Invoice[]> {
 
 /* --- Payroll Actions --- */
 export async function getPayrollRecords(): Promise<PayrollRecord[]> {
+  const period = await getRequestPayPeriod();
   const dbPayroll = await prisma.payrollRecord.findMany({
+    where: { year: period.year, month: period.month },
     orderBy: { staffRef: "asc" },
   });
 
@@ -801,7 +922,37 @@ async function hashPassword(password: string) {
   });
 }
 
-export async function addStaffMember(data: {
+function optStr(value: string | null | undefined) {
+  const trimmed = (value ?? "").trim();
+  return trimmed === "" ? null : trimmed;
+}
+
+function optDate(value: string | null | undefined) {
+  const trimmed = optStr(value);
+  return trimmed ? new Date(trimmed) : null;
+}
+
+function birthdayFrom(dateOfBirth: string | null | undefined, birthday: string) {
+  const dob = optStr(dateOfBirth);
+  if (dob) {
+    const parts = dob.split("-");
+    if (parts.length >= 3) return `${parts[1]}-${parts[2]}`;
+  }
+  return birthday.trim();
+}
+
+const STAFF_DOCUMENTS = [
+  { field: "docGovId", category: "gov-id", title: "Government ID" },
+  { field: "docTax", category: "tax", title: "Tax document" },
+  { field: "docNi", category: "ni", title: "National Insurance evidence" },
+  { field: "docRightToWork", category: "right-to-work", title: "Right to work" },
+  { field: "docContract", category: "contract", title: "Employment contract" },
+  { field: "docPts", category: "pts", title: "PTS / Sentinel card" },
+  { field: "docMedical", category: "medical", title: "Medical fitness certificate" },
+  { field: "docOther", category: "other", title: "Other document" },
+] as const;
+
+export type StaffMemberInput = {
   ref: string;
   name: string;
   email: string;
@@ -810,8 +961,251 @@ export async function addStaffMember(data: {
   crewId: string;
   status: string;
   joined: string;
-  birthday: string;
-}) {
+  birthday?: string;
+  preferredName?: string | null;
+  dateOfBirth?: string | null;
+  gender?: string | null;
+  nationality?: string | null;
+  personalEmail?: string | null;
+  personalPhone?: string | null;
+  addressLine1?: string | null;
+  addressLine2?: string | null;
+  city?: string | null;
+  postcode?: string | null;
+  country?: string | null;
+  emergencyName?: string | null;
+  emergencyPhone?: string | null;
+  emergencyRelation?: string | null;
+  employmentType?: string | null;
+  workLocation?: string | null;
+  contractEnd?: string | null;
+  probationEnd?: string | null;
+  hoursPerWeek?: string | null;
+  niNumber?: string | null;
+  taxId?: string | null;
+  taxCode?: string | null;
+  taxResidency?: string | null;
+  bankAccountName?: string | null;
+  bankSortCode?: string | null;
+  bankAccountNumber?: string | null;
+  iban?: string | null;
+  govIdType?: string | null;
+  govIdNumber?: string | null;
+  govIdCountry?: string | null;
+  govIdExpiry?: string | null;
+  rightToWork?: string | null;
+  visaType?: string | null;
+  visaExpiry?: string | null;
+  ptsNumber?: string | null;
+  ptsExpiry?: string | null;
+  medicalExpiry?: string | null;
+  studentLoan?: boolean;
+  lineManager?: string | null;
+  noticePeriod?: string | null;
+  payType?: string | null;
+  payRatePounds?: string | null;
+  notes?: string | null;
+};
+
+async function saveStaffDocuments(staffRef: string, formData: FormData) {
+  const uploadDir = path.join(process.cwd(), "public", "uploads", "staff", staffRef);
+  for (const slot of STAFF_DOCUMENTS) {
+    const file = formData.get(slot.field);
+    if (!(file instanceof File) || file.size === 0) continue;
+    fs.mkdirSync(uploadDir, { recursive: true });
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const stored = `${slot.category}-${Date.now()}-${safeName}`;
+    const dest = path.join(uploadDir, stored);
+    fs.writeFileSync(dest, Buffer.from(await file.arrayBuffer()));
+    await prisma.staffDocument.create({
+      data: {
+        staffRef,
+        category: slot.category,
+        title: slot.title,
+        fileName: file.name,
+        url: `/uploads/staff/${staffRef}/${stored}`,
+      },
+    });
+  }
+}
+
+/** Reads every staff field off a form. Shared by create and edit so the two
+ *  can never drift apart. */
+function staffInputFromForm(formData: FormData): StaffMemberInput {
+  return {
+      ref: String(formData.get("ref") ?? "").trim(),
+      name: String(formData.get("name") ?? "").trim(),
+      email: String(formData.get("email") ?? "").trim(),
+      phone: String(formData.get("phone") ?? ""),
+      role: String(formData.get("role") ?? "").trim(),
+      crewId: String(formData.get("crewId") ?? "").trim(),
+      status: String(formData.get("status") ?? "").trim(),
+      joined: String(formData.get("joined") ?? "").trim(),
+      birthday: String(formData.get("birthday") ?? ""),
+      preferredName: optStr(String(formData.get("preferredName") ?? "")),
+      dateOfBirth: optStr(String(formData.get("dateOfBirth") ?? "")),
+      gender: optStr(String(formData.get("gender") ?? "")),
+      nationality: optStr(String(formData.get("nationality") ?? "")),
+      personalEmail: optStr(String(formData.get("personalEmail") ?? "")),
+      personalPhone: optStr(String(formData.get("personalPhone") ?? "")),
+      addressLine1: optStr(String(formData.get("addressLine1") ?? "")),
+      addressLine2: optStr(String(formData.get("addressLine2") ?? "")),
+      city: optStr(String(formData.get("city") ?? "")),
+      postcode: optStr(String(formData.get("postcode") ?? "")),
+      country: optStr(String(formData.get("country") ?? "")),
+      emergencyName: optStr(String(formData.get("emergencyName") ?? "")),
+      emergencyPhone: optStr(String(formData.get("emergencyPhone") ?? "")),
+      emergencyRelation: optStr(String(formData.get("emergencyRelation") ?? "")),
+      employmentType: optStr(String(formData.get("employmentType") ?? "")),
+      workLocation: optStr(String(formData.get("workLocation") ?? "")),
+      contractEnd: optStr(String(formData.get("contractEnd") ?? "")),
+      probationEnd: optStr(String(formData.get("probationEnd") ?? "")),
+      hoursPerWeek: optStr(String(formData.get("hoursPerWeek") ?? "")),
+      niNumber: optStr(String(formData.get("niNumber") ?? "")),
+      taxId: optStr(String(formData.get("taxId") ?? "")),
+      taxCode: optStr(String(formData.get("taxCode") ?? "")),
+      taxResidency: optStr(String(formData.get("taxResidency") ?? "")),
+      bankAccountName: optStr(String(formData.get("bankAccountName") ?? "")),
+      bankSortCode: optStr(String(formData.get("bankSortCode") ?? "")),
+      bankAccountNumber: optStr(String(formData.get("bankAccountNumber") ?? "")),
+      iban: optStr(String(formData.get("iban") ?? "")),
+      govIdType: optStr(String(formData.get("govIdType") ?? "")),
+      govIdNumber: optStr(String(formData.get("govIdNumber") ?? "")),
+      govIdCountry: optStr(String(formData.get("govIdCountry") ?? "")),
+      govIdExpiry: optStr(String(formData.get("govIdExpiry") ?? "")),
+      rightToWork: optStr(String(formData.get("rightToWork") ?? "")),
+      visaType: optStr(String(formData.get("visaType") ?? "")),
+      visaExpiry: optStr(String(formData.get("visaExpiry") ?? "")),
+      ptsNumber: optStr(String(formData.get("ptsNumber") ?? "")),
+      ptsExpiry: optStr(String(formData.get("ptsExpiry") ?? "")),
+      medicalExpiry: optStr(String(formData.get("medicalExpiry") ?? "")),
+      studentLoan: formData.get("studentLoan") === "on",
+      lineManager: optStr(String(formData.get("lineManager") ?? "")),
+      noticePeriod: optStr(String(formData.get("noticePeriod") ?? "")),
+      payType: optStr(String(formData.get("payType") ?? "")),
+      payRatePounds: optStr(String(formData.get("payRatePounds") ?? "")),
+      notes: optStr(String(formData.get("notes") ?? "")),
+  };
+}
+
+/** The fields that must be present before we will save a staff record. */
+function missingRequired(data: StaffMemberInput) {
+  const required = [
+    data.ref,
+    data.name,
+    data.email,
+    data.role,
+    data.crewId,
+    data.status,
+    data.joined,
+  ];
+  return required.some((value) => !value);
+}
+
+export async function addStaffMemberFromForm(formData: FormData) {
+  const data = staffInputFromForm(formData);
+
+  if (missingRequired(data)) {
+    return { error: "Fill in employee ID, name, work email, role, crew, status and start date." };
+  }
+
+  try {
+    await addStaffMember(data);
+    await saveStaffDocuments(data.ref, formData);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Failed to save staff member.";
+    return { error: message };
+  }
+
+  revalidatePath("/admin/crews");
+  return { ok: true as const };
+}
+
+export async function updateStaffMemberFromForm(ref: string, formData: FormData) {
+  const data = staffInputFromForm(formData);
+
+  if (missingRequired(data)) {
+    return { error: "Fill in employee ID, name, work email, role, crew, status and start date." };
+  }
+  // The ref is the primary key and payroll/expenses point at it, so it is fixed
+  // once created — the edit form shows it read-only.
+  if (data.ref !== ref) {
+    return { error: "Employee ID cannot be changed." };
+  }
+
+  const payRate = optStr(data.payRatePounds);
+  const hours = optStr(data.hoursPerWeek);
+
+  try {
+    await prisma.staff.update({
+      where: { ref },
+      data: {
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        role: data.role,
+        crewId: data.crewId,
+        status: data.status,
+        joined: new Date(data.joined),
+        birthday: birthdayFrom(data.dateOfBirth, data.birthday ?? ""),
+        preferredName: optStr(data.preferredName),
+        dateOfBirth: optDate(data.dateOfBirth),
+        gender: optStr(data.gender),
+        nationality: optStr(data.nationality),
+        personalEmail: optStr(data.personalEmail),
+        personalPhone: optStr(data.personalPhone),
+        addressLine1: optStr(data.addressLine1),
+        addressLine2: optStr(data.addressLine2),
+        city: optStr(data.city),
+        postcode: optStr(data.postcode),
+        country: optStr(data.country),
+        emergencyName: optStr(data.emergencyName),
+        emergencyPhone: optStr(data.emergencyPhone),
+        emergencyRelation: optStr(data.emergencyRelation),
+        employmentType: optStr(data.employmentType),
+        workLocation: optStr(data.workLocation),
+        contractEnd: optDate(data.contractEnd),
+        probationEnd: optDate(data.probationEnd),
+        hoursPerWeek: hours ? Number(hours) : null,
+        niNumber: optStr(data.niNumber),
+        taxId: optStr(data.taxId),
+        taxCode: optStr(data.taxCode),
+        taxResidency: optStr(data.taxResidency),
+        bankAccountName: optStr(data.bankAccountName),
+        bankSortCode: optStr(data.bankSortCode),
+        bankAccountNumber: optStr(data.bankAccountNumber),
+        iban: optStr(data.iban),
+        govIdType: optStr(data.govIdType),
+        govIdNumber: optStr(data.govIdNumber),
+        govIdCountry: optStr(data.govIdCountry),
+        govIdExpiry: optDate(data.govIdExpiry),
+        rightToWork: optStr(data.rightToWork),
+        visaType: optStr(data.visaType),
+        visaExpiry: optDate(data.visaExpiry),
+        ptsNumber: optStr(data.ptsNumber),
+        ptsExpiry: optDate(data.ptsExpiry),
+        medicalExpiry: optDate(data.medicalExpiry),
+        studentLoan: Boolean(data.studentLoan),
+        lineManager: optStr(data.lineManager),
+        noticePeriod: optStr(data.noticePeriod),
+        payType: optStr(data.payType),
+        payRatePence: payRate ? Math.round(Number(payRate) * 100) : null,
+        notes: optStr(data.notes),
+      },
+    });
+    // New uploads are added; existing documents are left alone.
+    await saveStaffDocuments(ref, formData);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Failed to update staff member.";
+    return { error: message };
+  }
+
+  revalidatePath("/admin/crews");
+  revalidatePath(`/admin/crews/${ref}`);
+  return { ok: true as const };
+}
+
+export async function addStaffMember(data: StaffMemberInput) {
   // Check if user already exists
   let user = await prisma.user.findUnique({
     where: { email: data.email },
@@ -855,6 +1249,9 @@ export async function addStaffMember(data: {
     }
   }
 
+  const payRate = optStr(data.payRatePounds);
+  const hours = optStr(data.hoursPerWeek);
+
   const staff = await prisma.staff.create({
     data: {
       ref: data.ref,
@@ -865,8 +1262,51 @@ export async function addStaffMember(data: {
       crewId: data.crewId,
       status: data.status,
       joined: new Date(data.joined),
-      birthday: data.birthday,
+      birthday: birthdayFrom(data.dateOfBirth, data.birthday ?? ""),
       userId: user.id,
+      preferredName: optStr(data.preferredName),
+      dateOfBirth: optDate(data.dateOfBirth),
+      gender: optStr(data.gender),
+      nationality: optStr(data.nationality),
+      personalEmail: optStr(data.personalEmail),
+      personalPhone: optStr(data.personalPhone),
+      addressLine1: optStr(data.addressLine1),
+      addressLine2: optStr(data.addressLine2),
+      city: optStr(data.city),
+      postcode: optStr(data.postcode),
+      country: optStr(data.country),
+      emergencyName: optStr(data.emergencyName),
+      emergencyPhone: optStr(data.emergencyPhone),
+      emergencyRelation: optStr(data.emergencyRelation),
+      employmentType: optStr(data.employmentType),
+      workLocation: optStr(data.workLocation),
+      contractEnd: optDate(data.contractEnd),
+      probationEnd: optDate(data.probationEnd),
+      hoursPerWeek: hours ? Number(hours) : null,
+      niNumber: optStr(data.niNumber),
+      taxId: optStr(data.taxId),
+      taxCode: optStr(data.taxCode),
+      taxResidency: optStr(data.taxResidency),
+      bankAccountName: optStr(data.bankAccountName),
+      bankSortCode: optStr(data.bankSortCode),
+      bankAccountNumber: optStr(data.bankAccountNumber),
+      iban: optStr(data.iban),
+      govIdType: optStr(data.govIdType),
+      govIdNumber: optStr(data.govIdNumber),
+      govIdCountry: optStr(data.govIdCountry),
+      govIdExpiry: optDate(data.govIdExpiry),
+      rightToWork: optStr(data.rightToWork),
+      visaType: optStr(data.visaType),
+      visaExpiry: optDate(data.visaExpiry),
+      ptsNumber: optStr(data.ptsNumber),
+      ptsExpiry: optDate(data.ptsExpiry),
+      medicalExpiry: optDate(data.medicalExpiry),
+      studentLoan: Boolean(data.studentLoan),
+      lineManager: optStr(data.lineManager),
+      noticePeriod: optStr(data.noticePeriod),
+      payType: optStr(data.payType),
+      payRatePence: payRate ? Math.round(Number(payRate) * 100) : null,
+      notes: optStr(data.notes),
     },
   });
 

@@ -79,30 +79,91 @@ model Job {
 }
 
 model Staff {
-  ref           String          @id
-  name          String
-  email         String          @unique
-  phone         String
-  role          String
-  crewId        String
-  crew          Crew            @relation(fields: [crewId], references: [id])
-  currentJobId  String?
-  currentJob    Job?            @relation(fields: [currentJobId], references: [id])
-  status        String // 'on-site' | 'available' | 'off-shift'
-  joined        DateTime
-  birthday      String // MM-DD
-  userId        String?         @unique
-  user          User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
-  attendance    Attendance[]
-  leaveRequests LeaveRequest[]
-  expenses      Expense[]
-  payroll       PayrollRecord[]
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  ref               String          @id
+  name              String
+  email             String          @unique
+  phone             String
+  role              String
+  crewId            String
+  crew              Crew            @relation(fields: [crewId], references: [id])
+  currentJobId      String?
+  currentJob        Job?            @relation(fields: [currentJobId], references: [id])
+  status            String // 'on-site' | 'available' | 'off-shift'
+  joined            DateTime
+  birthday          String // MM-DD
+  preferredName     String?
+  dateOfBirth       DateTime?
+  gender            String?
+  nationality       String?
+  personalEmail     String?
+  personalPhone     String?
+  addressLine1      String?
+  addressLine2      String?
+  city              String?
+  postcode          String?
+  country           String?
+  emergencyName     String?
+  emergencyPhone    String?
+  emergencyRelation String?
+  employmentType    String?
+  workLocation      String?
+  contractEnd       DateTime?
+  probationEnd      DateTime?
+  hoursPerWeek      Float?
+  niNumber          String?
+  taxId             String?
+  taxCode           String?
+  taxResidency      String?
+  bankAccountName   String?
+  bankSortCode      String?
+  bankAccountNumber String?
+  iban              String?
+  govIdType         String?
+  govIdNumber       String?
+  govIdCountry      String?
+  govIdExpiry       DateTime?
+  rightToWork       String?
+  visaType          String?
+  visaExpiry        DateTime?
+  ptsNumber         String?
+  ptsExpiry         DateTime?
+  medicalExpiry     DateTime?
+  studentLoan       Boolean         @default(false)
+  lineManager       String?
+  noticePeriod      String?
+  payType           String?
+  payRatePence      Int?
+  notes             String?
+  userId            String?         @unique
+  user              User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  attendance        Attendance[]
+  leaveRequests     LeaveRequest[]
+  expenses          Expense[]
+  payroll           PayrollRecord[]
+  documents         StaffDocument[]
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
 
   @@index([crewId])
   @@index([currentJobId])
   @@index([status])
+}
+
+model StaffDocument {
+  id        String    @id @default(uuid())
+  staffRef  String
+  staff     Staff     @relation(fields: [staffRef], references: [ref], onDelete: Cascade)
+  category  String
+  title     String
+  reference String?
+  issuedOn  DateTime?
+  expiresOn DateTime?
+  fileName  String?
+  url       String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([staffRef])
 }
 
 model Attendance {
@@ -118,18 +179,34 @@ model Attendance {
 }
 
 model LeaveRequest {
-  id        String   @id
+  id        String    @id
   staffRef  String
-  staff     Staff    @relation(fields: [staffRef], references: [ref], onDelete: Cascade)
+  staff     Staff     @relation(fields: [staffRef], references: [ref], onDelete: Cascade)
   type      String // 'annual' | 'sick' | 'unpaid' | 'parental' | 'compassionate'
   from      DateTime
   to        DateTime
-  days      Int
+  /**
+   * Working days deducted, halves included — 4.5 is a valid request.
+   */
+  days      Float
+  /**
+   * Which half of the first day it starts in: 'morning' | 'afternoon'.
+   */
+  startAt   String    @default("morning")
+  /**
+   * Which half of the last day it runs to: 'lunchtime' | 'end_of_day'.
+   */
+  endAt     String    @default("end_of_day")
+  /**
+   * Whether these days come off the annual allowance.
+   */
+  deducts   Boolean   @default(true)
   reason    String
   status    String // 'pending' | 'approved' | 'rejected'
   submitted DateTime
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  decidedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@index([staffRef])
   @@index([status])

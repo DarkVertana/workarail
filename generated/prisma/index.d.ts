@@ -49,6 +49,11 @@ export type Job = $Result.DefaultSelection<Prisma.$JobPayload>
  */
 export type Staff = $Result.DefaultSelection<Prisma.$StaffPayload>
 /**
+ * Model StaffDocument
+ * 
+ */
+export type StaffDocument = $Result.DefaultSelection<Prisma.$StaffDocumentPayload>
+/**
  * Model Attendance
  * 
  */
@@ -279,6 +284,16 @@ export class PrismaClient<
     * ```
     */
   get staff(): Prisma.StaffDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.staffDocument`: Exposes CRUD operations for the **StaffDocument** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more StaffDocuments
+    * const staffDocuments = await prisma.staffDocument.findMany()
+    * ```
+    */
+  get staffDocument(): Prisma.StaffDocumentDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.attendance`: Exposes CRUD operations for the **Attendance** model.
@@ -813,6 +828,7 @@ export namespace Prisma {
     Crew: 'Crew',
     Job: 'Job',
     Staff: 'Staff',
+    StaffDocument: 'StaffDocument',
     Attendance: 'Attendance',
     LeaveRequest: 'LeaveRequest',
     Attachment: 'Attachment',
@@ -836,7 +852,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "session" | "account" | "verification" | "crew" | "job" | "staff" | "attendance" | "leaveRequest" | "attachment" | "client" | "invoice" | "expense" | "payrollRecord" | "smtpSettings"
+      modelProps: "user" | "session" | "account" | "verification" | "crew" | "job" | "staff" | "staffDocument" | "attendance" | "leaveRequest" | "attachment" | "client" | "invoice" | "expense" | "payrollRecord" | "smtpSettings"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1355,6 +1371,80 @@ export namespace Prisma {
           count: {
             args: Prisma.StaffCountArgs<ExtArgs>
             result: $Utils.Optional<StaffCountAggregateOutputType> | number
+          }
+        }
+      }
+      StaffDocument: {
+        payload: Prisma.$StaffDocumentPayload<ExtArgs>
+        fields: Prisma.StaffDocumentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.StaffDocumentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffDocumentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.StaffDocumentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffDocumentPayload>
+          }
+          findFirst: {
+            args: Prisma.StaffDocumentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffDocumentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.StaffDocumentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffDocumentPayload>
+          }
+          findMany: {
+            args: Prisma.StaffDocumentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffDocumentPayload>[]
+          }
+          create: {
+            args: Prisma.StaffDocumentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffDocumentPayload>
+          }
+          createMany: {
+            args: Prisma.StaffDocumentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.StaffDocumentCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffDocumentPayload>[]
+          }
+          delete: {
+            args: Prisma.StaffDocumentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffDocumentPayload>
+          }
+          update: {
+            args: Prisma.StaffDocumentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffDocumentPayload>
+          }
+          deleteMany: {
+            args: Prisma.StaffDocumentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.StaffDocumentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.StaffDocumentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffDocumentPayload>[]
+          }
+          upsert: {
+            args: Prisma.StaffDocumentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StaffDocumentPayload>
+          }
+          aggregate: {
+            args: Prisma.StaffDocumentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateStaffDocument>
+          }
+          groupBy: {
+            args: Prisma.StaffDocumentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<StaffDocumentGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.StaffDocumentCountArgs<ExtArgs>
+            result: $Utils.Optional<StaffDocumentCountAggregateOutputType> | number
           }
         }
       }
@@ -2080,6 +2170,7 @@ export namespace Prisma {
     crew?: CrewOmit
     job?: JobOmit
     staff?: StaffOmit
+    staffDocument?: StaffDocumentOmit
     attendance?: AttendanceOmit
     leaveRequest?: LeaveRequestOmit
     attachment?: AttachmentOmit
@@ -2274,6 +2365,7 @@ export namespace Prisma {
     leaveRequests: number
     expenses: number
     payroll: number
+    documents: number
   }
 
   export type StaffCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2281,6 +2373,7 @@ export namespace Prisma {
     leaveRequests?: boolean | StaffCountOutputTypeCountLeaveRequestsArgs
     expenses?: boolean | StaffCountOutputTypeCountExpensesArgs
     payroll?: boolean | StaffCountOutputTypeCountPayrollArgs
+    documents?: boolean | StaffCountOutputTypeCountDocumentsArgs
   }
 
   // Custom InputTypes
@@ -2320,6 +2413,13 @@ export namespace Prisma {
    */
   export type StaffCountOutputTypeCountPayrollArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PayrollRecordWhereInput
+  }
+
+  /**
+   * StaffCountOutputType without action
+   */
+  export type StaffCountOutputTypeCountDocumentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StaffDocumentWhereInput
   }
 
 
@@ -8984,8 +9084,20 @@ export namespace Prisma {
 
   export type AggregateStaff = {
     _count: StaffCountAggregateOutputType | null
+    _avg: StaffAvgAggregateOutputType | null
+    _sum: StaffSumAggregateOutputType | null
     _min: StaffMinAggregateOutputType | null
     _max: StaffMaxAggregateOutputType | null
+  }
+
+  export type StaffAvgAggregateOutputType = {
+    hoursPerWeek: number | null
+    payRatePence: number | null
+  }
+
+  export type StaffSumAggregateOutputType = {
+    hoursPerWeek: number | null
+    payRatePence: number | null
   }
 
   export type StaffMinAggregateOutputType = {
@@ -8999,6 +9111,49 @@ export namespace Prisma {
     status: string | null
     joined: Date | null
     birthday: string | null
+    preferredName: string | null
+    dateOfBirth: Date | null
+    gender: string | null
+    nationality: string | null
+    personalEmail: string | null
+    personalPhone: string | null
+    addressLine1: string | null
+    addressLine2: string | null
+    city: string | null
+    postcode: string | null
+    country: string | null
+    emergencyName: string | null
+    emergencyPhone: string | null
+    emergencyRelation: string | null
+    employmentType: string | null
+    workLocation: string | null
+    contractEnd: Date | null
+    probationEnd: Date | null
+    hoursPerWeek: number | null
+    niNumber: string | null
+    taxId: string | null
+    taxCode: string | null
+    taxResidency: string | null
+    bankAccountName: string | null
+    bankSortCode: string | null
+    bankAccountNumber: string | null
+    iban: string | null
+    govIdType: string | null
+    govIdNumber: string | null
+    govIdCountry: string | null
+    govIdExpiry: Date | null
+    rightToWork: string | null
+    visaType: string | null
+    visaExpiry: Date | null
+    ptsNumber: string | null
+    ptsExpiry: Date | null
+    medicalExpiry: Date | null
+    studentLoan: boolean | null
+    lineManager: string | null
+    noticePeriod: string | null
+    payType: string | null
+    payRatePence: number | null
+    notes: string | null
     userId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -9015,6 +9170,49 @@ export namespace Prisma {
     status: string | null
     joined: Date | null
     birthday: string | null
+    preferredName: string | null
+    dateOfBirth: Date | null
+    gender: string | null
+    nationality: string | null
+    personalEmail: string | null
+    personalPhone: string | null
+    addressLine1: string | null
+    addressLine2: string | null
+    city: string | null
+    postcode: string | null
+    country: string | null
+    emergencyName: string | null
+    emergencyPhone: string | null
+    emergencyRelation: string | null
+    employmentType: string | null
+    workLocation: string | null
+    contractEnd: Date | null
+    probationEnd: Date | null
+    hoursPerWeek: number | null
+    niNumber: string | null
+    taxId: string | null
+    taxCode: string | null
+    taxResidency: string | null
+    bankAccountName: string | null
+    bankSortCode: string | null
+    bankAccountNumber: string | null
+    iban: string | null
+    govIdType: string | null
+    govIdNumber: string | null
+    govIdCountry: string | null
+    govIdExpiry: Date | null
+    rightToWork: string | null
+    visaType: string | null
+    visaExpiry: Date | null
+    ptsNumber: string | null
+    ptsExpiry: Date | null
+    medicalExpiry: Date | null
+    studentLoan: boolean | null
+    lineManager: string | null
+    noticePeriod: string | null
+    payType: string | null
+    payRatePence: number | null
+    notes: string | null
     userId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -9031,12 +9229,65 @@ export namespace Prisma {
     status: number
     joined: number
     birthday: number
+    preferredName: number
+    dateOfBirth: number
+    gender: number
+    nationality: number
+    personalEmail: number
+    personalPhone: number
+    addressLine1: number
+    addressLine2: number
+    city: number
+    postcode: number
+    country: number
+    emergencyName: number
+    emergencyPhone: number
+    emergencyRelation: number
+    employmentType: number
+    workLocation: number
+    contractEnd: number
+    probationEnd: number
+    hoursPerWeek: number
+    niNumber: number
+    taxId: number
+    taxCode: number
+    taxResidency: number
+    bankAccountName: number
+    bankSortCode: number
+    bankAccountNumber: number
+    iban: number
+    govIdType: number
+    govIdNumber: number
+    govIdCountry: number
+    govIdExpiry: number
+    rightToWork: number
+    visaType: number
+    visaExpiry: number
+    ptsNumber: number
+    ptsExpiry: number
+    medicalExpiry: number
+    studentLoan: number
+    lineManager: number
+    noticePeriod: number
+    payType: number
+    payRatePence: number
+    notes: number
     userId: number
     createdAt: number
     updatedAt: number
     _all: number
   }
 
+
+  export type StaffAvgAggregateInputType = {
+    hoursPerWeek?: true
+    payRatePence?: true
+  }
+
+  export type StaffSumAggregateInputType = {
+    hoursPerWeek?: true
+    payRatePence?: true
+  }
 
   export type StaffMinAggregateInputType = {
     ref?: true
@@ -9049,6 +9300,49 @@ export namespace Prisma {
     status?: true
     joined?: true
     birthday?: true
+    preferredName?: true
+    dateOfBirth?: true
+    gender?: true
+    nationality?: true
+    personalEmail?: true
+    personalPhone?: true
+    addressLine1?: true
+    addressLine2?: true
+    city?: true
+    postcode?: true
+    country?: true
+    emergencyName?: true
+    emergencyPhone?: true
+    emergencyRelation?: true
+    employmentType?: true
+    workLocation?: true
+    contractEnd?: true
+    probationEnd?: true
+    hoursPerWeek?: true
+    niNumber?: true
+    taxId?: true
+    taxCode?: true
+    taxResidency?: true
+    bankAccountName?: true
+    bankSortCode?: true
+    bankAccountNumber?: true
+    iban?: true
+    govIdType?: true
+    govIdNumber?: true
+    govIdCountry?: true
+    govIdExpiry?: true
+    rightToWork?: true
+    visaType?: true
+    visaExpiry?: true
+    ptsNumber?: true
+    ptsExpiry?: true
+    medicalExpiry?: true
+    studentLoan?: true
+    lineManager?: true
+    noticePeriod?: true
+    payType?: true
+    payRatePence?: true
+    notes?: true
     userId?: true
     createdAt?: true
     updatedAt?: true
@@ -9065,6 +9359,49 @@ export namespace Prisma {
     status?: true
     joined?: true
     birthday?: true
+    preferredName?: true
+    dateOfBirth?: true
+    gender?: true
+    nationality?: true
+    personalEmail?: true
+    personalPhone?: true
+    addressLine1?: true
+    addressLine2?: true
+    city?: true
+    postcode?: true
+    country?: true
+    emergencyName?: true
+    emergencyPhone?: true
+    emergencyRelation?: true
+    employmentType?: true
+    workLocation?: true
+    contractEnd?: true
+    probationEnd?: true
+    hoursPerWeek?: true
+    niNumber?: true
+    taxId?: true
+    taxCode?: true
+    taxResidency?: true
+    bankAccountName?: true
+    bankSortCode?: true
+    bankAccountNumber?: true
+    iban?: true
+    govIdType?: true
+    govIdNumber?: true
+    govIdCountry?: true
+    govIdExpiry?: true
+    rightToWork?: true
+    visaType?: true
+    visaExpiry?: true
+    ptsNumber?: true
+    ptsExpiry?: true
+    medicalExpiry?: true
+    studentLoan?: true
+    lineManager?: true
+    noticePeriod?: true
+    payType?: true
+    payRatePence?: true
+    notes?: true
     userId?: true
     createdAt?: true
     updatedAt?: true
@@ -9081,6 +9418,49 @@ export namespace Prisma {
     status?: true
     joined?: true
     birthday?: true
+    preferredName?: true
+    dateOfBirth?: true
+    gender?: true
+    nationality?: true
+    personalEmail?: true
+    personalPhone?: true
+    addressLine1?: true
+    addressLine2?: true
+    city?: true
+    postcode?: true
+    country?: true
+    emergencyName?: true
+    emergencyPhone?: true
+    emergencyRelation?: true
+    employmentType?: true
+    workLocation?: true
+    contractEnd?: true
+    probationEnd?: true
+    hoursPerWeek?: true
+    niNumber?: true
+    taxId?: true
+    taxCode?: true
+    taxResidency?: true
+    bankAccountName?: true
+    bankSortCode?: true
+    bankAccountNumber?: true
+    iban?: true
+    govIdType?: true
+    govIdNumber?: true
+    govIdCountry?: true
+    govIdExpiry?: true
+    rightToWork?: true
+    visaType?: true
+    visaExpiry?: true
+    ptsNumber?: true
+    ptsExpiry?: true
+    medicalExpiry?: true
+    studentLoan?: true
+    lineManager?: true
+    noticePeriod?: true
+    payType?: true
+    payRatePence?: true
+    notes?: true
     userId?: true
     createdAt?: true
     updatedAt?: true
@@ -9125,6 +9505,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: StaffAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: StaffSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: StaffMinAggregateInputType
@@ -9155,6 +9547,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: StaffCountAggregateInputType | true
+    _avg?: StaffAvgAggregateInputType
+    _sum?: StaffSumAggregateInputType
     _min?: StaffMinAggregateInputType
     _max?: StaffMaxAggregateInputType
   }
@@ -9170,10 +9564,55 @@ export namespace Prisma {
     status: string
     joined: Date
     birthday: string
+    preferredName: string | null
+    dateOfBirth: Date | null
+    gender: string | null
+    nationality: string | null
+    personalEmail: string | null
+    personalPhone: string | null
+    addressLine1: string | null
+    addressLine2: string | null
+    city: string | null
+    postcode: string | null
+    country: string | null
+    emergencyName: string | null
+    emergencyPhone: string | null
+    emergencyRelation: string | null
+    employmentType: string | null
+    workLocation: string | null
+    contractEnd: Date | null
+    probationEnd: Date | null
+    hoursPerWeek: number | null
+    niNumber: string | null
+    taxId: string | null
+    taxCode: string | null
+    taxResidency: string | null
+    bankAccountName: string | null
+    bankSortCode: string | null
+    bankAccountNumber: string | null
+    iban: string | null
+    govIdType: string | null
+    govIdNumber: string | null
+    govIdCountry: string | null
+    govIdExpiry: Date | null
+    rightToWork: string | null
+    visaType: string | null
+    visaExpiry: Date | null
+    ptsNumber: string | null
+    ptsExpiry: Date | null
+    medicalExpiry: Date | null
+    studentLoan: boolean
+    lineManager: string | null
+    noticePeriod: string | null
+    payType: string | null
+    payRatePence: number | null
+    notes: string | null
     userId: string | null
     createdAt: Date
     updatedAt: Date
     _count: StaffCountAggregateOutputType | null
+    _avg: StaffAvgAggregateOutputType | null
+    _sum: StaffSumAggregateOutputType | null
     _min: StaffMinAggregateOutputType | null
     _max: StaffMaxAggregateOutputType | null
   }
@@ -9203,6 +9642,49 @@ export namespace Prisma {
     status?: boolean
     joined?: boolean
     birthday?: boolean
+    preferredName?: boolean
+    dateOfBirth?: boolean
+    gender?: boolean
+    nationality?: boolean
+    personalEmail?: boolean
+    personalPhone?: boolean
+    addressLine1?: boolean
+    addressLine2?: boolean
+    city?: boolean
+    postcode?: boolean
+    country?: boolean
+    emergencyName?: boolean
+    emergencyPhone?: boolean
+    emergencyRelation?: boolean
+    employmentType?: boolean
+    workLocation?: boolean
+    contractEnd?: boolean
+    probationEnd?: boolean
+    hoursPerWeek?: boolean
+    niNumber?: boolean
+    taxId?: boolean
+    taxCode?: boolean
+    taxResidency?: boolean
+    bankAccountName?: boolean
+    bankSortCode?: boolean
+    bankAccountNumber?: boolean
+    iban?: boolean
+    govIdType?: boolean
+    govIdNumber?: boolean
+    govIdCountry?: boolean
+    govIdExpiry?: boolean
+    rightToWork?: boolean
+    visaType?: boolean
+    visaExpiry?: boolean
+    ptsNumber?: boolean
+    ptsExpiry?: boolean
+    medicalExpiry?: boolean
+    studentLoan?: boolean
+    lineManager?: boolean
+    noticePeriod?: boolean
+    payType?: boolean
+    payRatePence?: boolean
+    notes?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -9213,6 +9695,7 @@ export namespace Prisma {
     leaveRequests?: boolean | Staff$leaveRequestsArgs<ExtArgs>
     expenses?: boolean | Staff$expensesArgs<ExtArgs>
     payroll?: boolean | Staff$payrollArgs<ExtArgs>
+    documents?: boolean | Staff$documentsArgs<ExtArgs>
     _count?: boolean | StaffCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["staff"]>
 
@@ -9227,6 +9710,49 @@ export namespace Prisma {
     status?: boolean
     joined?: boolean
     birthday?: boolean
+    preferredName?: boolean
+    dateOfBirth?: boolean
+    gender?: boolean
+    nationality?: boolean
+    personalEmail?: boolean
+    personalPhone?: boolean
+    addressLine1?: boolean
+    addressLine2?: boolean
+    city?: boolean
+    postcode?: boolean
+    country?: boolean
+    emergencyName?: boolean
+    emergencyPhone?: boolean
+    emergencyRelation?: boolean
+    employmentType?: boolean
+    workLocation?: boolean
+    contractEnd?: boolean
+    probationEnd?: boolean
+    hoursPerWeek?: boolean
+    niNumber?: boolean
+    taxId?: boolean
+    taxCode?: boolean
+    taxResidency?: boolean
+    bankAccountName?: boolean
+    bankSortCode?: boolean
+    bankAccountNumber?: boolean
+    iban?: boolean
+    govIdType?: boolean
+    govIdNumber?: boolean
+    govIdCountry?: boolean
+    govIdExpiry?: boolean
+    rightToWork?: boolean
+    visaType?: boolean
+    visaExpiry?: boolean
+    ptsNumber?: boolean
+    ptsExpiry?: boolean
+    medicalExpiry?: boolean
+    studentLoan?: boolean
+    lineManager?: boolean
+    noticePeriod?: boolean
+    payType?: boolean
+    payRatePence?: boolean
+    notes?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -9246,6 +9772,49 @@ export namespace Prisma {
     status?: boolean
     joined?: boolean
     birthday?: boolean
+    preferredName?: boolean
+    dateOfBirth?: boolean
+    gender?: boolean
+    nationality?: boolean
+    personalEmail?: boolean
+    personalPhone?: boolean
+    addressLine1?: boolean
+    addressLine2?: boolean
+    city?: boolean
+    postcode?: boolean
+    country?: boolean
+    emergencyName?: boolean
+    emergencyPhone?: boolean
+    emergencyRelation?: boolean
+    employmentType?: boolean
+    workLocation?: boolean
+    contractEnd?: boolean
+    probationEnd?: boolean
+    hoursPerWeek?: boolean
+    niNumber?: boolean
+    taxId?: boolean
+    taxCode?: boolean
+    taxResidency?: boolean
+    bankAccountName?: boolean
+    bankSortCode?: boolean
+    bankAccountNumber?: boolean
+    iban?: boolean
+    govIdType?: boolean
+    govIdNumber?: boolean
+    govIdCountry?: boolean
+    govIdExpiry?: boolean
+    rightToWork?: boolean
+    visaType?: boolean
+    visaExpiry?: boolean
+    ptsNumber?: boolean
+    ptsExpiry?: boolean
+    medicalExpiry?: boolean
+    studentLoan?: boolean
+    lineManager?: boolean
+    noticePeriod?: boolean
+    payType?: boolean
+    payRatePence?: boolean
+    notes?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -9265,12 +9834,55 @@ export namespace Prisma {
     status?: boolean
     joined?: boolean
     birthday?: boolean
+    preferredName?: boolean
+    dateOfBirth?: boolean
+    gender?: boolean
+    nationality?: boolean
+    personalEmail?: boolean
+    personalPhone?: boolean
+    addressLine1?: boolean
+    addressLine2?: boolean
+    city?: boolean
+    postcode?: boolean
+    country?: boolean
+    emergencyName?: boolean
+    emergencyPhone?: boolean
+    emergencyRelation?: boolean
+    employmentType?: boolean
+    workLocation?: boolean
+    contractEnd?: boolean
+    probationEnd?: boolean
+    hoursPerWeek?: boolean
+    niNumber?: boolean
+    taxId?: boolean
+    taxCode?: boolean
+    taxResidency?: boolean
+    bankAccountName?: boolean
+    bankSortCode?: boolean
+    bankAccountNumber?: boolean
+    iban?: boolean
+    govIdType?: boolean
+    govIdNumber?: boolean
+    govIdCountry?: boolean
+    govIdExpiry?: boolean
+    rightToWork?: boolean
+    visaType?: boolean
+    visaExpiry?: boolean
+    ptsNumber?: boolean
+    ptsExpiry?: boolean
+    medicalExpiry?: boolean
+    studentLoan?: boolean
+    lineManager?: boolean
+    noticePeriod?: boolean
+    payType?: boolean
+    payRatePence?: boolean
+    notes?: boolean
     userId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type StaffOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"ref" | "name" | "email" | "phone" | "role" | "crewId" | "currentJobId" | "status" | "joined" | "birthday" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["staff"]>
+  export type StaffOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"ref" | "name" | "email" | "phone" | "role" | "crewId" | "currentJobId" | "status" | "joined" | "birthday" | "preferredName" | "dateOfBirth" | "gender" | "nationality" | "personalEmail" | "personalPhone" | "addressLine1" | "addressLine2" | "city" | "postcode" | "country" | "emergencyName" | "emergencyPhone" | "emergencyRelation" | "employmentType" | "workLocation" | "contractEnd" | "probationEnd" | "hoursPerWeek" | "niNumber" | "taxId" | "taxCode" | "taxResidency" | "bankAccountName" | "bankSortCode" | "bankAccountNumber" | "iban" | "govIdType" | "govIdNumber" | "govIdCountry" | "govIdExpiry" | "rightToWork" | "visaType" | "visaExpiry" | "ptsNumber" | "ptsExpiry" | "medicalExpiry" | "studentLoan" | "lineManager" | "noticePeriod" | "payType" | "payRatePence" | "notes" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["staff"]>
   export type StaffInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     crew?: boolean | CrewDefaultArgs<ExtArgs>
     currentJob?: boolean | Staff$currentJobArgs<ExtArgs>
@@ -9279,6 +9891,7 @@ export namespace Prisma {
     leaveRequests?: boolean | Staff$leaveRequestsArgs<ExtArgs>
     expenses?: boolean | Staff$expensesArgs<ExtArgs>
     payroll?: boolean | Staff$payrollArgs<ExtArgs>
+    documents?: boolean | Staff$documentsArgs<ExtArgs>
     _count?: boolean | StaffCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type StaffIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -9302,6 +9915,7 @@ export namespace Prisma {
       leaveRequests: Prisma.$LeaveRequestPayload<ExtArgs>[]
       expenses: Prisma.$ExpensePayload<ExtArgs>[]
       payroll: Prisma.$PayrollRecordPayload<ExtArgs>[]
+      documents: Prisma.$StaffDocumentPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       ref: string
@@ -9314,6 +9928,49 @@ export namespace Prisma {
       status: string
       joined: Date
       birthday: string
+      preferredName: string | null
+      dateOfBirth: Date | null
+      gender: string | null
+      nationality: string | null
+      personalEmail: string | null
+      personalPhone: string | null
+      addressLine1: string | null
+      addressLine2: string | null
+      city: string | null
+      postcode: string | null
+      country: string | null
+      emergencyName: string | null
+      emergencyPhone: string | null
+      emergencyRelation: string | null
+      employmentType: string | null
+      workLocation: string | null
+      contractEnd: Date | null
+      probationEnd: Date | null
+      hoursPerWeek: number | null
+      niNumber: string | null
+      taxId: string | null
+      taxCode: string | null
+      taxResidency: string | null
+      bankAccountName: string | null
+      bankSortCode: string | null
+      bankAccountNumber: string | null
+      iban: string | null
+      govIdType: string | null
+      govIdNumber: string | null
+      govIdCountry: string | null
+      govIdExpiry: Date | null
+      rightToWork: string | null
+      visaType: string | null
+      visaExpiry: Date | null
+      ptsNumber: string | null
+      ptsExpiry: Date | null
+      medicalExpiry: Date | null
+      studentLoan: boolean
+      lineManager: string | null
+      noticePeriod: string | null
+      payType: string | null
+      payRatePence: number | null
+      notes: string | null
       userId: string | null
       createdAt: Date
       updatedAt: Date
@@ -9718,6 +10375,7 @@ export namespace Prisma {
     leaveRequests<T extends Staff$leaveRequestsArgs<ExtArgs> = {}>(args?: Subset<T, Staff$leaveRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LeaveRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     expenses<T extends Staff$expensesArgs<ExtArgs> = {}>(args?: Subset<T, Staff$expensesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     payroll<T extends Staff$payrollArgs<ExtArgs> = {}>(args?: Subset<T, Staff$payrollArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PayrollRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    documents<T extends Staff$documentsArgs<ExtArgs> = {}>(args?: Subset<T, Staff$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StaffDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -9757,6 +10415,49 @@ export namespace Prisma {
     readonly status: FieldRef<"Staff", 'String'>
     readonly joined: FieldRef<"Staff", 'DateTime'>
     readonly birthday: FieldRef<"Staff", 'String'>
+    readonly preferredName: FieldRef<"Staff", 'String'>
+    readonly dateOfBirth: FieldRef<"Staff", 'DateTime'>
+    readonly gender: FieldRef<"Staff", 'String'>
+    readonly nationality: FieldRef<"Staff", 'String'>
+    readonly personalEmail: FieldRef<"Staff", 'String'>
+    readonly personalPhone: FieldRef<"Staff", 'String'>
+    readonly addressLine1: FieldRef<"Staff", 'String'>
+    readonly addressLine2: FieldRef<"Staff", 'String'>
+    readonly city: FieldRef<"Staff", 'String'>
+    readonly postcode: FieldRef<"Staff", 'String'>
+    readonly country: FieldRef<"Staff", 'String'>
+    readonly emergencyName: FieldRef<"Staff", 'String'>
+    readonly emergencyPhone: FieldRef<"Staff", 'String'>
+    readonly emergencyRelation: FieldRef<"Staff", 'String'>
+    readonly employmentType: FieldRef<"Staff", 'String'>
+    readonly workLocation: FieldRef<"Staff", 'String'>
+    readonly contractEnd: FieldRef<"Staff", 'DateTime'>
+    readonly probationEnd: FieldRef<"Staff", 'DateTime'>
+    readonly hoursPerWeek: FieldRef<"Staff", 'Float'>
+    readonly niNumber: FieldRef<"Staff", 'String'>
+    readonly taxId: FieldRef<"Staff", 'String'>
+    readonly taxCode: FieldRef<"Staff", 'String'>
+    readonly taxResidency: FieldRef<"Staff", 'String'>
+    readonly bankAccountName: FieldRef<"Staff", 'String'>
+    readonly bankSortCode: FieldRef<"Staff", 'String'>
+    readonly bankAccountNumber: FieldRef<"Staff", 'String'>
+    readonly iban: FieldRef<"Staff", 'String'>
+    readonly govIdType: FieldRef<"Staff", 'String'>
+    readonly govIdNumber: FieldRef<"Staff", 'String'>
+    readonly govIdCountry: FieldRef<"Staff", 'String'>
+    readonly govIdExpiry: FieldRef<"Staff", 'DateTime'>
+    readonly rightToWork: FieldRef<"Staff", 'String'>
+    readonly visaType: FieldRef<"Staff", 'String'>
+    readonly visaExpiry: FieldRef<"Staff", 'DateTime'>
+    readonly ptsNumber: FieldRef<"Staff", 'String'>
+    readonly ptsExpiry: FieldRef<"Staff", 'DateTime'>
+    readonly medicalExpiry: FieldRef<"Staff", 'DateTime'>
+    readonly studentLoan: FieldRef<"Staff", 'Boolean'>
+    readonly lineManager: FieldRef<"Staff", 'String'>
+    readonly noticePeriod: FieldRef<"Staff", 'String'>
+    readonly payType: FieldRef<"Staff", 'String'>
+    readonly payRatePence: FieldRef<"Staff", 'Int'>
+    readonly notes: FieldRef<"Staff", 'String'>
     readonly userId: FieldRef<"Staff", 'String'>
     readonly createdAt: FieldRef<"Staff", 'DateTime'>
     readonly updatedAt: FieldRef<"Staff", 'DateTime'>
@@ -10295,6 +10996,30 @@ export namespace Prisma {
   }
 
   /**
+   * Staff.documents
+   */
+  export type Staff$documentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffDocument
+     */
+    select?: StaffDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StaffDocument
+     */
+    omit?: StaffDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffDocumentInclude<ExtArgs> | null
+    where?: StaffDocumentWhereInput
+    orderBy?: StaffDocumentOrderByWithRelationInput | StaffDocumentOrderByWithRelationInput[]
+    cursor?: StaffDocumentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: StaffDocumentScalarFieldEnum | StaffDocumentScalarFieldEnum[]
+  }
+
+  /**
    * Staff without action
    */
   export type StaffDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -10310,6 +11035,1147 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: StaffInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model StaffDocument
+   */
+
+  export type AggregateStaffDocument = {
+    _count: StaffDocumentCountAggregateOutputType | null
+    _min: StaffDocumentMinAggregateOutputType | null
+    _max: StaffDocumentMaxAggregateOutputType | null
+  }
+
+  export type StaffDocumentMinAggregateOutputType = {
+    id: string | null
+    staffRef: string | null
+    category: string | null
+    title: string | null
+    reference: string | null
+    issuedOn: Date | null
+    expiresOn: Date | null
+    fileName: string | null
+    url: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type StaffDocumentMaxAggregateOutputType = {
+    id: string | null
+    staffRef: string | null
+    category: string | null
+    title: string | null
+    reference: string | null
+    issuedOn: Date | null
+    expiresOn: Date | null
+    fileName: string | null
+    url: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type StaffDocumentCountAggregateOutputType = {
+    id: number
+    staffRef: number
+    category: number
+    title: number
+    reference: number
+    issuedOn: number
+    expiresOn: number
+    fileName: number
+    url: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type StaffDocumentMinAggregateInputType = {
+    id?: true
+    staffRef?: true
+    category?: true
+    title?: true
+    reference?: true
+    issuedOn?: true
+    expiresOn?: true
+    fileName?: true
+    url?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type StaffDocumentMaxAggregateInputType = {
+    id?: true
+    staffRef?: true
+    category?: true
+    title?: true
+    reference?: true
+    issuedOn?: true
+    expiresOn?: true
+    fileName?: true
+    url?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type StaffDocumentCountAggregateInputType = {
+    id?: true
+    staffRef?: true
+    category?: true
+    title?: true
+    reference?: true
+    issuedOn?: true
+    expiresOn?: true
+    fileName?: true
+    url?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type StaffDocumentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which StaffDocument to aggregate.
+     */
+    where?: StaffDocumentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StaffDocuments to fetch.
+     */
+    orderBy?: StaffDocumentOrderByWithRelationInput | StaffDocumentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: StaffDocumentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StaffDocuments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StaffDocuments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned StaffDocuments
+    **/
+    _count?: true | StaffDocumentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: StaffDocumentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: StaffDocumentMaxAggregateInputType
+  }
+
+  export type GetStaffDocumentAggregateType<T extends StaffDocumentAggregateArgs> = {
+        [P in keyof T & keyof AggregateStaffDocument]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateStaffDocument[P]>
+      : GetScalarType<T[P], AggregateStaffDocument[P]>
+  }
+
+
+
+
+  export type StaffDocumentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StaffDocumentWhereInput
+    orderBy?: StaffDocumentOrderByWithAggregationInput | StaffDocumentOrderByWithAggregationInput[]
+    by: StaffDocumentScalarFieldEnum[] | StaffDocumentScalarFieldEnum
+    having?: StaffDocumentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: StaffDocumentCountAggregateInputType | true
+    _min?: StaffDocumentMinAggregateInputType
+    _max?: StaffDocumentMaxAggregateInputType
+  }
+
+  export type StaffDocumentGroupByOutputType = {
+    id: string
+    staffRef: string
+    category: string
+    title: string
+    reference: string | null
+    issuedOn: Date | null
+    expiresOn: Date | null
+    fileName: string | null
+    url: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: StaffDocumentCountAggregateOutputType | null
+    _min: StaffDocumentMinAggregateOutputType | null
+    _max: StaffDocumentMaxAggregateOutputType | null
+  }
+
+  type GetStaffDocumentGroupByPayload<T extends StaffDocumentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<StaffDocumentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof StaffDocumentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], StaffDocumentGroupByOutputType[P]>
+            : GetScalarType<T[P], StaffDocumentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type StaffDocumentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    staffRef?: boolean
+    category?: boolean
+    title?: boolean
+    reference?: boolean
+    issuedOn?: boolean
+    expiresOn?: boolean
+    fileName?: boolean
+    url?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    staff?: boolean | StaffDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["staffDocument"]>
+
+  export type StaffDocumentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    staffRef?: boolean
+    category?: boolean
+    title?: boolean
+    reference?: boolean
+    issuedOn?: boolean
+    expiresOn?: boolean
+    fileName?: boolean
+    url?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    staff?: boolean | StaffDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["staffDocument"]>
+
+  export type StaffDocumentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    staffRef?: boolean
+    category?: boolean
+    title?: boolean
+    reference?: boolean
+    issuedOn?: boolean
+    expiresOn?: boolean
+    fileName?: boolean
+    url?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    staff?: boolean | StaffDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["staffDocument"]>
+
+  export type StaffDocumentSelectScalar = {
+    id?: boolean
+    staffRef?: boolean
+    category?: boolean
+    title?: boolean
+    reference?: boolean
+    issuedOn?: boolean
+    expiresOn?: boolean
+    fileName?: boolean
+    url?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type StaffDocumentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "staffRef" | "category" | "title" | "reference" | "issuedOn" | "expiresOn" | "fileName" | "url" | "createdAt" | "updatedAt", ExtArgs["result"]["staffDocument"]>
+  export type StaffDocumentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    staff?: boolean | StaffDefaultArgs<ExtArgs>
+  }
+  export type StaffDocumentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    staff?: boolean | StaffDefaultArgs<ExtArgs>
+  }
+  export type StaffDocumentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    staff?: boolean | StaffDefaultArgs<ExtArgs>
+  }
+
+  export type $StaffDocumentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "StaffDocument"
+    objects: {
+      staff: Prisma.$StaffPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      staffRef: string
+      category: string
+      title: string
+      reference: string | null
+      issuedOn: Date | null
+      expiresOn: Date | null
+      fileName: string | null
+      url: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["staffDocument"]>
+    composites: {}
+  }
+
+  type StaffDocumentGetPayload<S extends boolean | null | undefined | StaffDocumentDefaultArgs> = $Result.GetResult<Prisma.$StaffDocumentPayload, S>
+
+  type StaffDocumentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<StaffDocumentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: StaffDocumentCountAggregateInputType | true
+    }
+
+  export interface StaffDocumentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['StaffDocument'], meta: { name: 'StaffDocument' } }
+    /**
+     * Find zero or one StaffDocument that matches the filter.
+     * @param {StaffDocumentFindUniqueArgs} args - Arguments to find a StaffDocument
+     * @example
+     * // Get one StaffDocument
+     * const staffDocument = await prisma.staffDocument.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends StaffDocumentFindUniqueArgs>(args: SelectSubset<T, StaffDocumentFindUniqueArgs<ExtArgs>>): Prisma__StaffDocumentClient<$Result.GetResult<Prisma.$StaffDocumentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one StaffDocument that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {StaffDocumentFindUniqueOrThrowArgs} args - Arguments to find a StaffDocument
+     * @example
+     * // Get one StaffDocument
+     * const staffDocument = await prisma.staffDocument.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends StaffDocumentFindUniqueOrThrowArgs>(args: SelectSubset<T, StaffDocumentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__StaffDocumentClient<$Result.GetResult<Prisma.$StaffDocumentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first StaffDocument that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StaffDocumentFindFirstArgs} args - Arguments to find a StaffDocument
+     * @example
+     * // Get one StaffDocument
+     * const staffDocument = await prisma.staffDocument.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends StaffDocumentFindFirstArgs>(args?: SelectSubset<T, StaffDocumentFindFirstArgs<ExtArgs>>): Prisma__StaffDocumentClient<$Result.GetResult<Prisma.$StaffDocumentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first StaffDocument that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StaffDocumentFindFirstOrThrowArgs} args - Arguments to find a StaffDocument
+     * @example
+     * // Get one StaffDocument
+     * const staffDocument = await prisma.staffDocument.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends StaffDocumentFindFirstOrThrowArgs>(args?: SelectSubset<T, StaffDocumentFindFirstOrThrowArgs<ExtArgs>>): Prisma__StaffDocumentClient<$Result.GetResult<Prisma.$StaffDocumentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more StaffDocuments that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StaffDocumentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all StaffDocuments
+     * const staffDocuments = await prisma.staffDocument.findMany()
+     * 
+     * // Get first 10 StaffDocuments
+     * const staffDocuments = await prisma.staffDocument.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const staffDocumentWithIdOnly = await prisma.staffDocument.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends StaffDocumentFindManyArgs>(args?: SelectSubset<T, StaffDocumentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StaffDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a StaffDocument.
+     * @param {StaffDocumentCreateArgs} args - Arguments to create a StaffDocument.
+     * @example
+     * // Create one StaffDocument
+     * const StaffDocument = await prisma.staffDocument.create({
+     *   data: {
+     *     // ... data to create a StaffDocument
+     *   }
+     * })
+     * 
+     */
+    create<T extends StaffDocumentCreateArgs>(args: SelectSubset<T, StaffDocumentCreateArgs<ExtArgs>>): Prisma__StaffDocumentClient<$Result.GetResult<Prisma.$StaffDocumentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many StaffDocuments.
+     * @param {StaffDocumentCreateManyArgs} args - Arguments to create many StaffDocuments.
+     * @example
+     * // Create many StaffDocuments
+     * const staffDocument = await prisma.staffDocument.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends StaffDocumentCreateManyArgs>(args?: SelectSubset<T, StaffDocumentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many StaffDocuments and returns the data saved in the database.
+     * @param {StaffDocumentCreateManyAndReturnArgs} args - Arguments to create many StaffDocuments.
+     * @example
+     * // Create many StaffDocuments
+     * const staffDocument = await prisma.staffDocument.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many StaffDocuments and only return the `id`
+     * const staffDocumentWithIdOnly = await prisma.staffDocument.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends StaffDocumentCreateManyAndReturnArgs>(args?: SelectSubset<T, StaffDocumentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StaffDocumentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a StaffDocument.
+     * @param {StaffDocumentDeleteArgs} args - Arguments to delete one StaffDocument.
+     * @example
+     * // Delete one StaffDocument
+     * const StaffDocument = await prisma.staffDocument.delete({
+     *   where: {
+     *     // ... filter to delete one StaffDocument
+     *   }
+     * })
+     * 
+     */
+    delete<T extends StaffDocumentDeleteArgs>(args: SelectSubset<T, StaffDocumentDeleteArgs<ExtArgs>>): Prisma__StaffDocumentClient<$Result.GetResult<Prisma.$StaffDocumentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one StaffDocument.
+     * @param {StaffDocumentUpdateArgs} args - Arguments to update one StaffDocument.
+     * @example
+     * // Update one StaffDocument
+     * const staffDocument = await prisma.staffDocument.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends StaffDocumentUpdateArgs>(args: SelectSubset<T, StaffDocumentUpdateArgs<ExtArgs>>): Prisma__StaffDocumentClient<$Result.GetResult<Prisma.$StaffDocumentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more StaffDocuments.
+     * @param {StaffDocumentDeleteManyArgs} args - Arguments to filter StaffDocuments to delete.
+     * @example
+     * // Delete a few StaffDocuments
+     * const { count } = await prisma.staffDocument.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends StaffDocumentDeleteManyArgs>(args?: SelectSubset<T, StaffDocumentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more StaffDocuments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StaffDocumentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many StaffDocuments
+     * const staffDocument = await prisma.staffDocument.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends StaffDocumentUpdateManyArgs>(args: SelectSubset<T, StaffDocumentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more StaffDocuments and returns the data updated in the database.
+     * @param {StaffDocumentUpdateManyAndReturnArgs} args - Arguments to update many StaffDocuments.
+     * @example
+     * // Update many StaffDocuments
+     * const staffDocument = await prisma.staffDocument.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more StaffDocuments and only return the `id`
+     * const staffDocumentWithIdOnly = await prisma.staffDocument.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends StaffDocumentUpdateManyAndReturnArgs>(args: SelectSubset<T, StaffDocumentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StaffDocumentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one StaffDocument.
+     * @param {StaffDocumentUpsertArgs} args - Arguments to update or create a StaffDocument.
+     * @example
+     * // Update or create a StaffDocument
+     * const staffDocument = await prisma.staffDocument.upsert({
+     *   create: {
+     *     // ... data to create a StaffDocument
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the StaffDocument we want to update
+     *   }
+     * })
+     */
+    upsert<T extends StaffDocumentUpsertArgs>(args: SelectSubset<T, StaffDocumentUpsertArgs<ExtArgs>>): Prisma__StaffDocumentClient<$Result.GetResult<Prisma.$StaffDocumentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of StaffDocuments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StaffDocumentCountArgs} args - Arguments to filter StaffDocuments to count.
+     * @example
+     * // Count the number of StaffDocuments
+     * const count = await prisma.staffDocument.count({
+     *   where: {
+     *     // ... the filter for the StaffDocuments we want to count
+     *   }
+     * })
+    **/
+    count<T extends StaffDocumentCountArgs>(
+      args?: Subset<T, StaffDocumentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], StaffDocumentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a StaffDocument.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StaffDocumentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends StaffDocumentAggregateArgs>(args: Subset<T, StaffDocumentAggregateArgs>): Prisma.PrismaPromise<GetStaffDocumentAggregateType<T>>
+
+    /**
+     * Group by StaffDocument.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StaffDocumentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends StaffDocumentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: StaffDocumentGroupByArgs['orderBy'] }
+        : { orderBy?: StaffDocumentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, StaffDocumentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetStaffDocumentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the StaffDocument model
+   */
+  readonly fields: StaffDocumentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for StaffDocument.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__StaffDocumentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    staff<T extends StaffDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StaffDefaultArgs<ExtArgs>>): Prisma__StaffClient<$Result.GetResult<Prisma.$StaffPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the StaffDocument model
+   */
+  interface StaffDocumentFieldRefs {
+    readonly id: FieldRef<"StaffDocument", 'String'>
+    readonly staffRef: FieldRef<"StaffDocument", 'String'>
+    readonly category: FieldRef<"StaffDocument", 'String'>
+    readonly title: FieldRef<"StaffDocument", 'String'>
+    readonly reference: FieldRef<"StaffDocument", 'String'>
+    readonly issuedOn: FieldRef<"StaffDocument", 'DateTime'>
+    readonly expiresOn: FieldRef<"StaffDocument", 'DateTime'>
+    readonly fileName: FieldRef<"StaffDocument", 'String'>
+    readonly url: FieldRef<"StaffDocument", 'String'>
+    readonly createdAt: FieldRef<"StaffDocument", 'DateTime'>
+    readonly updatedAt: FieldRef<"StaffDocument", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * StaffDocument findUnique
+   */
+  export type StaffDocumentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffDocument
+     */
+    select?: StaffDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StaffDocument
+     */
+    omit?: StaffDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffDocumentInclude<ExtArgs> | null
+    /**
+     * Filter, which StaffDocument to fetch.
+     */
+    where: StaffDocumentWhereUniqueInput
+  }
+
+  /**
+   * StaffDocument findUniqueOrThrow
+   */
+  export type StaffDocumentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffDocument
+     */
+    select?: StaffDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StaffDocument
+     */
+    omit?: StaffDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffDocumentInclude<ExtArgs> | null
+    /**
+     * Filter, which StaffDocument to fetch.
+     */
+    where: StaffDocumentWhereUniqueInput
+  }
+
+  /**
+   * StaffDocument findFirst
+   */
+  export type StaffDocumentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffDocument
+     */
+    select?: StaffDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StaffDocument
+     */
+    omit?: StaffDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffDocumentInclude<ExtArgs> | null
+    /**
+     * Filter, which StaffDocument to fetch.
+     */
+    where?: StaffDocumentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StaffDocuments to fetch.
+     */
+    orderBy?: StaffDocumentOrderByWithRelationInput | StaffDocumentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for StaffDocuments.
+     */
+    cursor?: StaffDocumentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StaffDocuments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StaffDocuments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StaffDocuments.
+     */
+    distinct?: StaffDocumentScalarFieldEnum | StaffDocumentScalarFieldEnum[]
+  }
+
+  /**
+   * StaffDocument findFirstOrThrow
+   */
+  export type StaffDocumentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffDocument
+     */
+    select?: StaffDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StaffDocument
+     */
+    omit?: StaffDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffDocumentInclude<ExtArgs> | null
+    /**
+     * Filter, which StaffDocument to fetch.
+     */
+    where?: StaffDocumentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StaffDocuments to fetch.
+     */
+    orderBy?: StaffDocumentOrderByWithRelationInput | StaffDocumentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for StaffDocuments.
+     */
+    cursor?: StaffDocumentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StaffDocuments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StaffDocuments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StaffDocuments.
+     */
+    distinct?: StaffDocumentScalarFieldEnum | StaffDocumentScalarFieldEnum[]
+  }
+
+  /**
+   * StaffDocument findMany
+   */
+  export type StaffDocumentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffDocument
+     */
+    select?: StaffDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StaffDocument
+     */
+    omit?: StaffDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffDocumentInclude<ExtArgs> | null
+    /**
+     * Filter, which StaffDocuments to fetch.
+     */
+    where?: StaffDocumentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StaffDocuments to fetch.
+     */
+    orderBy?: StaffDocumentOrderByWithRelationInput | StaffDocumentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing StaffDocuments.
+     */
+    cursor?: StaffDocumentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StaffDocuments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StaffDocuments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StaffDocuments.
+     */
+    distinct?: StaffDocumentScalarFieldEnum | StaffDocumentScalarFieldEnum[]
+  }
+
+  /**
+   * StaffDocument create
+   */
+  export type StaffDocumentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffDocument
+     */
+    select?: StaffDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StaffDocument
+     */
+    omit?: StaffDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffDocumentInclude<ExtArgs> | null
+    /**
+     * The data needed to create a StaffDocument.
+     */
+    data: XOR<StaffDocumentCreateInput, StaffDocumentUncheckedCreateInput>
+  }
+
+  /**
+   * StaffDocument createMany
+   */
+  export type StaffDocumentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many StaffDocuments.
+     */
+    data: StaffDocumentCreateManyInput | StaffDocumentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * StaffDocument createManyAndReturn
+   */
+  export type StaffDocumentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffDocument
+     */
+    select?: StaffDocumentSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the StaffDocument
+     */
+    omit?: StaffDocumentOmit<ExtArgs> | null
+    /**
+     * The data used to create many StaffDocuments.
+     */
+    data: StaffDocumentCreateManyInput | StaffDocumentCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffDocumentIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * StaffDocument update
+   */
+  export type StaffDocumentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffDocument
+     */
+    select?: StaffDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StaffDocument
+     */
+    omit?: StaffDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffDocumentInclude<ExtArgs> | null
+    /**
+     * The data needed to update a StaffDocument.
+     */
+    data: XOR<StaffDocumentUpdateInput, StaffDocumentUncheckedUpdateInput>
+    /**
+     * Choose, which StaffDocument to update.
+     */
+    where: StaffDocumentWhereUniqueInput
+  }
+
+  /**
+   * StaffDocument updateMany
+   */
+  export type StaffDocumentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update StaffDocuments.
+     */
+    data: XOR<StaffDocumentUpdateManyMutationInput, StaffDocumentUncheckedUpdateManyInput>
+    /**
+     * Filter which StaffDocuments to update
+     */
+    where?: StaffDocumentWhereInput
+    /**
+     * Limit how many StaffDocuments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * StaffDocument updateManyAndReturn
+   */
+  export type StaffDocumentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffDocument
+     */
+    select?: StaffDocumentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the StaffDocument
+     */
+    omit?: StaffDocumentOmit<ExtArgs> | null
+    /**
+     * The data used to update StaffDocuments.
+     */
+    data: XOR<StaffDocumentUpdateManyMutationInput, StaffDocumentUncheckedUpdateManyInput>
+    /**
+     * Filter which StaffDocuments to update
+     */
+    where?: StaffDocumentWhereInput
+    /**
+     * Limit how many StaffDocuments to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffDocumentIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * StaffDocument upsert
+   */
+  export type StaffDocumentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffDocument
+     */
+    select?: StaffDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StaffDocument
+     */
+    omit?: StaffDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffDocumentInclude<ExtArgs> | null
+    /**
+     * The filter to search for the StaffDocument to update in case it exists.
+     */
+    where: StaffDocumentWhereUniqueInput
+    /**
+     * In case the StaffDocument found by the `where` argument doesn't exist, create a new StaffDocument with this data.
+     */
+    create: XOR<StaffDocumentCreateInput, StaffDocumentUncheckedCreateInput>
+    /**
+     * In case the StaffDocument was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<StaffDocumentUpdateInput, StaffDocumentUncheckedUpdateInput>
+  }
+
+  /**
+   * StaffDocument delete
+   */
+  export type StaffDocumentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffDocument
+     */
+    select?: StaffDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StaffDocument
+     */
+    omit?: StaffDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffDocumentInclude<ExtArgs> | null
+    /**
+     * Filter which StaffDocument to delete.
+     */
+    where: StaffDocumentWhereUniqueInput
+  }
+
+  /**
+   * StaffDocument deleteMany
+   */
+  export type StaffDocumentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which StaffDocuments to delete
+     */
+    where?: StaffDocumentWhereInput
+    /**
+     * Limit how many StaffDocuments to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * StaffDocument without action
+   */
+  export type StaffDocumentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StaffDocument
+     */
+    select?: StaffDocumentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the StaffDocument
+     */
+    omit?: StaffDocumentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StaffDocumentInclude<ExtArgs> | null
   }
 
 
@@ -11416,9 +13282,13 @@ export namespace Prisma {
     from: Date | null
     to: Date | null
     days: number | null
+    startAt: string | null
+    endAt: string | null
+    deducts: boolean | null
     reason: string | null
     status: string | null
     submitted: Date | null
+    decidedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -11430,9 +13300,13 @@ export namespace Prisma {
     from: Date | null
     to: Date | null
     days: number | null
+    startAt: string | null
+    endAt: string | null
+    deducts: boolean | null
     reason: string | null
     status: string | null
     submitted: Date | null
+    decidedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -11444,9 +13318,13 @@ export namespace Prisma {
     from: number
     to: number
     days: number
+    startAt: number
+    endAt: number
+    deducts: number
     reason: number
     status: number
     submitted: number
+    decidedAt: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -11468,9 +13346,13 @@ export namespace Prisma {
     from?: true
     to?: true
     days?: true
+    startAt?: true
+    endAt?: true
+    deducts?: true
     reason?: true
     status?: true
     submitted?: true
+    decidedAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -11482,9 +13364,13 @@ export namespace Prisma {
     from?: true
     to?: true
     days?: true
+    startAt?: true
+    endAt?: true
+    deducts?: true
     reason?: true
     status?: true
     submitted?: true
+    decidedAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -11496,9 +13382,13 @@ export namespace Prisma {
     from?: true
     to?: true
     days?: true
+    startAt?: true
+    endAt?: true
+    deducts?: true
     reason?: true
     status?: true
     submitted?: true
+    decidedAt?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -11597,9 +13487,13 @@ export namespace Prisma {
     from: Date
     to: Date
     days: number
+    startAt: string
+    endAt: string
+    deducts: boolean
     reason: string
     status: string
     submitted: Date
+    decidedAt: Date | null
     createdAt: Date
     updatedAt: Date
     _count: LeaveRequestCountAggregateOutputType | null
@@ -11630,9 +13524,13 @@ export namespace Prisma {
     from?: boolean
     to?: boolean
     days?: boolean
+    startAt?: boolean
+    endAt?: boolean
+    deducts?: boolean
     reason?: boolean
     status?: boolean
     submitted?: boolean
+    decidedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     staff?: boolean | StaffDefaultArgs<ExtArgs>
@@ -11645,9 +13543,13 @@ export namespace Prisma {
     from?: boolean
     to?: boolean
     days?: boolean
+    startAt?: boolean
+    endAt?: boolean
+    deducts?: boolean
     reason?: boolean
     status?: boolean
     submitted?: boolean
+    decidedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     staff?: boolean | StaffDefaultArgs<ExtArgs>
@@ -11660,9 +13562,13 @@ export namespace Prisma {
     from?: boolean
     to?: boolean
     days?: boolean
+    startAt?: boolean
+    endAt?: boolean
+    deducts?: boolean
     reason?: boolean
     status?: boolean
     submitted?: boolean
+    decidedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     staff?: boolean | StaffDefaultArgs<ExtArgs>
@@ -11675,14 +13581,18 @@ export namespace Prisma {
     from?: boolean
     to?: boolean
     days?: boolean
+    startAt?: boolean
+    endAt?: boolean
+    deducts?: boolean
     reason?: boolean
     status?: boolean
     submitted?: boolean
+    decidedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type LeaveRequestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "staffRef" | "type" | "from" | "to" | "days" | "reason" | "status" | "submitted" | "createdAt" | "updatedAt", ExtArgs["result"]["leaveRequest"]>
+  export type LeaveRequestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "staffRef" | "type" | "from" | "to" | "days" | "startAt" | "endAt" | "deducts" | "reason" | "status" | "submitted" | "decidedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["leaveRequest"]>
   export type LeaveRequestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     staff?: boolean | StaffDefaultArgs<ExtArgs>
   }
@@ -11704,10 +13614,26 @@ export namespace Prisma {
       type: string
       from: Date
       to: Date
+      /**
+       * * Working days deducted, halves included — 4.5 is a valid request.
+       */
       days: number
+      /**
+       * * Which half of the first day it starts in: 'morning' | 'afternoon'.
+       */
+      startAt: string
+      /**
+       * * Which half of the last day it runs to: 'lunchtime' | 'end_of_day'.
+       */
+      endAt: string
+      /**
+       * * Whether these days come off the annual allowance.
+       */
+      deducts: boolean
       reason: string
       status: string
       submitted: Date
+      decidedAt: Date | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["leaveRequest"]>
@@ -12139,10 +14065,14 @@ export namespace Prisma {
     readonly type: FieldRef<"LeaveRequest", 'String'>
     readonly from: FieldRef<"LeaveRequest", 'DateTime'>
     readonly to: FieldRef<"LeaveRequest", 'DateTime'>
-    readonly days: FieldRef<"LeaveRequest", 'Int'>
+    readonly days: FieldRef<"LeaveRequest", 'Float'>
+    readonly startAt: FieldRef<"LeaveRequest", 'String'>
+    readonly endAt: FieldRef<"LeaveRequest", 'String'>
+    readonly deducts: FieldRef<"LeaveRequest", 'Boolean'>
     readonly reason: FieldRef<"LeaveRequest", 'String'>
     readonly status: FieldRef<"LeaveRequest", 'String'>
     readonly submitted: FieldRef<"LeaveRequest", 'DateTime'>
+    readonly decidedAt: FieldRef<"LeaveRequest", 'DateTime'>
     readonly createdAt: FieldRef<"LeaveRequest", 'DateTime'>
     readonly updatedAt: FieldRef<"LeaveRequest", 'DateTime'>
   }
@@ -19655,12 +21585,72 @@ export namespace Prisma {
     status: 'status',
     joined: 'joined',
     birthday: 'birthday',
+    preferredName: 'preferredName',
+    dateOfBirth: 'dateOfBirth',
+    gender: 'gender',
+    nationality: 'nationality',
+    personalEmail: 'personalEmail',
+    personalPhone: 'personalPhone',
+    addressLine1: 'addressLine1',
+    addressLine2: 'addressLine2',
+    city: 'city',
+    postcode: 'postcode',
+    country: 'country',
+    emergencyName: 'emergencyName',
+    emergencyPhone: 'emergencyPhone',
+    emergencyRelation: 'emergencyRelation',
+    employmentType: 'employmentType',
+    workLocation: 'workLocation',
+    contractEnd: 'contractEnd',
+    probationEnd: 'probationEnd',
+    hoursPerWeek: 'hoursPerWeek',
+    niNumber: 'niNumber',
+    taxId: 'taxId',
+    taxCode: 'taxCode',
+    taxResidency: 'taxResidency',
+    bankAccountName: 'bankAccountName',
+    bankSortCode: 'bankSortCode',
+    bankAccountNumber: 'bankAccountNumber',
+    iban: 'iban',
+    govIdType: 'govIdType',
+    govIdNumber: 'govIdNumber',
+    govIdCountry: 'govIdCountry',
+    govIdExpiry: 'govIdExpiry',
+    rightToWork: 'rightToWork',
+    visaType: 'visaType',
+    visaExpiry: 'visaExpiry',
+    ptsNumber: 'ptsNumber',
+    ptsExpiry: 'ptsExpiry',
+    medicalExpiry: 'medicalExpiry',
+    studentLoan: 'studentLoan',
+    lineManager: 'lineManager',
+    noticePeriod: 'noticePeriod',
+    payType: 'payType',
+    payRatePence: 'payRatePence',
+    notes: 'notes',
     userId: 'userId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
   export type StaffScalarFieldEnum = (typeof StaffScalarFieldEnum)[keyof typeof StaffScalarFieldEnum]
+
+
+  export const StaffDocumentScalarFieldEnum: {
+    id: 'id',
+    staffRef: 'staffRef',
+    category: 'category',
+    title: 'title',
+    reference: 'reference',
+    issuedOn: 'issuedOn',
+    expiresOn: 'expiresOn',
+    fileName: 'fileName',
+    url: 'url',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type StaffDocumentScalarFieldEnum = (typeof StaffDocumentScalarFieldEnum)[keyof typeof StaffDocumentScalarFieldEnum]
 
 
   export const AttendanceScalarFieldEnum: {
@@ -19682,9 +21672,13 @@ export namespace Prisma {
     from: 'from',
     to: 'to',
     days: 'days',
+    startAt: 'startAt',
+    endAt: 'endAt',
+    deducts: 'deducts',
     reason: 'reason',
     status: 'status',
     submitted: 'submitted',
+    decidedAt: 'decidedAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -19850,20 +21844,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Int'
-   */
-  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
-
-
-  /**
-   * Reference to a field of type 'Int[]'
-   */
-  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
-    
-
-
-  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -19874,6 +21854,20 @@ export namespace Prisma {
    * Reference to a field of type 'Float[]'
    */
   export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Int'
+   */
+  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+  /**
+   * Reference to a field of type 'Int[]'
+   */
+  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
   /**
    * Deep Input Types
@@ -20294,6 +22288,49 @@ export namespace Prisma {
     status?: StringFilter<"Staff"> | string
     joined?: DateTimeFilter<"Staff"> | Date | string
     birthday?: StringFilter<"Staff"> | string
+    preferredName?: StringNullableFilter<"Staff"> | string | null
+    dateOfBirth?: DateTimeNullableFilter<"Staff"> | Date | string | null
+    gender?: StringNullableFilter<"Staff"> | string | null
+    nationality?: StringNullableFilter<"Staff"> | string | null
+    personalEmail?: StringNullableFilter<"Staff"> | string | null
+    personalPhone?: StringNullableFilter<"Staff"> | string | null
+    addressLine1?: StringNullableFilter<"Staff"> | string | null
+    addressLine2?: StringNullableFilter<"Staff"> | string | null
+    city?: StringNullableFilter<"Staff"> | string | null
+    postcode?: StringNullableFilter<"Staff"> | string | null
+    country?: StringNullableFilter<"Staff"> | string | null
+    emergencyName?: StringNullableFilter<"Staff"> | string | null
+    emergencyPhone?: StringNullableFilter<"Staff"> | string | null
+    emergencyRelation?: StringNullableFilter<"Staff"> | string | null
+    employmentType?: StringNullableFilter<"Staff"> | string | null
+    workLocation?: StringNullableFilter<"Staff"> | string | null
+    contractEnd?: DateTimeNullableFilter<"Staff"> | Date | string | null
+    probationEnd?: DateTimeNullableFilter<"Staff"> | Date | string | null
+    hoursPerWeek?: FloatNullableFilter<"Staff"> | number | null
+    niNumber?: StringNullableFilter<"Staff"> | string | null
+    taxId?: StringNullableFilter<"Staff"> | string | null
+    taxCode?: StringNullableFilter<"Staff"> | string | null
+    taxResidency?: StringNullableFilter<"Staff"> | string | null
+    bankAccountName?: StringNullableFilter<"Staff"> | string | null
+    bankSortCode?: StringNullableFilter<"Staff"> | string | null
+    bankAccountNumber?: StringNullableFilter<"Staff"> | string | null
+    iban?: StringNullableFilter<"Staff"> | string | null
+    govIdType?: StringNullableFilter<"Staff"> | string | null
+    govIdNumber?: StringNullableFilter<"Staff"> | string | null
+    govIdCountry?: StringNullableFilter<"Staff"> | string | null
+    govIdExpiry?: DateTimeNullableFilter<"Staff"> | Date | string | null
+    rightToWork?: StringNullableFilter<"Staff"> | string | null
+    visaType?: StringNullableFilter<"Staff"> | string | null
+    visaExpiry?: DateTimeNullableFilter<"Staff"> | Date | string | null
+    ptsNumber?: StringNullableFilter<"Staff"> | string | null
+    ptsExpiry?: DateTimeNullableFilter<"Staff"> | Date | string | null
+    medicalExpiry?: DateTimeNullableFilter<"Staff"> | Date | string | null
+    studentLoan?: BoolFilter<"Staff"> | boolean
+    lineManager?: StringNullableFilter<"Staff"> | string | null
+    noticePeriod?: StringNullableFilter<"Staff"> | string | null
+    payType?: StringNullableFilter<"Staff"> | string | null
+    payRatePence?: IntNullableFilter<"Staff"> | number | null
+    notes?: StringNullableFilter<"Staff"> | string | null
     userId?: StringNullableFilter<"Staff"> | string | null
     createdAt?: DateTimeFilter<"Staff"> | Date | string
     updatedAt?: DateTimeFilter<"Staff"> | Date | string
@@ -20304,6 +22341,7 @@ export namespace Prisma {
     leaveRequests?: LeaveRequestListRelationFilter
     expenses?: ExpenseListRelationFilter
     payroll?: PayrollRecordListRelationFilter
+    documents?: StaffDocumentListRelationFilter
   }
 
   export type StaffOrderByWithRelationInput = {
@@ -20317,6 +22355,49 @@ export namespace Prisma {
     status?: SortOrder
     joined?: SortOrder
     birthday?: SortOrder
+    preferredName?: SortOrderInput | SortOrder
+    dateOfBirth?: SortOrderInput | SortOrder
+    gender?: SortOrderInput | SortOrder
+    nationality?: SortOrderInput | SortOrder
+    personalEmail?: SortOrderInput | SortOrder
+    personalPhone?: SortOrderInput | SortOrder
+    addressLine1?: SortOrderInput | SortOrder
+    addressLine2?: SortOrderInput | SortOrder
+    city?: SortOrderInput | SortOrder
+    postcode?: SortOrderInput | SortOrder
+    country?: SortOrderInput | SortOrder
+    emergencyName?: SortOrderInput | SortOrder
+    emergencyPhone?: SortOrderInput | SortOrder
+    emergencyRelation?: SortOrderInput | SortOrder
+    employmentType?: SortOrderInput | SortOrder
+    workLocation?: SortOrderInput | SortOrder
+    contractEnd?: SortOrderInput | SortOrder
+    probationEnd?: SortOrderInput | SortOrder
+    hoursPerWeek?: SortOrderInput | SortOrder
+    niNumber?: SortOrderInput | SortOrder
+    taxId?: SortOrderInput | SortOrder
+    taxCode?: SortOrderInput | SortOrder
+    taxResidency?: SortOrderInput | SortOrder
+    bankAccountName?: SortOrderInput | SortOrder
+    bankSortCode?: SortOrderInput | SortOrder
+    bankAccountNumber?: SortOrderInput | SortOrder
+    iban?: SortOrderInput | SortOrder
+    govIdType?: SortOrderInput | SortOrder
+    govIdNumber?: SortOrderInput | SortOrder
+    govIdCountry?: SortOrderInput | SortOrder
+    govIdExpiry?: SortOrderInput | SortOrder
+    rightToWork?: SortOrderInput | SortOrder
+    visaType?: SortOrderInput | SortOrder
+    visaExpiry?: SortOrderInput | SortOrder
+    ptsNumber?: SortOrderInput | SortOrder
+    ptsExpiry?: SortOrderInput | SortOrder
+    medicalExpiry?: SortOrderInput | SortOrder
+    studentLoan?: SortOrder
+    lineManager?: SortOrderInput | SortOrder
+    noticePeriod?: SortOrderInput | SortOrder
+    payType?: SortOrderInput | SortOrder
+    payRatePence?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
     userId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -20327,6 +22408,7 @@ export namespace Prisma {
     leaveRequests?: LeaveRequestOrderByRelationAggregateInput
     expenses?: ExpenseOrderByRelationAggregateInput
     payroll?: PayrollRecordOrderByRelationAggregateInput
+    documents?: StaffDocumentOrderByRelationAggregateInput
   }
 
   export type StaffWhereUniqueInput = Prisma.AtLeast<{
@@ -20344,6 +22426,49 @@ export namespace Prisma {
     status?: StringFilter<"Staff"> | string
     joined?: DateTimeFilter<"Staff"> | Date | string
     birthday?: StringFilter<"Staff"> | string
+    preferredName?: StringNullableFilter<"Staff"> | string | null
+    dateOfBirth?: DateTimeNullableFilter<"Staff"> | Date | string | null
+    gender?: StringNullableFilter<"Staff"> | string | null
+    nationality?: StringNullableFilter<"Staff"> | string | null
+    personalEmail?: StringNullableFilter<"Staff"> | string | null
+    personalPhone?: StringNullableFilter<"Staff"> | string | null
+    addressLine1?: StringNullableFilter<"Staff"> | string | null
+    addressLine2?: StringNullableFilter<"Staff"> | string | null
+    city?: StringNullableFilter<"Staff"> | string | null
+    postcode?: StringNullableFilter<"Staff"> | string | null
+    country?: StringNullableFilter<"Staff"> | string | null
+    emergencyName?: StringNullableFilter<"Staff"> | string | null
+    emergencyPhone?: StringNullableFilter<"Staff"> | string | null
+    emergencyRelation?: StringNullableFilter<"Staff"> | string | null
+    employmentType?: StringNullableFilter<"Staff"> | string | null
+    workLocation?: StringNullableFilter<"Staff"> | string | null
+    contractEnd?: DateTimeNullableFilter<"Staff"> | Date | string | null
+    probationEnd?: DateTimeNullableFilter<"Staff"> | Date | string | null
+    hoursPerWeek?: FloatNullableFilter<"Staff"> | number | null
+    niNumber?: StringNullableFilter<"Staff"> | string | null
+    taxId?: StringNullableFilter<"Staff"> | string | null
+    taxCode?: StringNullableFilter<"Staff"> | string | null
+    taxResidency?: StringNullableFilter<"Staff"> | string | null
+    bankAccountName?: StringNullableFilter<"Staff"> | string | null
+    bankSortCode?: StringNullableFilter<"Staff"> | string | null
+    bankAccountNumber?: StringNullableFilter<"Staff"> | string | null
+    iban?: StringNullableFilter<"Staff"> | string | null
+    govIdType?: StringNullableFilter<"Staff"> | string | null
+    govIdNumber?: StringNullableFilter<"Staff"> | string | null
+    govIdCountry?: StringNullableFilter<"Staff"> | string | null
+    govIdExpiry?: DateTimeNullableFilter<"Staff"> | Date | string | null
+    rightToWork?: StringNullableFilter<"Staff"> | string | null
+    visaType?: StringNullableFilter<"Staff"> | string | null
+    visaExpiry?: DateTimeNullableFilter<"Staff"> | Date | string | null
+    ptsNumber?: StringNullableFilter<"Staff"> | string | null
+    ptsExpiry?: DateTimeNullableFilter<"Staff"> | Date | string | null
+    medicalExpiry?: DateTimeNullableFilter<"Staff"> | Date | string | null
+    studentLoan?: BoolFilter<"Staff"> | boolean
+    lineManager?: StringNullableFilter<"Staff"> | string | null
+    noticePeriod?: StringNullableFilter<"Staff"> | string | null
+    payType?: StringNullableFilter<"Staff"> | string | null
+    payRatePence?: IntNullableFilter<"Staff"> | number | null
+    notes?: StringNullableFilter<"Staff"> | string | null
     createdAt?: DateTimeFilter<"Staff"> | Date | string
     updatedAt?: DateTimeFilter<"Staff"> | Date | string
     crew?: XOR<CrewScalarRelationFilter, CrewWhereInput>
@@ -20353,6 +22478,7 @@ export namespace Prisma {
     leaveRequests?: LeaveRequestListRelationFilter
     expenses?: ExpenseListRelationFilter
     payroll?: PayrollRecordListRelationFilter
+    documents?: StaffDocumentListRelationFilter
   }, "ref" | "email" | "userId">
 
   export type StaffOrderByWithAggregationInput = {
@@ -20366,12 +22492,57 @@ export namespace Prisma {
     status?: SortOrder
     joined?: SortOrder
     birthday?: SortOrder
+    preferredName?: SortOrderInput | SortOrder
+    dateOfBirth?: SortOrderInput | SortOrder
+    gender?: SortOrderInput | SortOrder
+    nationality?: SortOrderInput | SortOrder
+    personalEmail?: SortOrderInput | SortOrder
+    personalPhone?: SortOrderInput | SortOrder
+    addressLine1?: SortOrderInput | SortOrder
+    addressLine2?: SortOrderInput | SortOrder
+    city?: SortOrderInput | SortOrder
+    postcode?: SortOrderInput | SortOrder
+    country?: SortOrderInput | SortOrder
+    emergencyName?: SortOrderInput | SortOrder
+    emergencyPhone?: SortOrderInput | SortOrder
+    emergencyRelation?: SortOrderInput | SortOrder
+    employmentType?: SortOrderInput | SortOrder
+    workLocation?: SortOrderInput | SortOrder
+    contractEnd?: SortOrderInput | SortOrder
+    probationEnd?: SortOrderInput | SortOrder
+    hoursPerWeek?: SortOrderInput | SortOrder
+    niNumber?: SortOrderInput | SortOrder
+    taxId?: SortOrderInput | SortOrder
+    taxCode?: SortOrderInput | SortOrder
+    taxResidency?: SortOrderInput | SortOrder
+    bankAccountName?: SortOrderInput | SortOrder
+    bankSortCode?: SortOrderInput | SortOrder
+    bankAccountNumber?: SortOrderInput | SortOrder
+    iban?: SortOrderInput | SortOrder
+    govIdType?: SortOrderInput | SortOrder
+    govIdNumber?: SortOrderInput | SortOrder
+    govIdCountry?: SortOrderInput | SortOrder
+    govIdExpiry?: SortOrderInput | SortOrder
+    rightToWork?: SortOrderInput | SortOrder
+    visaType?: SortOrderInput | SortOrder
+    visaExpiry?: SortOrderInput | SortOrder
+    ptsNumber?: SortOrderInput | SortOrder
+    ptsExpiry?: SortOrderInput | SortOrder
+    medicalExpiry?: SortOrderInput | SortOrder
+    studentLoan?: SortOrder
+    lineManager?: SortOrderInput | SortOrder
+    noticePeriod?: SortOrderInput | SortOrder
+    payType?: SortOrderInput | SortOrder
+    payRatePence?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
     userId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: StaffCountOrderByAggregateInput
+    _avg?: StaffAvgOrderByAggregateInput
     _max?: StaffMaxOrderByAggregateInput
     _min?: StaffMinOrderByAggregateInput
+    _sum?: StaffSumOrderByAggregateInput
   }
 
   export type StaffScalarWhereWithAggregatesInput = {
@@ -20388,9 +22559,137 @@ export namespace Prisma {
     status?: StringWithAggregatesFilter<"Staff"> | string
     joined?: DateTimeWithAggregatesFilter<"Staff"> | Date | string
     birthday?: StringWithAggregatesFilter<"Staff"> | string
+    preferredName?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    dateOfBirth?: DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
+    gender?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    nationality?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    personalEmail?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    personalPhone?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    addressLine1?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    addressLine2?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    city?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    postcode?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    country?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    emergencyName?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    emergencyPhone?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    emergencyRelation?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    employmentType?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    workLocation?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    contractEnd?: DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
+    probationEnd?: DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
+    hoursPerWeek?: FloatNullableWithAggregatesFilter<"Staff"> | number | null
+    niNumber?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    taxId?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    taxCode?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    taxResidency?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    bankAccountName?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    bankSortCode?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    bankAccountNumber?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    iban?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    govIdType?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    govIdNumber?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    govIdCountry?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    govIdExpiry?: DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
+    rightToWork?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    visaType?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    visaExpiry?: DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
+    ptsNumber?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    ptsExpiry?: DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
+    medicalExpiry?: DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
+    studentLoan?: BoolWithAggregatesFilter<"Staff"> | boolean
+    lineManager?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    noticePeriod?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    payType?: StringNullableWithAggregatesFilter<"Staff"> | string | null
+    payRatePence?: IntNullableWithAggregatesFilter<"Staff"> | number | null
+    notes?: StringNullableWithAggregatesFilter<"Staff"> | string | null
     userId?: StringNullableWithAggregatesFilter<"Staff"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Staff"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Staff"> | Date | string
+  }
+
+  export type StaffDocumentWhereInput = {
+    AND?: StaffDocumentWhereInput | StaffDocumentWhereInput[]
+    OR?: StaffDocumentWhereInput[]
+    NOT?: StaffDocumentWhereInput | StaffDocumentWhereInput[]
+    id?: StringFilter<"StaffDocument"> | string
+    staffRef?: StringFilter<"StaffDocument"> | string
+    category?: StringFilter<"StaffDocument"> | string
+    title?: StringFilter<"StaffDocument"> | string
+    reference?: StringNullableFilter<"StaffDocument"> | string | null
+    issuedOn?: DateTimeNullableFilter<"StaffDocument"> | Date | string | null
+    expiresOn?: DateTimeNullableFilter<"StaffDocument"> | Date | string | null
+    fileName?: StringNullableFilter<"StaffDocument"> | string | null
+    url?: StringNullableFilter<"StaffDocument"> | string | null
+    createdAt?: DateTimeFilter<"StaffDocument"> | Date | string
+    updatedAt?: DateTimeFilter<"StaffDocument"> | Date | string
+    staff?: XOR<StaffScalarRelationFilter, StaffWhereInput>
+  }
+
+  export type StaffDocumentOrderByWithRelationInput = {
+    id?: SortOrder
+    staffRef?: SortOrder
+    category?: SortOrder
+    title?: SortOrder
+    reference?: SortOrderInput | SortOrder
+    issuedOn?: SortOrderInput | SortOrder
+    expiresOn?: SortOrderInput | SortOrder
+    fileName?: SortOrderInput | SortOrder
+    url?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    staff?: StaffOrderByWithRelationInput
+  }
+
+  export type StaffDocumentWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: StaffDocumentWhereInput | StaffDocumentWhereInput[]
+    OR?: StaffDocumentWhereInput[]
+    NOT?: StaffDocumentWhereInput | StaffDocumentWhereInput[]
+    staffRef?: StringFilter<"StaffDocument"> | string
+    category?: StringFilter<"StaffDocument"> | string
+    title?: StringFilter<"StaffDocument"> | string
+    reference?: StringNullableFilter<"StaffDocument"> | string | null
+    issuedOn?: DateTimeNullableFilter<"StaffDocument"> | Date | string | null
+    expiresOn?: DateTimeNullableFilter<"StaffDocument"> | Date | string | null
+    fileName?: StringNullableFilter<"StaffDocument"> | string | null
+    url?: StringNullableFilter<"StaffDocument"> | string | null
+    createdAt?: DateTimeFilter<"StaffDocument"> | Date | string
+    updatedAt?: DateTimeFilter<"StaffDocument"> | Date | string
+    staff?: XOR<StaffScalarRelationFilter, StaffWhereInput>
+  }, "id">
+
+  export type StaffDocumentOrderByWithAggregationInput = {
+    id?: SortOrder
+    staffRef?: SortOrder
+    category?: SortOrder
+    title?: SortOrder
+    reference?: SortOrderInput | SortOrder
+    issuedOn?: SortOrderInput | SortOrder
+    expiresOn?: SortOrderInput | SortOrder
+    fileName?: SortOrderInput | SortOrder
+    url?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: StaffDocumentCountOrderByAggregateInput
+    _max?: StaffDocumentMaxOrderByAggregateInput
+    _min?: StaffDocumentMinOrderByAggregateInput
+  }
+
+  export type StaffDocumentScalarWhereWithAggregatesInput = {
+    AND?: StaffDocumentScalarWhereWithAggregatesInput | StaffDocumentScalarWhereWithAggregatesInput[]
+    OR?: StaffDocumentScalarWhereWithAggregatesInput[]
+    NOT?: StaffDocumentScalarWhereWithAggregatesInput | StaffDocumentScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"StaffDocument"> | string
+    staffRef?: StringWithAggregatesFilter<"StaffDocument"> | string
+    category?: StringWithAggregatesFilter<"StaffDocument"> | string
+    title?: StringWithAggregatesFilter<"StaffDocument"> | string
+    reference?: StringNullableWithAggregatesFilter<"StaffDocument"> | string | null
+    issuedOn?: DateTimeNullableWithAggregatesFilter<"StaffDocument"> | Date | string | null
+    expiresOn?: DateTimeNullableWithAggregatesFilter<"StaffDocument"> | Date | string | null
+    fileName?: StringNullableWithAggregatesFilter<"StaffDocument"> | string | null
+    url?: StringNullableWithAggregatesFilter<"StaffDocument"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"StaffDocument"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"StaffDocument"> | Date | string
   }
 
   export type AttendanceWhereInput = {
@@ -20463,10 +22762,14 @@ export namespace Prisma {
     type?: StringFilter<"LeaveRequest"> | string
     from?: DateTimeFilter<"LeaveRequest"> | Date | string
     to?: DateTimeFilter<"LeaveRequest"> | Date | string
-    days?: IntFilter<"LeaveRequest"> | number
+    days?: FloatFilter<"LeaveRequest"> | number
+    startAt?: StringFilter<"LeaveRequest"> | string
+    endAt?: StringFilter<"LeaveRequest"> | string
+    deducts?: BoolFilter<"LeaveRequest"> | boolean
     reason?: StringFilter<"LeaveRequest"> | string
     status?: StringFilter<"LeaveRequest"> | string
     submitted?: DateTimeFilter<"LeaveRequest"> | Date | string
+    decidedAt?: DateTimeNullableFilter<"LeaveRequest"> | Date | string | null
     createdAt?: DateTimeFilter<"LeaveRequest"> | Date | string
     updatedAt?: DateTimeFilter<"LeaveRequest"> | Date | string
     staff?: XOR<StaffScalarRelationFilter, StaffWhereInput>
@@ -20479,9 +22782,13 @@ export namespace Prisma {
     from?: SortOrder
     to?: SortOrder
     days?: SortOrder
+    startAt?: SortOrder
+    endAt?: SortOrder
+    deducts?: SortOrder
     reason?: SortOrder
     status?: SortOrder
     submitted?: SortOrder
+    decidedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     staff?: StaffOrderByWithRelationInput
@@ -20496,10 +22803,14 @@ export namespace Prisma {
     type?: StringFilter<"LeaveRequest"> | string
     from?: DateTimeFilter<"LeaveRequest"> | Date | string
     to?: DateTimeFilter<"LeaveRequest"> | Date | string
-    days?: IntFilter<"LeaveRequest"> | number
+    days?: FloatFilter<"LeaveRequest"> | number
+    startAt?: StringFilter<"LeaveRequest"> | string
+    endAt?: StringFilter<"LeaveRequest"> | string
+    deducts?: BoolFilter<"LeaveRequest"> | boolean
     reason?: StringFilter<"LeaveRequest"> | string
     status?: StringFilter<"LeaveRequest"> | string
     submitted?: DateTimeFilter<"LeaveRequest"> | Date | string
+    decidedAt?: DateTimeNullableFilter<"LeaveRequest"> | Date | string | null
     createdAt?: DateTimeFilter<"LeaveRequest"> | Date | string
     updatedAt?: DateTimeFilter<"LeaveRequest"> | Date | string
     staff?: XOR<StaffScalarRelationFilter, StaffWhereInput>
@@ -20512,9 +22823,13 @@ export namespace Prisma {
     from?: SortOrder
     to?: SortOrder
     days?: SortOrder
+    startAt?: SortOrder
+    endAt?: SortOrder
+    deducts?: SortOrder
     reason?: SortOrder
     status?: SortOrder
     submitted?: SortOrder
+    decidedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: LeaveRequestCountOrderByAggregateInput
@@ -20533,10 +22848,14 @@ export namespace Prisma {
     type?: StringWithAggregatesFilter<"LeaveRequest"> | string
     from?: DateTimeWithAggregatesFilter<"LeaveRequest"> | Date | string
     to?: DateTimeWithAggregatesFilter<"LeaveRequest"> | Date | string
-    days?: IntWithAggregatesFilter<"LeaveRequest"> | number
+    days?: FloatWithAggregatesFilter<"LeaveRequest"> | number
+    startAt?: StringWithAggregatesFilter<"LeaveRequest"> | string
+    endAt?: StringWithAggregatesFilter<"LeaveRequest"> | string
+    deducts?: BoolWithAggregatesFilter<"LeaveRequest"> | boolean
     reason?: StringWithAggregatesFilter<"LeaveRequest"> | string
     status?: StringWithAggregatesFilter<"LeaveRequest"> | string
     submitted?: DateTimeWithAggregatesFilter<"LeaveRequest"> | Date | string
+    decidedAt?: DateTimeNullableWithAggregatesFilter<"LeaveRequest"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"LeaveRequest"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"LeaveRequest"> | Date | string
   }
@@ -21481,6 +23800,49 @@ export namespace Prisma {
     status: string
     joined: Date | string
     birthday: string
+    preferredName?: string | null
+    dateOfBirth?: Date | string | null
+    gender?: string | null
+    nationality?: string | null
+    personalEmail?: string | null
+    personalPhone?: string | null
+    addressLine1?: string | null
+    addressLine2?: string | null
+    city?: string | null
+    postcode?: string | null
+    country?: string | null
+    emergencyName?: string | null
+    emergencyPhone?: string | null
+    emergencyRelation?: string | null
+    employmentType?: string | null
+    workLocation?: string | null
+    contractEnd?: Date | string | null
+    probationEnd?: Date | string | null
+    hoursPerWeek?: number | null
+    niNumber?: string | null
+    taxId?: string | null
+    taxCode?: string | null
+    taxResidency?: string | null
+    bankAccountName?: string | null
+    bankSortCode?: string | null
+    bankAccountNumber?: string | null
+    iban?: string | null
+    govIdType?: string | null
+    govIdNumber?: string | null
+    govIdCountry?: string | null
+    govIdExpiry?: Date | string | null
+    rightToWork?: string | null
+    visaType?: string | null
+    visaExpiry?: Date | string | null
+    ptsNumber?: string | null
+    ptsExpiry?: Date | string | null
+    medicalExpiry?: Date | string | null
+    studentLoan?: boolean
+    lineManager?: string | null
+    noticePeriod?: string | null
+    payType?: string | null
+    payRatePence?: number | null
+    notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     crew: CrewCreateNestedOneWithoutStaffInput
@@ -21490,6 +23852,7 @@ export namespace Prisma {
     leaveRequests?: LeaveRequestCreateNestedManyWithoutStaffInput
     expenses?: ExpenseCreateNestedManyWithoutStaffInput
     payroll?: PayrollRecordCreateNestedManyWithoutStaffInput
+    documents?: StaffDocumentCreateNestedManyWithoutStaffInput
   }
 
   export type StaffUncheckedCreateInput = {
@@ -21503,6 +23866,49 @@ export namespace Prisma {
     status: string
     joined: Date | string
     birthday: string
+    preferredName?: string | null
+    dateOfBirth?: Date | string | null
+    gender?: string | null
+    nationality?: string | null
+    personalEmail?: string | null
+    personalPhone?: string | null
+    addressLine1?: string | null
+    addressLine2?: string | null
+    city?: string | null
+    postcode?: string | null
+    country?: string | null
+    emergencyName?: string | null
+    emergencyPhone?: string | null
+    emergencyRelation?: string | null
+    employmentType?: string | null
+    workLocation?: string | null
+    contractEnd?: Date | string | null
+    probationEnd?: Date | string | null
+    hoursPerWeek?: number | null
+    niNumber?: string | null
+    taxId?: string | null
+    taxCode?: string | null
+    taxResidency?: string | null
+    bankAccountName?: string | null
+    bankSortCode?: string | null
+    bankAccountNumber?: string | null
+    iban?: string | null
+    govIdType?: string | null
+    govIdNumber?: string | null
+    govIdCountry?: string | null
+    govIdExpiry?: Date | string | null
+    rightToWork?: string | null
+    visaType?: string | null
+    visaExpiry?: Date | string | null
+    ptsNumber?: string | null
+    ptsExpiry?: Date | string | null
+    medicalExpiry?: Date | string | null
+    studentLoan?: boolean
+    lineManager?: string | null
+    noticePeriod?: string | null
+    payType?: string | null
+    payRatePence?: number | null
+    notes?: string | null
     userId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -21510,6 +23916,7 @@ export namespace Prisma {
     leaveRequests?: LeaveRequestUncheckedCreateNestedManyWithoutStaffInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutStaffInput
     payroll?: PayrollRecordUncheckedCreateNestedManyWithoutStaffInput
+    documents?: StaffDocumentUncheckedCreateNestedManyWithoutStaffInput
   }
 
   export type StaffUpdateInput = {
@@ -21521,6 +23928,49 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     joined?: DateTimeFieldUpdateOperationsInput | Date | string
     birthday?: StringFieldUpdateOperationsInput | string
+    preferredName?: NullableStringFieldUpdateOperationsInput | string | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    personalPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine1?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postcode?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyRelation?: NullableStringFieldUpdateOperationsInput | string | null
+    employmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    contractEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    probationEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hoursPerWeek?: NullableFloatFieldUpdateOperationsInput | number | null
+    niNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    taxCode?: NullableStringFieldUpdateOperationsInput | string | null
+    taxResidency?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankSortCode?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdType?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rightToWork?: NullableStringFieldUpdateOperationsInput | string | null
+    visaType?: NullableStringFieldUpdateOperationsInput | string | null
+    visaExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ptsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    ptsExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    medicalExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    studentLoan?: BoolFieldUpdateOperationsInput | boolean
+    lineManager?: NullableStringFieldUpdateOperationsInput | string | null
+    noticePeriod?: NullableStringFieldUpdateOperationsInput | string | null
+    payType?: NullableStringFieldUpdateOperationsInput | string | null
+    payRatePence?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     crew?: CrewUpdateOneRequiredWithoutStaffNestedInput
@@ -21530,6 +23980,7 @@ export namespace Prisma {
     leaveRequests?: LeaveRequestUpdateManyWithoutStaffNestedInput
     expenses?: ExpenseUpdateManyWithoutStaffNestedInput
     payroll?: PayrollRecordUpdateManyWithoutStaffNestedInput
+    documents?: StaffDocumentUpdateManyWithoutStaffNestedInput
   }
 
   export type StaffUncheckedUpdateInput = {
@@ -21543,6 +23994,49 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     joined?: DateTimeFieldUpdateOperationsInput | Date | string
     birthday?: StringFieldUpdateOperationsInput | string
+    preferredName?: NullableStringFieldUpdateOperationsInput | string | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    personalPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine1?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postcode?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyRelation?: NullableStringFieldUpdateOperationsInput | string | null
+    employmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    contractEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    probationEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hoursPerWeek?: NullableFloatFieldUpdateOperationsInput | number | null
+    niNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    taxCode?: NullableStringFieldUpdateOperationsInput | string | null
+    taxResidency?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankSortCode?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdType?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rightToWork?: NullableStringFieldUpdateOperationsInput | string | null
+    visaType?: NullableStringFieldUpdateOperationsInput | string | null
+    visaExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ptsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    ptsExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    medicalExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    studentLoan?: BoolFieldUpdateOperationsInput | boolean
+    lineManager?: NullableStringFieldUpdateOperationsInput | string | null
+    noticePeriod?: NullableStringFieldUpdateOperationsInput | string | null
+    payType?: NullableStringFieldUpdateOperationsInput | string | null
+    payRatePence?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -21550,6 +24044,7 @@ export namespace Prisma {
     leaveRequests?: LeaveRequestUncheckedUpdateManyWithoutStaffNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutStaffNestedInput
     payroll?: PayrollRecordUncheckedUpdateManyWithoutStaffNestedInput
+    documents?: StaffDocumentUncheckedUpdateManyWithoutStaffNestedInput
   }
 
   export type StaffCreateManyInput = {
@@ -21563,6 +24058,49 @@ export namespace Prisma {
     status: string
     joined: Date | string
     birthday: string
+    preferredName?: string | null
+    dateOfBirth?: Date | string | null
+    gender?: string | null
+    nationality?: string | null
+    personalEmail?: string | null
+    personalPhone?: string | null
+    addressLine1?: string | null
+    addressLine2?: string | null
+    city?: string | null
+    postcode?: string | null
+    country?: string | null
+    emergencyName?: string | null
+    emergencyPhone?: string | null
+    emergencyRelation?: string | null
+    employmentType?: string | null
+    workLocation?: string | null
+    contractEnd?: Date | string | null
+    probationEnd?: Date | string | null
+    hoursPerWeek?: number | null
+    niNumber?: string | null
+    taxId?: string | null
+    taxCode?: string | null
+    taxResidency?: string | null
+    bankAccountName?: string | null
+    bankSortCode?: string | null
+    bankAccountNumber?: string | null
+    iban?: string | null
+    govIdType?: string | null
+    govIdNumber?: string | null
+    govIdCountry?: string | null
+    govIdExpiry?: Date | string | null
+    rightToWork?: string | null
+    visaType?: string | null
+    visaExpiry?: Date | string | null
+    ptsNumber?: string | null
+    ptsExpiry?: Date | string | null
+    medicalExpiry?: Date | string | null
+    studentLoan?: boolean
+    lineManager?: string | null
+    noticePeriod?: string | null
+    payType?: string | null
+    payRatePence?: number | null
+    notes?: string | null
     userId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -21577,6 +24115,49 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     joined?: DateTimeFieldUpdateOperationsInput | Date | string
     birthday?: StringFieldUpdateOperationsInput | string
+    preferredName?: NullableStringFieldUpdateOperationsInput | string | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    personalPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine1?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postcode?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyRelation?: NullableStringFieldUpdateOperationsInput | string | null
+    employmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    contractEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    probationEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hoursPerWeek?: NullableFloatFieldUpdateOperationsInput | number | null
+    niNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    taxCode?: NullableStringFieldUpdateOperationsInput | string | null
+    taxResidency?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankSortCode?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdType?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rightToWork?: NullableStringFieldUpdateOperationsInput | string | null
+    visaType?: NullableStringFieldUpdateOperationsInput | string | null
+    visaExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ptsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    ptsExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    medicalExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    studentLoan?: BoolFieldUpdateOperationsInput | boolean
+    lineManager?: NullableStringFieldUpdateOperationsInput | string | null
+    noticePeriod?: NullableStringFieldUpdateOperationsInput | string | null
+    payType?: NullableStringFieldUpdateOperationsInput | string | null
+    payRatePence?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -21592,7 +24173,147 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     joined?: DateTimeFieldUpdateOperationsInput | Date | string
     birthday?: StringFieldUpdateOperationsInput | string
+    preferredName?: NullableStringFieldUpdateOperationsInput | string | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    personalPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine1?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postcode?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyRelation?: NullableStringFieldUpdateOperationsInput | string | null
+    employmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    contractEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    probationEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hoursPerWeek?: NullableFloatFieldUpdateOperationsInput | number | null
+    niNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    taxCode?: NullableStringFieldUpdateOperationsInput | string | null
+    taxResidency?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankSortCode?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdType?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rightToWork?: NullableStringFieldUpdateOperationsInput | string | null
+    visaType?: NullableStringFieldUpdateOperationsInput | string | null
+    visaExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ptsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    ptsExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    medicalExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    studentLoan?: BoolFieldUpdateOperationsInput | boolean
+    lineManager?: NullableStringFieldUpdateOperationsInput | string | null
+    noticePeriod?: NullableStringFieldUpdateOperationsInput | string | null
+    payType?: NullableStringFieldUpdateOperationsInput | string | null
+    payRatePence?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StaffDocumentCreateInput = {
+    id?: string
+    category: string
+    title: string
+    reference?: string | null
+    issuedOn?: Date | string | null
+    expiresOn?: Date | string | null
+    fileName?: string | null
+    url?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    staff: StaffCreateNestedOneWithoutDocumentsInput
+  }
+
+  export type StaffDocumentUncheckedCreateInput = {
+    id?: string
+    staffRef: string
+    category: string
+    title: string
+    reference?: string | null
+    issuedOn?: Date | string | null
+    expiresOn?: Date | string | null
+    fileName?: string | null
+    url?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type StaffDocumentUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedOn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiresOn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fileName?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    staff?: StaffUpdateOneRequiredWithoutDocumentsNestedInput
+  }
+
+  export type StaffDocumentUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    staffRef?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedOn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiresOn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fileName?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StaffDocumentCreateManyInput = {
+    id?: string
+    staffRef: string
+    category: string
+    title: string
+    reference?: string | null
+    issuedOn?: Date | string | null
+    expiresOn?: Date | string | null
+    fileName?: string | null
+    url?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type StaffDocumentUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedOn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiresOn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fileName?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StaffDocumentUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    staffRef?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedOn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiresOn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fileName?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -21665,9 +24386,13 @@ export namespace Prisma {
     from: Date | string
     to: Date | string
     days: number
+    startAt?: string
+    endAt?: string
+    deducts?: boolean
     reason: string
     status: string
     submitted: Date | string
+    decidedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     staff: StaffCreateNestedOneWithoutLeaveRequestsInput
@@ -21680,9 +24405,13 @@ export namespace Prisma {
     from: Date | string
     to: Date | string
     days: number
+    startAt?: string
+    endAt?: string
+    deducts?: boolean
     reason: string
     status: string
     submitted: Date | string
+    decidedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -21692,10 +24421,14 @@ export namespace Prisma {
     type?: StringFieldUpdateOperationsInput | string
     from?: DateTimeFieldUpdateOperationsInput | Date | string
     to?: DateTimeFieldUpdateOperationsInput | Date | string
-    days?: IntFieldUpdateOperationsInput | number
+    days?: FloatFieldUpdateOperationsInput | number
+    startAt?: StringFieldUpdateOperationsInput | string
+    endAt?: StringFieldUpdateOperationsInput | string
+    deducts?: BoolFieldUpdateOperationsInput | boolean
     reason?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     submitted?: DateTimeFieldUpdateOperationsInput | Date | string
+    decidedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     staff?: StaffUpdateOneRequiredWithoutLeaveRequestsNestedInput
@@ -21707,10 +24440,14 @@ export namespace Prisma {
     type?: StringFieldUpdateOperationsInput | string
     from?: DateTimeFieldUpdateOperationsInput | Date | string
     to?: DateTimeFieldUpdateOperationsInput | Date | string
-    days?: IntFieldUpdateOperationsInput | number
+    days?: FloatFieldUpdateOperationsInput | number
+    startAt?: StringFieldUpdateOperationsInput | string
+    endAt?: StringFieldUpdateOperationsInput | string
+    deducts?: BoolFieldUpdateOperationsInput | boolean
     reason?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     submitted?: DateTimeFieldUpdateOperationsInput | Date | string
+    decidedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -21722,9 +24459,13 @@ export namespace Prisma {
     from: Date | string
     to: Date | string
     days: number
+    startAt?: string
+    endAt?: string
+    deducts?: boolean
     reason: string
     status: string
     submitted: Date | string
+    decidedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -21734,10 +24475,14 @@ export namespace Prisma {
     type?: StringFieldUpdateOperationsInput | string
     from?: DateTimeFieldUpdateOperationsInput | Date | string
     to?: DateTimeFieldUpdateOperationsInput | Date | string
-    days?: IntFieldUpdateOperationsInput | number
+    days?: FloatFieldUpdateOperationsInput | number
+    startAt?: StringFieldUpdateOperationsInput | string
+    endAt?: StringFieldUpdateOperationsInput | string
+    deducts?: BoolFieldUpdateOperationsInput | boolean
     reason?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     submitted?: DateTimeFieldUpdateOperationsInput | Date | string
+    decidedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -21748,10 +24493,14 @@ export namespace Prisma {
     type?: StringFieldUpdateOperationsInput | string
     from?: DateTimeFieldUpdateOperationsInput | Date | string
     to?: DateTimeFieldUpdateOperationsInput | Date | string
-    days?: IntFieldUpdateOperationsInput | number
+    days?: FloatFieldUpdateOperationsInput | number
+    startAt?: StringFieldUpdateOperationsInput | string
+    endAt?: StringFieldUpdateOperationsInput | string
+    deducts?: BoolFieldUpdateOperationsInput | boolean
     reason?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     submitted?: DateTimeFieldUpdateOperationsInput | Date | string
+    decidedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -22658,6 +25407,28 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
+  export type FloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
   export type CrewScalarRelationFilter = {
     is?: CrewWhereInput
     isNot?: CrewWhereInput
@@ -22697,6 +25468,12 @@ export namespace Prisma {
     none?: PayrollRecordWhereInput
   }
 
+  export type StaffDocumentListRelationFilter = {
+    every?: StaffDocumentWhereInput
+    some?: StaffDocumentWhereInput
+    none?: StaffDocumentWhereInput
+  }
+
   export type AttendanceOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -22713,6 +25490,10 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type StaffDocumentOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type StaffCountOrderByAggregateInput = {
     ref?: SortOrder
     name?: SortOrder
@@ -22724,9 +25505,57 @@ export namespace Prisma {
     status?: SortOrder
     joined?: SortOrder
     birthday?: SortOrder
+    preferredName?: SortOrder
+    dateOfBirth?: SortOrder
+    gender?: SortOrder
+    nationality?: SortOrder
+    personalEmail?: SortOrder
+    personalPhone?: SortOrder
+    addressLine1?: SortOrder
+    addressLine2?: SortOrder
+    city?: SortOrder
+    postcode?: SortOrder
+    country?: SortOrder
+    emergencyName?: SortOrder
+    emergencyPhone?: SortOrder
+    emergencyRelation?: SortOrder
+    employmentType?: SortOrder
+    workLocation?: SortOrder
+    contractEnd?: SortOrder
+    probationEnd?: SortOrder
+    hoursPerWeek?: SortOrder
+    niNumber?: SortOrder
+    taxId?: SortOrder
+    taxCode?: SortOrder
+    taxResidency?: SortOrder
+    bankAccountName?: SortOrder
+    bankSortCode?: SortOrder
+    bankAccountNumber?: SortOrder
+    iban?: SortOrder
+    govIdType?: SortOrder
+    govIdNumber?: SortOrder
+    govIdCountry?: SortOrder
+    govIdExpiry?: SortOrder
+    rightToWork?: SortOrder
+    visaType?: SortOrder
+    visaExpiry?: SortOrder
+    ptsNumber?: SortOrder
+    ptsExpiry?: SortOrder
+    medicalExpiry?: SortOrder
+    studentLoan?: SortOrder
+    lineManager?: SortOrder
+    noticePeriod?: SortOrder
+    payType?: SortOrder
+    payRatePence?: SortOrder
+    notes?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type StaffAvgOrderByAggregateInput = {
+    hoursPerWeek?: SortOrder
+    payRatePence?: SortOrder
   }
 
   export type StaffMaxOrderByAggregateInput = {
@@ -22740,6 +25569,49 @@ export namespace Prisma {
     status?: SortOrder
     joined?: SortOrder
     birthday?: SortOrder
+    preferredName?: SortOrder
+    dateOfBirth?: SortOrder
+    gender?: SortOrder
+    nationality?: SortOrder
+    personalEmail?: SortOrder
+    personalPhone?: SortOrder
+    addressLine1?: SortOrder
+    addressLine2?: SortOrder
+    city?: SortOrder
+    postcode?: SortOrder
+    country?: SortOrder
+    emergencyName?: SortOrder
+    emergencyPhone?: SortOrder
+    emergencyRelation?: SortOrder
+    employmentType?: SortOrder
+    workLocation?: SortOrder
+    contractEnd?: SortOrder
+    probationEnd?: SortOrder
+    hoursPerWeek?: SortOrder
+    niNumber?: SortOrder
+    taxId?: SortOrder
+    taxCode?: SortOrder
+    taxResidency?: SortOrder
+    bankAccountName?: SortOrder
+    bankSortCode?: SortOrder
+    bankAccountNumber?: SortOrder
+    iban?: SortOrder
+    govIdType?: SortOrder
+    govIdNumber?: SortOrder
+    govIdCountry?: SortOrder
+    govIdExpiry?: SortOrder
+    rightToWork?: SortOrder
+    visaType?: SortOrder
+    visaExpiry?: SortOrder
+    ptsNumber?: SortOrder
+    ptsExpiry?: SortOrder
+    medicalExpiry?: SortOrder
+    studentLoan?: SortOrder
+    lineManager?: SortOrder
+    noticePeriod?: SortOrder
+    payType?: SortOrder
+    payRatePence?: SortOrder
+    notes?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -22756,14 +25628,136 @@ export namespace Prisma {
     status?: SortOrder
     joined?: SortOrder
     birthday?: SortOrder
+    preferredName?: SortOrder
+    dateOfBirth?: SortOrder
+    gender?: SortOrder
+    nationality?: SortOrder
+    personalEmail?: SortOrder
+    personalPhone?: SortOrder
+    addressLine1?: SortOrder
+    addressLine2?: SortOrder
+    city?: SortOrder
+    postcode?: SortOrder
+    country?: SortOrder
+    emergencyName?: SortOrder
+    emergencyPhone?: SortOrder
+    emergencyRelation?: SortOrder
+    employmentType?: SortOrder
+    workLocation?: SortOrder
+    contractEnd?: SortOrder
+    probationEnd?: SortOrder
+    hoursPerWeek?: SortOrder
+    niNumber?: SortOrder
+    taxId?: SortOrder
+    taxCode?: SortOrder
+    taxResidency?: SortOrder
+    bankAccountName?: SortOrder
+    bankSortCode?: SortOrder
+    bankAccountNumber?: SortOrder
+    iban?: SortOrder
+    govIdType?: SortOrder
+    govIdNumber?: SortOrder
+    govIdCountry?: SortOrder
+    govIdExpiry?: SortOrder
+    rightToWork?: SortOrder
+    visaType?: SortOrder
+    visaExpiry?: SortOrder
+    ptsNumber?: SortOrder
+    ptsExpiry?: SortOrder
+    medicalExpiry?: SortOrder
+    studentLoan?: SortOrder
+    lineManager?: SortOrder
+    noticePeriod?: SortOrder
+    payType?: SortOrder
+    payRatePence?: SortOrder
+    notes?: SortOrder
     userId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
+  export type StaffSumOrderByAggregateInput = {
+    hoursPerWeek?: SortOrder
+    payRatePence?: SortOrder
+  }
+
+  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
   export type StaffScalarRelationFilter = {
     is?: StaffWhereInput
     isNot?: StaffWhereInput
+  }
+
+  export type StaffDocumentCountOrderByAggregateInput = {
+    id?: SortOrder
+    staffRef?: SortOrder
+    category?: SortOrder
+    title?: SortOrder
+    reference?: SortOrder
+    issuedOn?: SortOrder
+    expiresOn?: SortOrder
+    fileName?: SortOrder
+    url?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type StaffDocumentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    staffRef?: SortOrder
+    category?: SortOrder
+    title?: SortOrder
+    reference?: SortOrder
+    issuedOn?: SortOrder
+    expiresOn?: SortOrder
+    fileName?: SortOrder
+    url?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type StaffDocumentMinOrderByAggregateInput = {
+    id?: SortOrder
+    staffRef?: SortOrder
+    category?: SortOrder
+    title?: SortOrder
+    reference?: SortOrder
+    issuedOn?: SortOrder
+    expiresOn?: SortOrder
+    fileName?: SortOrder
+    url?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type AttendanceStaffRefDateCompoundUniqueInput = {
@@ -22798,15 +25792,15 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
-  export type IntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
+  export type FloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
   }
 
   export type LeaveRequestCountOrderByAggregateInput = {
@@ -22816,9 +25810,13 @@ export namespace Prisma {
     from?: SortOrder
     to?: SortOrder
     days?: SortOrder
+    startAt?: SortOrder
+    endAt?: SortOrder
+    deducts?: SortOrder
     reason?: SortOrder
     status?: SortOrder
     submitted?: SortOrder
+    decidedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -22834,9 +25832,13 @@ export namespace Prisma {
     from?: SortOrder
     to?: SortOrder
     days?: SortOrder
+    startAt?: SortOrder
+    endAt?: SortOrder
+    deducts?: SortOrder
     reason?: SortOrder
     status?: SortOrder
     submitted?: SortOrder
+    decidedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -22848,9 +25850,13 @@ export namespace Prisma {
     from?: SortOrder
     to?: SortOrder
     days?: SortOrder
+    startAt?: SortOrder
+    endAt?: SortOrder
+    deducts?: SortOrder
     reason?: SortOrder
     status?: SortOrder
     submitted?: SortOrder
+    decidedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -22859,20 +25865,20 @@ export namespace Prisma {
     days?: SortOrder
   }
 
-  export type IntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
     _count?: NestedIntFilter<$PrismaModel>
     _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
   }
 
   export type InvoiceListRelationFilter = {
@@ -22936,6 +25942,17 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
   export type ClientScalarRelationFilter = {
     is?: ClientWhereInput
     isNot?: ClientWhereInput
@@ -22994,6 +26011,22 @@ export namespace Prisma {
 
   export type InvoiceSumOrderByAggregateInput = {
     amountPence?: SortOrder
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type ExpenseCountOrderByAggregateInput = {
@@ -23464,6 +26497,13 @@ export namespace Prisma {
     connect?: PayrollRecordWhereUniqueInput | PayrollRecordWhereUniqueInput[]
   }
 
+  export type StaffDocumentCreateNestedManyWithoutStaffInput = {
+    create?: XOR<StaffDocumentCreateWithoutStaffInput, StaffDocumentUncheckedCreateWithoutStaffInput> | StaffDocumentCreateWithoutStaffInput[] | StaffDocumentUncheckedCreateWithoutStaffInput[]
+    connectOrCreate?: StaffDocumentCreateOrConnectWithoutStaffInput | StaffDocumentCreateOrConnectWithoutStaffInput[]
+    createMany?: StaffDocumentCreateManyStaffInputEnvelope
+    connect?: StaffDocumentWhereUniqueInput | StaffDocumentWhereUniqueInput[]
+  }
+
   export type AttendanceUncheckedCreateNestedManyWithoutStaffInput = {
     create?: XOR<AttendanceCreateWithoutStaffInput, AttendanceUncheckedCreateWithoutStaffInput> | AttendanceCreateWithoutStaffInput[] | AttendanceUncheckedCreateWithoutStaffInput[]
     connectOrCreate?: AttendanceCreateOrConnectWithoutStaffInput | AttendanceCreateOrConnectWithoutStaffInput[]
@@ -23490,6 +26530,29 @@ export namespace Prisma {
     connectOrCreate?: PayrollRecordCreateOrConnectWithoutStaffInput | PayrollRecordCreateOrConnectWithoutStaffInput[]
     createMany?: PayrollRecordCreateManyStaffInputEnvelope
     connect?: PayrollRecordWhereUniqueInput | PayrollRecordWhereUniqueInput[]
+  }
+
+  export type StaffDocumentUncheckedCreateNestedManyWithoutStaffInput = {
+    create?: XOR<StaffDocumentCreateWithoutStaffInput, StaffDocumentUncheckedCreateWithoutStaffInput> | StaffDocumentCreateWithoutStaffInput[] | StaffDocumentUncheckedCreateWithoutStaffInput[]
+    connectOrCreate?: StaffDocumentCreateOrConnectWithoutStaffInput | StaffDocumentCreateOrConnectWithoutStaffInput[]
+    createMany?: StaffDocumentCreateManyStaffInputEnvelope
+    connect?: StaffDocumentWhereUniqueInput | StaffDocumentWhereUniqueInput[]
+  }
+
+  export type NullableFloatFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type CrewUpdateOneRequiredWithoutStaffNestedInput = {
@@ -23576,6 +26639,20 @@ export namespace Prisma {
     deleteMany?: PayrollRecordScalarWhereInput | PayrollRecordScalarWhereInput[]
   }
 
+  export type StaffDocumentUpdateManyWithoutStaffNestedInput = {
+    create?: XOR<StaffDocumentCreateWithoutStaffInput, StaffDocumentUncheckedCreateWithoutStaffInput> | StaffDocumentCreateWithoutStaffInput[] | StaffDocumentUncheckedCreateWithoutStaffInput[]
+    connectOrCreate?: StaffDocumentCreateOrConnectWithoutStaffInput | StaffDocumentCreateOrConnectWithoutStaffInput[]
+    upsert?: StaffDocumentUpsertWithWhereUniqueWithoutStaffInput | StaffDocumentUpsertWithWhereUniqueWithoutStaffInput[]
+    createMany?: StaffDocumentCreateManyStaffInputEnvelope
+    set?: StaffDocumentWhereUniqueInput | StaffDocumentWhereUniqueInput[]
+    disconnect?: StaffDocumentWhereUniqueInput | StaffDocumentWhereUniqueInput[]
+    delete?: StaffDocumentWhereUniqueInput | StaffDocumentWhereUniqueInput[]
+    connect?: StaffDocumentWhereUniqueInput | StaffDocumentWhereUniqueInput[]
+    update?: StaffDocumentUpdateWithWhereUniqueWithoutStaffInput | StaffDocumentUpdateWithWhereUniqueWithoutStaffInput[]
+    updateMany?: StaffDocumentUpdateManyWithWhereWithoutStaffInput | StaffDocumentUpdateManyWithWhereWithoutStaffInput[]
+    deleteMany?: StaffDocumentScalarWhereInput | StaffDocumentScalarWhereInput[]
+  }
+
   export type AttendanceUncheckedUpdateManyWithoutStaffNestedInput = {
     create?: XOR<AttendanceCreateWithoutStaffInput, AttendanceUncheckedCreateWithoutStaffInput> | AttendanceCreateWithoutStaffInput[] | AttendanceUncheckedCreateWithoutStaffInput[]
     connectOrCreate?: AttendanceCreateOrConnectWithoutStaffInput | AttendanceCreateOrConnectWithoutStaffInput[]
@@ -23632,6 +26709,34 @@ export namespace Prisma {
     deleteMany?: PayrollRecordScalarWhereInput | PayrollRecordScalarWhereInput[]
   }
 
+  export type StaffDocumentUncheckedUpdateManyWithoutStaffNestedInput = {
+    create?: XOR<StaffDocumentCreateWithoutStaffInput, StaffDocumentUncheckedCreateWithoutStaffInput> | StaffDocumentCreateWithoutStaffInput[] | StaffDocumentUncheckedCreateWithoutStaffInput[]
+    connectOrCreate?: StaffDocumentCreateOrConnectWithoutStaffInput | StaffDocumentCreateOrConnectWithoutStaffInput[]
+    upsert?: StaffDocumentUpsertWithWhereUniqueWithoutStaffInput | StaffDocumentUpsertWithWhereUniqueWithoutStaffInput[]
+    createMany?: StaffDocumentCreateManyStaffInputEnvelope
+    set?: StaffDocumentWhereUniqueInput | StaffDocumentWhereUniqueInput[]
+    disconnect?: StaffDocumentWhereUniqueInput | StaffDocumentWhereUniqueInput[]
+    delete?: StaffDocumentWhereUniqueInput | StaffDocumentWhereUniqueInput[]
+    connect?: StaffDocumentWhereUniqueInput | StaffDocumentWhereUniqueInput[]
+    update?: StaffDocumentUpdateWithWhereUniqueWithoutStaffInput | StaffDocumentUpdateWithWhereUniqueWithoutStaffInput[]
+    updateMany?: StaffDocumentUpdateManyWithWhereWithoutStaffInput | StaffDocumentUpdateManyWithWhereWithoutStaffInput[]
+    deleteMany?: StaffDocumentScalarWhereInput | StaffDocumentScalarWhereInput[]
+  }
+
+  export type StaffCreateNestedOneWithoutDocumentsInput = {
+    create?: XOR<StaffCreateWithoutDocumentsInput, StaffUncheckedCreateWithoutDocumentsInput>
+    connectOrCreate?: StaffCreateOrConnectWithoutDocumentsInput
+    connect?: StaffWhereUniqueInput
+  }
+
+  export type StaffUpdateOneRequiredWithoutDocumentsNestedInput = {
+    create?: XOR<StaffCreateWithoutDocumentsInput, StaffUncheckedCreateWithoutDocumentsInput>
+    connectOrCreate?: StaffCreateOrConnectWithoutDocumentsInput
+    upsert?: StaffUpsertWithoutDocumentsInput
+    connect?: StaffWhereUniqueInput
+    update?: XOR<XOR<StaffUpdateToOneWithWhereWithoutDocumentsInput, StaffUpdateWithoutDocumentsInput>, StaffUncheckedUpdateWithoutDocumentsInput>
+  }
+
   export type StaffCreateNestedOneWithoutAttendanceInput = {
     create?: XOR<StaffCreateWithoutAttendanceInput, StaffUncheckedCreateWithoutAttendanceInput>
     connectOrCreate?: StaffCreateOrConnectWithoutAttendanceInput
@@ -23652,7 +26757,7 @@ export namespace Prisma {
     connect?: StaffWhereUniqueInput
   }
 
-  export type IntFieldUpdateOperationsInput = {
+  export type FloatFieldUpdateOperationsInput = {
     set?: number
     increment?: number
     decrement?: number
@@ -23852,6 +26957,14 @@ export namespace Prisma {
     create?: XOR<AttachmentCreateWithoutInvoicesPrfInput, AttachmentUncheckedCreateWithoutInvoicesPrfInput>
     connectOrCreate?: AttachmentCreateOrConnectWithoutInvoicesPrfInput
     connect?: AttachmentWhereUniqueInput
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type ClientUpdateOneRequiredWithoutInvoicesNestedInput = {
@@ -24073,6 +27186,76 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
+
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -24087,17 +27270,6 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
-  }
-
-  export type NestedFloatFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatFilter<$PrismaModel> | number
   }
 
   export type SessionCreateWithoutUserInput = {
@@ -24181,6 +27353,49 @@ export namespace Prisma {
     status: string
     joined: Date | string
     birthday: string
+    preferredName?: string | null
+    dateOfBirth?: Date | string | null
+    gender?: string | null
+    nationality?: string | null
+    personalEmail?: string | null
+    personalPhone?: string | null
+    addressLine1?: string | null
+    addressLine2?: string | null
+    city?: string | null
+    postcode?: string | null
+    country?: string | null
+    emergencyName?: string | null
+    emergencyPhone?: string | null
+    emergencyRelation?: string | null
+    employmentType?: string | null
+    workLocation?: string | null
+    contractEnd?: Date | string | null
+    probationEnd?: Date | string | null
+    hoursPerWeek?: number | null
+    niNumber?: string | null
+    taxId?: string | null
+    taxCode?: string | null
+    taxResidency?: string | null
+    bankAccountName?: string | null
+    bankSortCode?: string | null
+    bankAccountNumber?: string | null
+    iban?: string | null
+    govIdType?: string | null
+    govIdNumber?: string | null
+    govIdCountry?: string | null
+    govIdExpiry?: Date | string | null
+    rightToWork?: string | null
+    visaType?: string | null
+    visaExpiry?: Date | string | null
+    ptsNumber?: string | null
+    ptsExpiry?: Date | string | null
+    medicalExpiry?: Date | string | null
+    studentLoan?: boolean
+    lineManager?: string | null
+    noticePeriod?: string | null
+    payType?: string | null
+    payRatePence?: number | null
+    notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     crew: CrewCreateNestedOneWithoutStaffInput
@@ -24189,6 +27404,7 @@ export namespace Prisma {
     leaveRequests?: LeaveRequestCreateNestedManyWithoutStaffInput
     expenses?: ExpenseCreateNestedManyWithoutStaffInput
     payroll?: PayrollRecordCreateNestedManyWithoutStaffInput
+    documents?: StaffDocumentCreateNestedManyWithoutStaffInput
   }
 
   export type StaffUncheckedCreateWithoutUserInput = {
@@ -24202,12 +27418,56 @@ export namespace Prisma {
     status: string
     joined: Date | string
     birthday: string
+    preferredName?: string | null
+    dateOfBirth?: Date | string | null
+    gender?: string | null
+    nationality?: string | null
+    personalEmail?: string | null
+    personalPhone?: string | null
+    addressLine1?: string | null
+    addressLine2?: string | null
+    city?: string | null
+    postcode?: string | null
+    country?: string | null
+    emergencyName?: string | null
+    emergencyPhone?: string | null
+    emergencyRelation?: string | null
+    employmentType?: string | null
+    workLocation?: string | null
+    contractEnd?: Date | string | null
+    probationEnd?: Date | string | null
+    hoursPerWeek?: number | null
+    niNumber?: string | null
+    taxId?: string | null
+    taxCode?: string | null
+    taxResidency?: string | null
+    bankAccountName?: string | null
+    bankSortCode?: string | null
+    bankAccountNumber?: string | null
+    iban?: string | null
+    govIdType?: string | null
+    govIdNumber?: string | null
+    govIdCountry?: string | null
+    govIdExpiry?: Date | string | null
+    rightToWork?: string | null
+    visaType?: string | null
+    visaExpiry?: Date | string | null
+    ptsNumber?: string | null
+    ptsExpiry?: Date | string | null
+    medicalExpiry?: Date | string | null
+    studentLoan?: boolean
+    lineManager?: string | null
+    noticePeriod?: string | null
+    payType?: string | null
+    payRatePence?: number | null
+    notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     attendance?: AttendanceUncheckedCreateNestedManyWithoutStaffInput
     leaveRequests?: LeaveRequestUncheckedCreateNestedManyWithoutStaffInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutStaffInput
     payroll?: PayrollRecordUncheckedCreateNestedManyWithoutStaffInput
+    documents?: StaffDocumentUncheckedCreateNestedManyWithoutStaffInput
   }
 
   export type StaffCreateOrConnectWithoutUserInput = {
@@ -24301,6 +27561,49 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     joined?: DateTimeFieldUpdateOperationsInput | Date | string
     birthday?: StringFieldUpdateOperationsInput | string
+    preferredName?: NullableStringFieldUpdateOperationsInput | string | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    personalPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine1?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postcode?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyRelation?: NullableStringFieldUpdateOperationsInput | string | null
+    employmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    contractEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    probationEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hoursPerWeek?: NullableFloatFieldUpdateOperationsInput | number | null
+    niNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    taxCode?: NullableStringFieldUpdateOperationsInput | string | null
+    taxResidency?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankSortCode?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdType?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rightToWork?: NullableStringFieldUpdateOperationsInput | string | null
+    visaType?: NullableStringFieldUpdateOperationsInput | string | null
+    visaExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ptsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    ptsExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    medicalExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    studentLoan?: BoolFieldUpdateOperationsInput | boolean
+    lineManager?: NullableStringFieldUpdateOperationsInput | string | null
+    noticePeriod?: NullableStringFieldUpdateOperationsInput | string | null
+    payType?: NullableStringFieldUpdateOperationsInput | string | null
+    payRatePence?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     crew?: CrewUpdateOneRequiredWithoutStaffNestedInput
@@ -24309,6 +27612,7 @@ export namespace Prisma {
     leaveRequests?: LeaveRequestUpdateManyWithoutStaffNestedInput
     expenses?: ExpenseUpdateManyWithoutStaffNestedInput
     payroll?: PayrollRecordUpdateManyWithoutStaffNestedInput
+    documents?: StaffDocumentUpdateManyWithoutStaffNestedInput
   }
 
   export type StaffUncheckedUpdateWithoutUserInput = {
@@ -24322,12 +27626,56 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     joined?: DateTimeFieldUpdateOperationsInput | Date | string
     birthday?: StringFieldUpdateOperationsInput | string
+    preferredName?: NullableStringFieldUpdateOperationsInput | string | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    personalPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine1?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postcode?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyRelation?: NullableStringFieldUpdateOperationsInput | string | null
+    employmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    contractEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    probationEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hoursPerWeek?: NullableFloatFieldUpdateOperationsInput | number | null
+    niNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    taxCode?: NullableStringFieldUpdateOperationsInput | string | null
+    taxResidency?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankSortCode?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdType?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rightToWork?: NullableStringFieldUpdateOperationsInput | string | null
+    visaType?: NullableStringFieldUpdateOperationsInput | string | null
+    visaExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ptsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    ptsExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    medicalExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    studentLoan?: BoolFieldUpdateOperationsInput | boolean
+    lineManager?: NullableStringFieldUpdateOperationsInput | string | null
+    noticePeriod?: NullableStringFieldUpdateOperationsInput | string | null
+    payType?: NullableStringFieldUpdateOperationsInput | string | null
+    payRatePence?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     attendance?: AttendanceUncheckedUpdateManyWithoutStaffNestedInput
     leaveRequests?: LeaveRequestUncheckedUpdateManyWithoutStaffNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutStaffNestedInput
     payroll?: PayrollRecordUncheckedUpdateManyWithoutStaffNestedInput
+    documents?: StaffDocumentUncheckedUpdateManyWithoutStaffNestedInput
   }
 
   export type UserCreateWithoutSessionsInput = {
@@ -24467,6 +27815,49 @@ export namespace Prisma {
     status: string
     joined: Date | string
     birthday: string
+    preferredName?: string | null
+    dateOfBirth?: Date | string | null
+    gender?: string | null
+    nationality?: string | null
+    personalEmail?: string | null
+    personalPhone?: string | null
+    addressLine1?: string | null
+    addressLine2?: string | null
+    city?: string | null
+    postcode?: string | null
+    country?: string | null
+    emergencyName?: string | null
+    emergencyPhone?: string | null
+    emergencyRelation?: string | null
+    employmentType?: string | null
+    workLocation?: string | null
+    contractEnd?: Date | string | null
+    probationEnd?: Date | string | null
+    hoursPerWeek?: number | null
+    niNumber?: string | null
+    taxId?: string | null
+    taxCode?: string | null
+    taxResidency?: string | null
+    bankAccountName?: string | null
+    bankSortCode?: string | null
+    bankAccountNumber?: string | null
+    iban?: string | null
+    govIdType?: string | null
+    govIdNumber?: string | null
+    govIdCountry?: string | null
+    govIdExpiry?: Date | string | null
+    rightToWork?: string | null
+    visaType?: string | null
+    visaExpiry?: Date | string | null
+    ptsNumber?: string | null
+    ptsExpiry?: Date | string | null
+    medicalExpiry?: Date | string | null
+    studentLoan?: boolean
+    lineManager?: string | null
+    noticePeriod?: string | null
+    payType?: string | null
+    payRatePence?: number | null
+    notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     currentJob?: JobCreateNestedOneWithoutStaffInput
@@ -24475,6 +27866,7 @@ export namespace Prisma {
     leaveRequests?: LeaveRequestCreateNestedManyWithoutStaffInput
     expenses?: ExpenseCreateNestedManyWithoutStaffInput
     payroll?: PayrollRecordCreateNestedManyWithoutStaffInput
+    documents?: StaffDocumentCreateNestedManyWithoutStaffInput
   }
 
   export type StaffUncheckedCreateWithoutCrewInput = {
@@ -24487,6 +27879,49 @@ export namespace Prisma {
     status: string
     joined: Date | string
     birthday: string
+    preferredName?: string | null
+    dateOfBirth?: Date | string | null
+    gender?: string | null
+    nationality?: string | null
+    personalEmail?: string | null
+    personalPhone?: string | null
+    addressLine1?: string | null
+    addressLine2?: string | null
+    city?: string | null
+    postcode?: string | null
+    country?: string | null
+    emergencyName?: string | null
+    emergencyPhone?: string | null
+    emergencyRelation?: string | null
+    employmentType?: string | null
+    workLocation?: string | null
+    contractEnd?: Date | string | null
+    probationEnd?: Date | string | null
+    hoursPerWeek?: number | null
+    niNumber?: string | null
+    taxId?: string | null
+    taxCode?: string | null
+    taxResidency?: string | null
+    bankAccountName?: string | null
+    bankSortCode?: string | null
+    bankAccountNumber?: string | null
+    iban?: string | null
+    govIdType?: string | null
+    govIdNumber?: string | null
+    govIdCountry?: string | null
+    govIdExpiry?: Date | string | null
+    rightToWork?: string | null
+    visaType?: string | null
+    visaExpiry?: Date | string | null
+    ptsNumber?: string | null
+    ptsExpiry?: Date | string | null
+    medicalExpiry?: Date | string | null
+    studentLoan?: boolean
+    lineManager?: string | null
+    noticePeriod?: string | null
+    payType?: string | null
+    payRatePence?: number | null
+    notes?: string | null
     userId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -24494,6 +27929,7 @@ export namespace Prisma {
     leaveRequests?: LeaveRequestUncheckedCreateNestedManyWithoutStaffInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutStaffInput
     payroll?: PayrollRecordUncheckedCreateNestedManyWithoutStaffInput
+    documents?: StaffDocumentUncheckedCreateNestedManyWithoutStaffInput
   }
 
   export type StaffCreateOrConnectWithoutCrewInput = {
@@ -24536,6 +27972,49 @@ export namespace Prisma {
     status?: StringFilter<"Staff"> | string
     joined?: DateTimeFilter<"Staff"> | Date | string
     birthday?: StringFilter<"Staff"> | string
+    preferredName?: StringNullableFilter<"Staff"> | string | null
+    dateOfBirth?: DateTimeNullableFilter<"Staff"> | Date | string | null
+    gender?: StringNullableFilter<"Staff"> | string | null
+    nationality?: StringNullableFilter<"Staff"> | string | null
+    personalEmail?: StringNullableFilter<"Staff"> | string | null
+    personalPhone?: StringNullableFilter<"Staff"> | string | null
+    addressLine1?: StringNullableFilter<"Staff"> | string | null
+    addressLine2?: StringNullableFilter<"Staff"> | string | null
+    city?: StringNullableFilter<"Staff"> | string | null
+    postcode?: StringNullableFilter<"Staff"> | string | null
+    country?: StringNullableFilter<"Staff"> | string | null
+    emergencyName?: StringNullableFilter<"Staff"> | string | null
+    emergencyPhone?: StringNullableFilter<"Staff"> | string | null
+    emergencyRelation?: StringNullableFilter<"Staff"> | string | null
+    employmentType?: StringNullableFilter<"Staff"> | string | null
+    workLocation?: StringNullableFilter<"Staff"> | string | null
+    contractEnd?: DateTimeNullableFilter<"Staff"> | Date | string | null
+    probationEnd?: DateTimeNullableFilter<"Staff"> | Date | string | null
+    hoursPerWeek?: FloatNullableFilter<"Staff"> | number | null
+    niNumber?: StringNullableFilter<"Staff"> | string | null
+    taxId?: StringNullableFilter<"Staff"> | string | null
+    taxCode?: StringNullableFilter<"Staff"> | string | null
+    taxResidency?: StringNullableFilter<"Staff"> | string | null
+    bankAccountName?: StringNullableFilter<"Staff"> | string | null
+    bankSortCode?: StringNullableFilter<"Staff"> | string | null
+    bankAccountNumber?: StringNullableFilter<"Staff"> | string | null
+    iban?: StringNullableFilter<"Staff"> | string | null
+    govIdType?: StringNullableFilter<"Staff"> | string | null
+    govIdNumber?: StringNullableFilter<"Staff"> | string | null
+    govIdCountry?: StringNullableFilter<"Staff"> | string | null
+    govIdExpiry?: DateTimeNullableFilter<"Staff"> | Date | string | null
+    rightToWork?: StringNullableFilter<"Staff"> | string | null
+    visaType?: StringNullableFilter<"Staff"> | string | null
+    visaExpiry?: DateTimeNullableFilter<"Staff"> | Date | string | null
+    ptsNumber?: StringNullableFilter<"Staff"> | string | null
+    ptsExpiry?: DateTimeNullableFilter<"Staff"> | Date | string | null
+    medicalExpiry?: DateTimeNullableFilter<"Staff"> | Date | string | null
+    studentLoan?: BoolFilter<"Staff"> | boolean
+    lineManager?: StringNullableFilter<"Staff"> | string | null
+    noticePeriod?: StringNullableFilter<"Staff"> | string | null
+    payType?: StringNullableFilter<"Staff"> | string | null
+    payRatePence?: IntNullableFilter<"Staff"> | number | null
+    notes?: StringNullableFilter<"Staff"> | string | null
     userId?: StringNullableFilter<"Staff"> | string | null
     createdAt?: DateTimeFilter<"Staff"> | Date | string
     updatedAt?: DateTimeFilter<"Staff"> | Date | string
@@ -24550,6 +28029,49 @@ export namespace Prisma {
     status: string
     joined: Date | string
     birthday: string
+    preferredName?: string | null
+    dateOfBirth?: Date | string | null
+    gender?: string | null
+    nationality?: string | null
+    personalEmail?: string | null
+    personalPhone?: string | null
+    addressLine1?: string | null
+    addressLine2?: string | null
+    city?: string | null
+    postcode?: string | null
+    country?: string | null
+    emergencyName?: string | null
+    emergencyPhone?: string | null
+    emergencyRelation?: string | null
+    employmentType?: string | null
+    workLocation?: string | null
+    contractEnd?: Date | string | null
+    probationEnd?: Date | string | null
+    hoursPerWeek?: number | null
+    niNumber?: string | null
+    taxId?: string | null
+    taxCode?: string | null
+    taxResidency?: string | null
+    bankAccountName?: string | null
+    bankSortCode?: string | null
+    bankAccountNumber?: string | null
+    iban?: string | null
+    govIdType?: string | null
+    govIdNumber?: string | null
+    govIdCountry?: string | null
+    govIdExpiry?: Date | string | null
+    rightToWork?: string | null
+    visaType?: string | null
+    visaExpiry?: Date | string | null
+    ptsNumber?: string | null
+    ptsExpiry?: Date | string | null
+    medicalExpiry?: Date | string | null
+    studentLoan?: boolean
+    lineManager?: string | null
+    noticePeriod?: string | null
+    payType?: string | null
+    payRatePence?: number | null
+    notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     crew: CrewCreateNestedOneWithoutStaffInput
@@ -24558,6 +28080,7 @@ export namespace Prisma {
     leaveRequests?: LeaveRequestCreateNestedManyWithoutStaffInput
     expenses?: ExpenseCreateNestedManyWithoutStaffInput
     payroll?: PayrollRecordCreateNestedManyWithoutStaffInput
+    documents?: StaffDocumentCreateNestedManyWithoutStaffInput
   }
 
   export type StaffUncheckedCreateWithoutCurrentJobInput = {
@@ -24570,6 +28093,49 @@ export namespace Prisma {
     status: string
     joined: Date | string
     birthday: string
+    preferredName?: string | null
+    dateOfBirth?: Date | string | null
+    gender?: string | null
+    nationality?: string | null
+    personalEmail?: string | null
+    personalPhone?: string | null
+    addressLine1?: string | null
+    addressLine2?: string | null
+    city?: string | null
+    postcode?: string | null
+    country?: string | null
+    emergencyName?: string | null
+    emergencyPhone?: string | null
+    emergencyRelation?: string | null
+    employmentType?: string | null
+    workLocation?: string | null
+    contractEnd?: Date | string | null
+    probationEnd?: Date | string | null
+    hoursPerWeek?: number | null
+    niNumber?: string | null
+    taxId?: string | null
+    taxCode?: string | null
+    taxResidency?: string | null
+    bankAccountName?: string | null
+    bankSortCode?: string | null
+    bankAccountNumber?: string | null
+    iban?: string | null
+    govIdType?: string | null
+    govIdNumber?: string | null
+    govIdCountry?: string | null
+    govIdExpiry?: Date | string | null
+    rightToWork?: string | null
+    visaType?: string | null
+    visaExpiry?: Date | string | null
+    ptsNumber?: string | null
+    ptsExpiry?: Date | string | null
+    medicalExpiry?: Date | string | null
+    studentLoan?: boolean
+    lineManager?: string | null
+    noticePeriod?: string | null
+    payType?: string | null
+    payRatePence?: number | null
+    notes?: string | null
     userId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -24577,6 +28143,7 @@ export namespace Prisma {
     leaveRequests?: LeaveRequestUncheckedCreateNestedManyWithoutStaffInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutStaffInput
     payroll?: PayrollRecordUncheckedCreateNestedManyWithoutStaffInput
+    documents?: StaffDocumentUncheckedCreateNestedManyWithoutStaffInput
   }
 
   export type StaffCreateOrConnectWithoutCurrentJobInput = {
@@ -24704,9 +28271,13 @@ export namespace Prisma {
     from: Date | string
     to: Date | string
     days: number
+    startAt?: string
+    endAt?: string
+    deducts?: boolean
     reason: string
     status: string
     submitted: Date | string
+    decidedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -24717,9 +28288,13 @@ export namespace Prisma {
     from: Date | string
     to: Date | string
     days: number
+    startAt?: string
+    endAt?: string
+    deducts?: boolean
     reason: string
     status: string
     submitted: Date | string
+    decidedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -24811,6 +28386,42 @@ export namespace Prisma {
 
   export type PayrollRecordCreateManyStaffInputEnvelope = {
     data: PayrollRecordCreateManyStaffInput | PayrollRecordCreateManyStaffInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type StaffDocumentCreateWithoutStaffInput = {
+    id?: string
+    category: string
+    title: string
+    reference?: string | null
+    issuedOn?: Date | string | null
+    expiresOn?: Date | string | null
+    fileName?: string | null
+    url?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type StaffDocumentUncheckedCreateWithoutStaffInput = {
+    id?: string
+    category: string
+    title: string
+    reference?: string | null
+    issuedOn?: Date | string | null
+    expiresOn?: Date | string | null
+    fileName?: string | null
+    url?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type StaffDocumentCreateOrConnectWithoutStaffInput = {
+    where: StaffDocumentWhereUniqueInput
+    create: XOR<StaffDocumentCreateWithoutStaffInput, StaffDocumentUncheckedCreateWithoutStaffInput>
+  }
+
+  export type StaffDocumentCreateManyStaffInputEnvelope = {
+    data: StaffDocumentCreateManyStaffInput | StaffDocumentCreateManyStaffInput[]
     skipDuplicates?: boolean
   }
 
@@ -24952,10 +28563,14 @@ export namespace Prisma {
     type?: StringFilter<"LeaveRequest"> | string
     from?: DateTimeFilter<"LeaveRequest"> | Date | string
     to?: DateTimeFilter<"LeaveRequest"> | Date | string
-    days?: IntFilter<"LeaveRequest"> | number
+    days?: FloatFilter<"LeaveRequest"> | number
+    startAt?: StringFilter<"LeaveRequest"> | string
+    endAt?: StringFilter<"LeaveRequest"> | string
+    deducts?: BoolFilter<"LeaveRequest"> | boolean
     reason?: StringFilter<"LeaveRequest"> | string
     status?: StringFilter<"LeaveRequest"> | string
     submitted?: DateTimeFilter<"LeaveRequest"> | Date | string
+    decidedAt?: DateTimeNullableFilter<"LeaveRequest"> | Date | string | null
     createdAt?: DateTimeFilter<"LeaveRequest"> | Date | string
     updatedAt?: DateTimeFilter<"LeaveRequest"> | Date | string
   }
@@ -25030,6 +28645,307 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"PayrollRecord"> | Date | string
   }
 
+  export type StaffDocumentUpsertWithWhereUniqueWithoutStaffInput = {
+    where: StaffDocumentWhereUniqueInput
+    update: XOR<StaffDocumentUpdateWithoutStaffInput, StaffDocumentUncheckedUpdateWithoutStaffInput>
+    create: XOR<StaffDocumentCreateWithoutStaffInput, StaffDocumentUncheckedCreateWithoutStaffInput>
+  }
+
+  export type StaffDocumentUpdateWithWhereUniqueWithoutStaffInput = {
+    where: StaffDocumentWhereUniqueInput
+    data: XOR<StaffDocumentUpdateWithoutStaffInput, StaffDocumentUncheckedUpdateWithoutStaffInput>
+  }
+
+  export type StaffDocumentUpdateManyWithWhereWithoutStaffInput = {
+    where: StaffDocumentScalarWhereInput
+    data: XOR<StaffDocumentUpdateManyMutationInput, StaffDocumentUncheckedUpdateManyWithoutStaffInput>
+  }
+
+  export type StaffDocumentScalarWhereInput = {
+    AND?: StaffDocumentScalarWhereInput | StaffDocumentScalarWhereInput[]
+    OR?: StaffDocumentScalarWhereInput[]
+    NOT?: StaffDocumentScalarWhereInput | StaffDocumentScalarWhereInput[]
+    id?: StringFilter<"StaffDocument"> | string
+    staffRef?: StringFilter<"StaffDocument"> | string
+    category?: StringFilter<"StaffDocument"> | string
+    title?: StringFilter<"StaffDocument"> | string
+    reference?: StringNullableFilter<"StaffDocument"> | string | null
+    issuedOn?: DateTimeNullableFilter<"StaffDocument"> | Date | string | null
+    expiresOn?: DateTimeNullableFilter<"StaffDocument"> | Date | string | null
+    fileName?: StringNullableFilter<"StaffDocument"> | string | null
+    url?: StringNullableFilter<"StaffDocument"> | string | null
+    createdAt?: DateTimeFilter<"StaffDocument"> | Date | string
+    updatedAt?: DateTimeFilter<"StaffDocument"> | Date | string
+  }
+
+  export type StaffCreateWithoutDocumentsInput = {
+    ref: string
+    name: string
+    email: string
+    phone: string
+    role: string
+    status: string
+    joined: Date | string
+    birthday: string
+    preferredName?: string | null
+    dateOfBirth?: Date | string | null
+    gender?: string | null
+    nationality?: string | null
+    personalEmail?: string | null
+    personalPhone?: string | null
+    addressLine1?: string | null
+    addressLine2?: string | null
+    city?: string | null
+    postcode?: string | null
+    country?: string | null
+    emergencyName?: string | null
+    emergencyPhone?: string | null
+    emergencyRelation?: string | null
+    employmentType?: string | null
+    workLocation?: string | null
+    contractEnd?: Date | string | null
+    probationEnd?: Date | string | null
+    hoursPerWeek?: number | null
+    niNumber?: string | null
+    taxId?: string | null
+    taxCode?: string | null
+    taxResidency?: string | null
+    bankAccountName?: string | null
+    bankSortCode?: string | null
+    bankAccountNumber?: string | null
+    iban?: string | null
+    govIdType?: string | null
+    govIdNumber?: string | null
+    govIdCountry?: string | null
+    govIdExpiry?: Date | string | null
+    rightToWork?: string | null
+    visaType?: string | null
+    visaExpiry?: Date | string | null
+    ptsNumber?: string | null
+    ptsExpiry?: Date | string | null
+    medicalExpiry?: Date | string | null
+    studentLoan?: boolean
+    lineManager?: string | null
+    noticePeriod?: string | null
+    payType?: string | null
+    payRatePence?: number | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    crew: CrewCreateNestedOneWithoutStaffInput
+    currentJob?: JobCreateNestedOneWithoutStaffInput
+    user?: UserCreateNestedOneWithoutStaffInput
+    attendance?: AttendanceCreateNestedManyWithoutStaffInput
+    leaveRequests?: LeaveRequestCreateNestedManyWithoutStaffInput
+    expenses?: ExpenseCreateNestedManyWithoutStaffInput
+    payroll?: PayrollRecordCreateNestedManyWithoutStaffInput
+  }
+
+  export type StaffUncheckedCreateWithoutDocumentsInput = {
+    ref: string
+    name: string
+    email: string
+    phone: string
+    role: string
+    crewId: string
+    currentJobId?: string | null
+    status: string
+    joined: Date | string
+    birthday: string
+    preferredName?: string | null
+    dateOfBirth?: Date | string | null
+    gender?: string | null
+    nationality?: string | null
+    personalEmail?: string | null
+    personalPhone?: string | null
+    addressLine1?: string | null
+    addressLine2?: string | null
+    city?: string | null
+    postcode?: string | null
+    country?: string | null
+    emergencyName?: string | null
+    emergencyPhone?: string | null
+    emergencyRelation?: string | null
+    employmentType?: string | null
+    workLocation?: string | null
+    contractEnd?: Date | string | null
+    probationEnd?: Date | string | null
+    hoursPerWeek?: number | null
+    niNumber?: string | null
+    taxId?: string | null
+    taxCode?: string | null
+    taxResidency?: string | null
+    bankAccountName?: string | null
+    bankSortCode?: string | null
+    bankAccountNumber?: string | null
+    iban?: string | null
+    govIdType?: string | null
+    govIdNumber?: string | null
+    govIdCountry?: string | null
+    govIdExpiry?: Date | string | null
+    rightToWork?: string | null
+    visaType?: string | null
+    visaExpiry?: Date | string | null
+    ptsNumber?: string | null
+    ptsExpiry?: Date | string | null
+    medicalExpiry?: Date | string | null
+    studentLoan?: boolean
+    lineManager?: string | null
+    noticePeriod?: string | null
+    payType?: string | null
+    payRatePence?: number | null
+    notes?: string | null
+    userId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    attendance?: AttendanceUncheckedCreateNestedManyWithoutStaffInput
+    leaveRequests?: LeaveRequestUncheckedCreateNestedManyWithoutStaffInput
+    expenses?: ExpenseUncheckedCreateNestedManyWithoutStaffInput
+    payroll?: PayrollRecordUncheckedCreateNestedManyWithoutStaffInput
+  }
+
+  export type StaffCreateOrConnectWithoutDocumentsInput = {
+    where: StaffWhereUniqueInput
+    create: XOR<StaffCreateWithoutDocumentsInput, StaffUncheckedCreateWithoutDocumentsInput>
+  }
+
+  export type StaffUpsertWithoutDocumentsInput = {
+    update: XOR<StaffUpdateWithoutDocumentsInput, StaffUncheckedUpdateWithoutDocumentsInput>
+    create: XOR<StaffCreateWithoutDocumentsInput, StaffUncheckedCreateWithoutDocumentsInput>
+    where?: StaffWhereInput
+  }
+
+  export type StaffUpdateToOneWithWhereWithoutDocumentsInput = {
+    where?: StaffWhereInput
+    data: XOR<StaffUpdateWithoutDocumentsInput, StaffUncheckedUpdateWithoutDocumentsInput>
+  }
+
+  export type StaffUpdateWithoutDocumentsInput = {
+    ref?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    joined?: DateTimeFieldUpdateOperationsInput | Date | string
+    birthday?: StringFieldUpdateOperationsInput | string
+    preferredName?: NullableStringFieldUpdateOperationsInput | string | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    personalPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine1?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postcode?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyRelation?: NullableStringFieldUpdateOperationsInput | string | null
+    employmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    contractEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    probationEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hoursPerWeek?: NullableFloatFieldUpdateOperationsInput | number | null
+    niNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    taxCode?: NullableStringFieldUpdateOperationsInput | string | null
+    taxResidency?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankSortCode?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdType?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rightToWork?: NullableStringFieldUpdateOperationsInput | string | null
+    visaType?: NullableStringFieldUpdateOperationsInput | string | null
+    visaExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ptsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    ptsExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    medicalExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    studentLoan?: BoolFieldUpdateOperationsInput | boolean
+    lineManager?: NullableStringFieldUpdateOperationsInput | string | null
+    noticePeriod?: NullableStringFieldUpdateOperationsInput | string | null
+    payType?: NullableStringFieldUpdateOperationsInput | string | null
+    payRatePence?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    crew?: CrewUpdateOneRequiredWithoutStaffNestedInput
+    currentJob?: JobUpdateOneWithoutStaffNestedInput
+    user?: UserUpdateOneWithoutStaffNestedInput
+    attendance?: AttendanceUpdateManyWithoutStaffNestedInput
+    leaveRequests?: LeaveRequestUpdateManyWithoutStaffNestedInput
+    expenses?: ExpenseUpdateManyWithoutStaffNestedInput
+    payroll?: PayrollRecordUpdateManyWithoutStaffNestedInput
+  }
+
+  export type StaffUncheckedUpdateWithoutDocumentsInput = {
+    ref?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    crewId?: StringFieldUpdateOperationsInput | string
+    currentJobId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    joined?: DateTimeFieldUpdateOperationsInput | Date | string
+    birthday?: StringFieldUpdateOperationsInput | string
+    preferredName?: NullableStringFieldUpdateOperationsInput | string | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    personalPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine1?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postcode?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyRelation?: NullableStringFieldUpdateOperationsInput | string | null
+    employmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    contractEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    probationEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hoursPerWeek?: NullableFloatFieldUpdateOperationsInput | number | null
+    niNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    taxCode?: NullableStringFieldUpdateOperationsInput | string | null
+    taxResidency?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankSortCode?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdType?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rightToWork?: NullableStringFieldUpdateOperationsInput | string | null
+    visaType?: NullableStringFieldUpdateOperationsInput | string | null
+    visaExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ptsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    ptsExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    medicalExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    studentLoan?: BoolFieldUpdateOperationsInput | boolean
+    lineManager?: NullableStringFieldUpdateOperationsInput | string | null
+    noticePeriod?: NullableStringFieldUpdateOperationsInput | string | null
+    payType?: NullableStringFieldUpdateOperationsInput | string | null
+    payRatePence?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    attendance?: AttendanceUncheckedUpdateManyWithoutStaffNestedInput
+    leaveRequests?: LeaveRequestUncheckedUpdateManyWithoutStaffNestedInput
+    expenses?: ExpenseUncheckedUpdateManyWithoutStaffNestedInput
+    payroll?: PayrollRecordUncheckedUpdateManyWithoutStaffNestedInput
+  }
+
   export type StaffCreateWithoutAttendanceInput = {
     ref: string
     name: string
@@ -25039,6 +28955,49 @@ export namespace Prisma {
     status: string
     joined: Date | string
     birthday: string
+    preferredName?: string | null
+    dateOfBirth?: Date | string | null
+    gender?: string | null
+    nationality?: string | null
+    personalEmail?: string | null
+    personalPhone?: string | null
+    addressLine1?: string | null
+    addressLine2?: string | null
+    city?: string | null
+    postcode?: string | null
+    country?: string | null
+    emergencyName?: string | null
+    emergencyPhone?: string | null
+    emergencyRelation?: string | null
+    employmentType?: string | null
+    workLocation?: string | null
+    contractEnd?: Date | string | null
+    probationEnd?: Date | string | null
+    hoursPerWeek?: number | null
+    niNumber?: string | null
+    taxId?: string | null
+    taxCode?: string | null
+    taxResidency?: string | null
+    bankAccountName?: string | null
+    bankSortCode?: string | null
+    bankAccountNumber?: string | null
+    iban?: string | null
+    govIdType?: string | null
+    govIdNumber?: string | null
+    govIdCountry?: string | null
+    govIdExpiry?: Date | string | null
+    rightToWork?: string | null
+    visaType?: string | null
+    visaExpiry?: Date | string | null
+    ptsNumber?: string | null
+    ptsExpiry?: Date | string | null
+    medicalExpiry?: Date | string | null
+    studentLoan?: boolean
+    lineManager?: string | null
+    noticePeriod?: string | null
+    payType?: string | null
+    payRatePence?: number | null
+    notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     crew: CrewCreateNestedOneWithoutStaffInput
@@ -25047,6 +29006,7 @@ export namespace Prisma {
     leaveRequests?: LeaveRequestCreateNestedManyWithoutStaffInput
     expenses?: ExpenseCreateNestedManyWithoutStaffInput
     payroll?: PayrollRecordCreateNestedManyWithoutStaffInput
+    documents?: StaffDocumentCreateNestedManyWithoutStaffInput
   }
 
   export type StaffUncheckedCreateWithoutAttendanceInput = {
@@ -25060,12 +29020,56 @@ export namespace Prisma {
     status: string
     joined: Date | string
     birthday: string
+    preferredName?: string | null
+    dateOfBirth?: Date | string | null
+    gender?: string | null
+    nationality?: string | null
+    personalEmail?: string | null
+    personalPhone?: string | null
+    addressLine1?: string | null
+    addressLine2?: string | null
+    city?: string | null
+    postcode?: string | null
+    country?: string | null
+    emergencyName?: string | null
+    emergencyPhone?: string | null
+    emergencyRelation?: string | null
+    employmentType?: string | null
+    workLocation?: string | null
+    contractEnd?: Date | string | null
+    probationEnd?: Date | string | null
+    hoursPerWeek?: number | null
+    niNumber?: string | null
+    taxId?: string | null
+    taxCode?: string | null
+    taxResidency?: string | null
+    bankAccountName?: string | null
+    bankSortCode?: string | null
+    bankAccountNumber?: string | null
+    iban?: string | null
+    govIdType?: string | null
+    govIdNumber?: string | null
+    govIdCountry?: string | null
+    govIdExpiry?: Date | string | null
+    rightToWork?: string | null
+    visaType?: string | null
+    visaExpiry?: Date | string | null
+    ptsNumber?: string | null
+    ptsExpiry?: Date | string | null
+    medicalExpiry?: Date | string | null
+    studentLoan?: boolean
+    lineManager?: string | null
+    noticePeriod?: string | null
+    payType?: string | null
+    payRatePence?: number | null
+    notes?: string | null
     userId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     leaveRequests?: LeaveRequestUncheckedCreateNestedManyWithoutStaffInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutStaffInput
     payroll?: PayrollRecordUncheckedCreateNestedManyWithoutStaffInput
+    documents?: StaffDocumentUncheckedCreateNestedManyWithoutStaffInput
   }
 
   export type StaffCreateOrConnectWithoutAttendanceInput = {
@@ -25093,6 +29097,49 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     joined?: DateTimeFieldUpdateOperationsInput | Date | string
     birthday?: StringFieldUpdateOperationsInput | string
+    preferredName?: NullableStringFieldUpdateOperationsInput | string | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    personalPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine1?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postcode?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyRelation?: NullableStringFieldUpdateOperationsInput | string | null
+    employmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    contractEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    probationEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hoursPerWeek?: NullableFloatFieldUpdateOperationsInput | number | null
+    niNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    taxCode?: NullableStringFieldUpdateOperationsInput | string | null
+    taxResidency?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankSortCode?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdType?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rightToWork?: NullableStringFieldUpdateOperationsInput | string | null
+    visaType?: NullableStringFieldUpdateOperationsInput | string | null
+    visaExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ptsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    ptsExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    medicalExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    studentLoan?: BoolFieldUpdateOperationsInput | boolean
+    lineManager?: NullableStringFieldUpdateOperationsInput | string | null
+    noticePeriod?: NullableStringFieldUpdateOperationsInput | string | null
+    payType?: NullableStringFieldUpdateOperationsInput | string | null
+    payRatePence?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     crew?: CrewUpdateOneRequiredWithoutStaffNestedInput
@@ -25101,6 +29148,7 @@ export namespace Prisma {
     leaveRequests?: LeaveRequestUpdateManyWithoutStaffNestedInput
     expenses?: ExpenseUpdateManyWithoutStaffNestedInput
     payroll?: PayrollRecordUpdateManyWithoutStaffNestedInput
+    documents?: StaffDocumentUpdateManyWithoutStaffNestedInput
   }
 
   export type StaffUncheckedUpdateWithoutAttendanceInput = {
@@ -25114,12 +29162,56 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     joined?: DateTimeFieldUpdateOperationsInput | Date | string
     birthday?: StringFieldUpdateOperationsInput | string
+    preferredName?: NullableStringFieldUpdateOperationsInput | string | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    personalPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine1?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postcode?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyRelation?: NullableStringFieldUpdateOperationsInput | string | null
+    employmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    contractEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    probationEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hoursPerWeek?: NullableFloatFieldUpdateOperationsInput | number | null
+    niNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    taxCode?: NullableStringFieldUpdateOperationsInput | string | null
+    taxResidency?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankSortCode?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdType?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rightToWork?: NullableStringFieldUpdateOperationsInput | string | null
+    visaType?: NullableStringFieldUpdateOperationsInput | string | null
+    visaExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ptsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    ptsExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    medicalExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    studentLoan?: BoolFieldUpdateOperationsInput | boolean
+    lineManager?: NullableStringFieldUpdateOperationsInput | string | null
+    noticePeriod?: NullableStringFieldUpdateOperationsInput | string | null
+    payType?: NullableStringFieldUpdateOperationsInput | string | null
+    payRatePence?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     leaveRequests?: LeaveRequestUncheckedUpdateManyWithoutStaffNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutStaffNestedInput
     payroll?: PayrollRecordUncheckedUpdateManyWithoutStaffNestedInput
+    documents?: StaffDocumentUncheckedUpdateManyWithoutStaffNestedInput
   }
 
   export type StaffCreateWithoutLeaveRequestsInput = {
@@ -25131,6 +29223,49 @@ export namespace Prisma {
     status: string
     joined: Date | string
     birthday: string
+    preferredName?: string | null
+    dateOfBirth?: Date | string | null
+    gender?: string | null
+    nationality?: string | null
+    personalEmail?: string | null
+    personalPhone?: string | null
+    addressLine1?: string | null
+    addressLine2?: string | null
+    city?: string | null
+    postcode?: string | null
+    country?: string | null
+    emergencyName?: string | null
+    emergencyPhone?: string | null
+    emergencyRelation?: string | null
+    employmentType?: string | null
+    workLocation?: string | null
+    contractEnd?: Date | string | null
+    probationEnd?: Date | string | null
+    hoursPerWeek?: number | null
+    niNumber?: string | null
+    taxId?: string | null
+    taxCode?: string | null
+    taxResidency?: string | null
+    bankAccountName?: string | null
+    bankSortCode?: string | null
+    bankAccountNumber?: string | null
+    iban?: string | null
+    govIdType?: string | null
+    govIdNumber?: string | null
+    govIdCountry?: string | null
+    govIdExpiry?: Date | string | null
+    rightToWork?: string | null
+    visaType?: string | null
+    visaExpiry?: Date | string | null
+    ptsNumber?: string | null
+    ptsExpiry?: Date | string | null
+    medicalExpiry?: Date | string | null
+    studentLoan?: boolean
+    lineManager?: string | null
+    noticePeriod?: string | null
+    payType?: string | null
+    payRatePence?: number | null
+    notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     crew: CrewCreateNestedOneWithoutStaffInput
@@ -25139,6 +29274,7 @@ export namespace Prisma {
     attendance?: AttendanceCreateNestedManyWithoutStaffInput
     expenses?: ExpenseCreateNestedManyWithoutStaffInput
     payroll?: PayrollRecordCreateNestedManyWithoutStaffInput
+    documents?: StaffDocumentCreateNestedManyWithoutStaffInput
   }
 
   export type StaffUncheckedCreateWithoutLeaveRequestsInput = {
@@ -25152,12 +29288,56 @@ export namespace Prisma {
     status: string
     joined: Date | string
     birthday: string
+    preferredName?: string | null
+    dateOfBirth?: Date | string | null
+    gender?: string | null
+    nationality?: string | null
+    personalEmail?: string | null
+    personalPhone?: string | null
+    addressLine1?: string | null
+    addressLine2?: string | null
+    city?: string | null
+    postcode?: string | null
+    country?: string | null
+    emergencyName?: string | null
+    emergencyPhone?: string | null
+    emergencyRelation?: string | null
+    employmentType?: string | null
+    workLocation?: string | null
+    contractEnd?: Date | string | null
+    probationEnd?: Date | string | null
+    hoursPerWeek?: number | null
+    niNumber?: string | null
+    taxId?: string | null
+    taxCode?: string | null
+    taxResidency?: string | null
+    bankAccountName?: string | null
+    bankSortCode?: string | null
+    bankAccountNumber?: string | null
+    iban?: string | null
+    govIdType?: string | null
+    govIdNumber?: string | null
+    govIdCountry?: string | null
+    govIdExpiry?: Date | string | null
+    rightToWork?: string | null
+    visaType?: string | null
+    visaExpiry?: Date | string | null
+    ptsNumber?: string | null
+    ptsExpiry?: Date | string | null
+    medicalExpiry?: Date | string | null
+    studentLoan?: boolean
+    lineManager?: string | null
+    noticePeriod?: string | null
+    payType?: string | null
+    payRatePence?: number | null
+    notes?: string | null
     userId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     attendance?: AttendanceUncheckedCreateNestedManyWithoutStaffInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutStaffInput
     payroll?: PayrollRecordUncheckedCreateNestedManyWithoutStaffInput
+    documents?: StaffDocumentUncheckedCreateNestedManyWithoutStaffInput
   }
 
   export type StaffCreateOrConnectWithoutLeaveRequestsInput = {
@@ -25185,6 +29365,49 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     joined?: DateTimeFieldUpdateOperationsInput | Date | string
     birthday?: StringFieldUpdateOperationsInput | string
+    preferredName?: NullableStringFieldUpdateOperationsInput | string | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    personalPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine1?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postcode?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyRelation?: NullableStringFieldUpdateOperationsInput | string | null
+    employmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    contractEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    probationEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hoursPerWeek?: NullableFloatFieldUpdateOperationsInput | number | null
+    niNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    taxCode?: NullableStringFieldUpdateOperationsInput | string | null
+    taxResidency?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankSortCode?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdType?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rightToWork?: NullableStringFieldUpdateOperationsInput | string | null
+    visaType?: NullableStringFieldUpdateOperationsInput | string | null
+    visaExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ptsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    ptsExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    medicalExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    studentLoan?: BoolFieldUpdateOperationsInput | boolean
+    lineManager?: NullableStringFieldUpdateOperationsInput | string | null
+    noticePeriod?: NullableStringFieldUpdateOperationsInput | string | null
+    payType?: NullableStringFieldUpdateOperationsInput | string | null
+    payRatePence?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     crew?: CrewUpdateOneRequiredWithoutStaffNestedInput
@@ -25193,6 +29416,7 @@ export namespace Prisma {
     attendance?: AttendanceUpdateManyWithoutStaffNestedInput
     expenses?: ExpenseUpdateManyWithoutStaffNestedInput
     payroll?: PayrollRecordUpdateManyWithoutStaffNestedInput
+    documents?: StaffDocumentUpdateManyWithoutStaffNestedInput
   }
 
   export type StaffUncheckedUpdateWithoutLeaveRequestsInput = {
@@ -25206,12 +29430,56 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     joined?: DateTimeFieldUpdateOperationsInput | Date | string
     birthday?: StringFieldUpdateOperationsInput | string
+    preferredName?: NullableStringFieldUpdateOperationsInput | string | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    personalPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine1?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postcode?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyRelation?: NullableStringFieldUpdateOperationsInput | string | null
+    employmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    contractEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    probationEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hoursPerWeek?: NullableFloatFieldUpdateOperationsInput | number | null
+    niNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    taxCode?: NullableStringFieldUpdateOperationsInput | string | null
+    taxResidency?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankSortCode?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdType?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rightToWork?: NullableStringFieldUpdateOperationsInput | string | null
+    visaType?: NullableStringFieldUpdateOperationsInput | string | null
+    visaExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ptsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    ptsExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    medicalExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    studentLoan?: BoolFieldUpdateOperationsInput | boolean
+    lineManager?: NullableStringFieldUpdateOperationsInput | string | null
+    noticePeriod?: NullableStringFieldUpdateOperationsInput | string | null
+    payType?: NullableStringFieldUpdateOperationsInput | string | null
+    payRatePence?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     attendance?: AttendanceUncheckedUpdateManyWithoutStaffNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutStaffNestedInput
     payroll?: PayrollRecordUncheckedUpdateManyWithoutStaffNestedInput
+    documents?: StaffDocumentUncheckedUpdateManyWithoutStaffNestedInput
   }
 
   export type InvoiceCreateWithoutDocumentInput = {
@@ -25622,6 +29890,49 @@ export namespace Prisma {
     status: string
     joined: Date | string
     birthday: string
+    preferredName?: string | null
+    dateOfBirth?: Date | string | null
+    gender?: string | null
+    nationality?: string | null
+    personalEmail?: string | null
+    personalPhone?: string | null
+    addressLine1?: string | null
+    addressLine2?: string | null
+    city?: string | null
+    postcode?: string | null
+    country?: string | null
+    emergencyName?: string | null
+    emergencyPhone?: string | null
+    emergencyRelation?: string | null
+    employmentType?: string | null
+    workLocation?: string | null
+    contractEnd?: Date | string | null
+    probationEnd?: Date | string | null
+    hoursPerWeek?: number | null
+    niNumber?: string | null
+    taxId?: string | null
+    taxCode?: string | null
+    taxResidency?: string | null
+    bankAccountName?: string | null
+    bankSortCode?: string | null
+    bankAccountNumber?: string | null
+    iban?: string | null
+    govIdType?: string | null
+    govIdNumber?: string | null
+    govIdCountry?: string | null
+    govIdExpiry?: Date | string | null
+    rightToWork?: string | null
+    visaType?: string | null
+    visaExpiry?: Date | string | null
+    ptsNumber?: string | null
+    ptsExpiry?: Date | string | null
+    medicalExpiry?: Date | string | null
+    studentLoan?: boolean
+    lineManager?: string | null
+    noticePeriod?: string | null
+    payType?: string | null
+    payRatePence?: number | null
+    notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     crew: CrewCreateNestedOneWithoutStaffInput
@@ -25630,6 +29941,7 @@ export namespace Prisma {
     attendance?: AttendanceCreateNestedManyWithoutStaffInput
     leaveRequests?: LeaveRequestCreateNestedManyWithoutStaffInput
     payroll?: PayrollRecordCreateNestedManyWithoutStaffInput
+    documents?: StaffDocumentCreateNestedManyWithoutStaffInput
   }
 
   export type StaffUncheckedCreateWithoutExpensesInput = {
@@ -25643,12 +29955,56 @@ export namespace Prisma {
     status: string
     joined: Date | string
     birthday: string
+    preferredName?: string | null
+    dateOfBirth?: Date | string | null
+    gender?: string | null
+    nationality?: string | null
+    personalEmail?: string | null
+    personalPhone?: string | null
+    addressLine1?: string | null
+    addressLine2?: string | null
+    city?: string | null
+    postcode?: string | null
+    country?: string | null
+    emergencyName?: string | null
+    emergencyPhone?: string | null
+    emergencyRelation?: string | null
+    employmentType?: string | null
+    workLocation?: string | null
+    contractEnd?: Date | string | null
+    probationEnd?: Date | string | null
+    hoursPerWeek?: number | null
+    niNumber?: string | null
+    taxId?: string | null
+    taxCode?: string | null
+    taxResidency?: string | null
+    bankAccountName?: string | null
+    bankSortCode?: string | null
+    bankAccountNumber?: string | null
+    iban?: string | null
+    govIdType?: string | null
+    govIdNumber?: string | null
+    govIdCountry?: string | null
+    govIdExpiry?: Date | string | null
+    rightToWork?: string | null
+    visaType?: string | null
+    visaExpiry?: Date | string | null
+    ptsNumber?: string | null
+    ptsExpiry?: Date | string | null
+    medicalExpiry?: Date | string | null
+    studentLoan?: boolean
+    lineManager?: string | null
+    noticePeriod?: string | null
+    payType?: string | null
+    payRatePence?: number | null
+    notes?: string | null
     userId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     attendance?: AttendanceUncheckedCreateNestedManyWithoutStaffInput
     leaveRequests?: LeaveRequestUncheckedCreateNestedManyWithoutStaffInput
     payroll?: PayrollRecordUncheckedCreateNestedManyWithoutStaffInput
+    documents?: StaffDocumentUncheckedCreateNestedManyWithoutStaffInput
   }
 
   export type StaffCreateOrConnectWithoutExpensesInput = {
@@ -25705,6 +30061,49 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     joined?: DateTimeFieldUpdateOperationsInput | Date | string
     birthday?: StringFieldUpdateOperationsInput | string
+    preferredName?: NullableStringFieldUpdateOperationsInput | string | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    personalPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine1?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postcode?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyRelation?: NullableStringFieldUpdateOperationsInput | string | null
+    employmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    contractEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    probationEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hoursPerWeek?: NullableFloatFieldUpdateOperationsInput | number | null
+    niNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    taxCode?: NullableStringFieldUpdateOperationsInput | string | null
+    taxResidency?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankSortCode?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdType?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rightToWork?: NullableStringFieldUpdateOperationsInput | string | null
+    visaType?: NullableStringFieldUpdateOperationsInput | string | null
+    visaExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ptsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    ptsExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    medicalExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    studentLoan?: BoolFieldUpdateOperationsInput | boolean
+    lineManager?: NullableStringFieldUpdateOperationsInput | string | null
+    noticePeriod?: NullableStringFieldUpdateOperationsInput | string | null
+    payType?: NullableStringFieldUpdateOperationsInput | string | null
+    payRatePence?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     crew?: CrewUpdateOneRequiredWithoutStaffNestedInput
@@ -25713,6 +30112,7 @@ export namespace Prisma {
     attendance?: AttendanceUpdateManyWithoutStaffNestedInput
     leaveRequests?: LeaveRequestUpdateManyWithoutStaffNestedInput
     payroll?: PayrollRecordUpdateManyWithoutStaffNestedInput
+    documents?: StaffDocumentUpdateManyWithoutStaffNestedInput
   }
 
   export type StaffUncheckedUpdateWithoutExpensesInput = {
@@ -25726,12 +30126,56 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     joined?: DateTimeFieldUpdateOperationsInput | Date | string
     birthday?: StringFieldUpdateOperationsInput | string
+    preferredName?: NullableStringFieldUpdateOperationsInput | string | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    personalPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine1?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postcode?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyRelation?: NullableStringFieldUpdateOperationsInput | string | null
+    employmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    contractEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    probationEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hoursPerWeek?: NullableFloatFieldUpdateOperationsInput | number | null
+    niNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    taxCode?: NullableStringFieldUpdateOperationsInput | string | null
+    taxResidency?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankSortCode?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdType?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rightToWork?: NullableStringFieldUpdateOperationsInput | string | null
+    visaType?: NullableStringFieldUpdateOperationsInput | string | null
+    visaExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ptsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    ptsExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    medicalExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    studentLoan?: BoolFieldUpdateOperationsInput | boolean
+    lineManager?: NullableStringFieldUpdateOperationsInput | string | null
+    noticePeriod?: NullableStringFieldUpdateOperationsInput | string | null
+    payType?: NullableStringFieldUpdateOperationsInput | string | null
+    payRatePence?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     attendance?: AttendanceUncheckedUpdateManyWithoutStaffNestedInput
     leaveRequests?: LeaveRequestUncheckedUpdateManyWithoutStaffNestedInput
     payroll?: PayrollRecordUncheckedUpdateManyWithoutStaffNestedInput
+    documents?: StaffDocumentUncheckedUpdateManyWithoutStaffNestedInput
   }
 
   export type AttachmentUpsertWithoutExpensesInput = {
@@ -25778,6 +30222,49 @@ export namespace Prisma {
     status: string
     joined: Date | string
     birthday: string
+    preferredName?: string | null
+    dateOfBirth?: Date | string | null
+    gender?: string | null
+    nationality?: string | null
+    personalEmail?: string | null
+    personalPhone?: string | null
+    addressLine1?: string | null
+    addressLine2?: string | null
+    city?: string | null
+    postcode?: string | null
+    country?: string | null
+    emergencyName?: string | null
+    emergencyPhone?: string | null
+    emergencyRelation?: string | null
+    employmentType?: string | null
+    workLocation?: string | null
+    contractEnd?: Date | string | null
+    probationEnd?: Date | string | null
+    hoursPerWeek?: number | null
+    niNumber?: string | null
+    taxId?: string | null
+    taxCode?: string | null
+    taxResidency?: string | null
+    bankAccountName?: string | null
+    bankSortCode?: string | null
+    bankAccountNumber?: string | null
+    iban?: string | null
+    govIdType?: string | null
+    govIdNumber?: string | null
+    govIdCountry?: string | null
+    govIdExpiry?: Date | string | null
+    rightToWork?: string | null
+    visaType?: string | null
+    visaExpiry?: Date | string | null
+    ptsNumber?: string | null
+    ptsExpiry?: Date | string | null
+    medicalExpiry?: Date | string | null
+    studentLoan?: boolean
+    lineManager?: string | null
+    noticePeriod?: string | null
+    payType?: string | null
+    payRatePence?: number | null
+    notes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     crew: CrewCreateNestedOneWithoutStaffInput
@@ -25786,6 +30273,7 @@ export namespace Prisma {
     attendance?: AttendanceCreateNestedManyWithoutStaffInput
     leaveRequests?: LeaveRequestCreateNestedManyWithoutStaffInput
     expenses?: ExpenseCreateNestedManyWithoutStaffInput
+    documents?: StaffDocumentCreateNestedManyWithoutStaffInput
   }
 
   export type StaffUncheckedCreateWithoutPayrollInput = {
@@ -25799,12 +30287,56 @@ export namespace Prisma {
     status: string
     joined: Date | string
     birthday: string
+    preferredName?: string | null
+    dateOfBirth?: Date | string | null
+    gender?: string | null
+    nationality?: string | null
+    personalEmail?: string | null
+    personalPhone?: string | null
+    addressLine1?: string | null
+    addressLine2?: string | null
+    city?: string | null
+    postcode?: string | null
+    country?: string | null
+    emergencyName?: string | null
+    emergencyPhone?: string | null
+    emergencyRelation?: string | null
+    employmentType?: string | null
+    workLocation?: string | null
+    contractEnd?: Date | string | null
+    probationEnd?: Date | string | null
+    hoursPerWeek?: number | null
+    niNumber?: string | null
+    taxId?: string | null
+    taxCode?: string | null
+    taxResidency?: string | null
+    bankAccountName?: string | null
+    bankSortCode?: string | null
+    bankAccountNumber?: string | null
+    iban?: string | null
+    govIdType?: string | null
+    govIdNumber?: string | null
+    govIdCountry?: string | null
+    govIdExpiry?: Date | string | null
+    rightToWork?: string | null
+    visaType?: string | null
+    visaExpiry?: Date | string | null
+    ptsNumber?: string | null
+    ptsExpiry?: Date | string | null
+    medicalExpiry?: Date | string | null
+    studentLoan?: boolean
+    lineManager?: string | null
+    noticePeriod?: string | null
+    payType?: string | null
+    payRatePence?: number | null
+    notes?: string | null
     userId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     attendance?: AttendanceUncheckedCreateNestedManyWithoutStaffInput
     leaveRequests?: LeaveRequestUncheckedCreateNestedManyWithoutStaffInput
     expenses?: ExpenseUncheckedCreateNestedManyWithoutStaffInput
+    documents?: StaffDocumentUncheckedCreateNestedManyWithoutStaffInput
   }
 
   export type StaffCreateOrConnectWithoutPayrollInput = {
@@ -25832,6 +30364,49 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     joined?: DateTimeFieldUpdateOperationsInput | Date | string
     birthday?: StringFieldUpdateOperationsInput | string
+    preferredName?: NullableStringFieldUpdateOperationsInput | string | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    personalPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine1?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postcode?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyRelation?: NullableStringFieldUpdateOperationsInput | string | null
+    employmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    contractEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    probationEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hoursPerWeek?: NullableFloatFieldUpdateOperationsInput | number | null
+    niNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    taxCode?: NullableStringFieldUpdateOperationsInput | string | null
+    taxResidency?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankSortCode?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdType?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rightToWork?: NullableStringFieldUpdateOperationsInput | string | null
+    visaType?: NullableStringFieldUpdateOperationsInput | string | null
+    visaExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ptsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    ptsExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    medicalExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    studentLoan?: BoolFieldUpdateOperationsInput | boolean
+    lineManager?: NullableStringFieldUpdateOperationsInput | string | null
+    noticePeriod?: NullableStringFieldUpdateOperationsInput | string | null
+    payType?: NullableStringFieldUpdateOperationsInput | string | null
+    payRatePence?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     crew?: CrewUpdateOneRequiredWithoutStaffNestedInput
@@ -25840,6 +30415,7 @@ export namespace Prisma {
     attendance?: AttendanceUpdateManyWithoutStaffNestedInput
     leaveRequests?: LeaveRequestUpdateManyWithoutStaffNestedInput
     expenses?: ExpenseUpdateManyWithoutStaffNestedInput
+    documents?: StaffDocumentUpdateManyWithoutStaffNestedInput
   }
 
   export type StaffUncheckedUpdateWithoutPayrollInput = {
@@ -25853,12 +30429,56 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     joined?: DateTimeFieldUpdateOperationsInput | Date | string
     birthday?: StringFieldUpdateOperationsInput | string
+    preferredName?: NullableStringFieldUpdateOperationsInput | string | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    personalPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine1?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postcode?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyRelation?: NullableStringFieldUpdateOperationsInput | string | null
+    employmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    contractEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    probationEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hoursPerWeek?: NullableFloatFieldUpdateOperationsInput | number | null
+    niNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    taxCode?: NullableStringFieldUpdateOperationsInput | string | null
+    taxResidency?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankSortCode?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdType?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rightToWork?: NullableStringFieldUpdateOperationsInput | string | null
+    visaType?: NullableStringFieldUpdateOperationsInput | string | null
+    visaExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ptsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    ptsExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    medicalExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    studentLoan?: BoolFieldUpdateOperationsInput | boolean
+    lineManager?: NullableStringFieldUpdateOperationsInput | string | null
+    noticePeriod?: NullableStringFieldUpdateOperationsInput | string | null
+    payType?: NullableStringFieldUpdateOperationsInput | string | null
+    payRatePence?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     attendance?: AttendanceUncheckedUpdateManyWithoutStaffNestedInput
     leaveRequests?: LeaveRequestUncheckedUpdateManyWithoutStaffNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutStaffNestedInput
+    documents?: StaffDocumentUncheckedUpdateManyWithoutStaffNestedInput
   }
 
   export type SessionCreateManyUserInput = {
@@ -25975,6 +30595,49 @@ export namespace Prisma {
     status: string
     joined: Date | string
     birthday: string
+    preferredName?: string | null
+    dateOfBirth?: Date | string | null
+    gender?: string | null
+    nationality?: string | null
+    personalEmail?: string | null
+    personalPhone?: string | null
+    addressLine1?: string | null
+    addressLine2?: string | null
+    city?: string | null
+    postcode?: string | null
+    country?: string | null
+    emergencyName?: string | null
+    emergencyPhone?: string | null
+    emergencyRelation?: string | null
+    employmentType?: string | null
+    workLocation?: string | null
+    contractEnd?: Date | string | null
+    probationEnd?: Date | string | null
+    hoursPerWeek?: number | null
+    niNumber?: string | null
+    taxId?: string | null
+    taxCode?: string | null
+    taxResidency?: string | null
+    bankAccountName?: string | null
+    bankSortCode?: string | null
+    bankAccountNumber?: string | null
+    iban?: string | null
+    govIdType?: string | null
+    govIdNumber?: string | null
+    govIdCountry?: string | null
+    govIdExpiry?: Date | string | null
+    rightToWork?: string | null
+    visaType?: string | null
+    visaExpiry?: Date | string | null
+    ptsNumber?: string | null
+    ptsExpiry?: Date | string | null
+    medicalExpiry?: Date | string | null
+    studentLoan?: boolean
+    lineManager?: string | null
+    noticePeriod?: string | null
+    payType?: string | null
+    payRatePence?: number | null
+    notes?: string | null
     userId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -25989,6 +30652,49 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     joined?: DateTimeFieldUpdateOperationsInput | Date | string
     birthday?: StringFieldUpdateOperationsInput | string
+    preferredName?: NullableStringFieldUpdateOperationsInput | string | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    personalPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine1?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postcode?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyRelation?: NullableStringFieldUpdateOperationsInput | string | null
+    employmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    contractEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    probationEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hoursPerWeek?: NullableFloatFieldUpdateOperationsInput | number | null
+    niNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    taxCode?: NullableStringFieldUpdateOperationsInput | string | null
+    taxResidency?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankSortCode?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdType?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rightToWork?: NullableStringFieldUpdateOperationsInput | string | null
+    visaType?: NullableStringFieldUpdateOperationsInput | string | null
+    visaExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ptsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    ptsExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    medicalExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    studentLoan?: BoolFieldUpdateOperationsInput | boolean
+    lineManager?: NullableStringFieldUpdateOperationsInput | string | null
+    noticePeriod?: NullableStringFieldUpdateOperationsInput | string | null
+    payType?: NullableStringFieldUpdateOperationsInput | string | null
+    payRatePence?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     currentJob?: JobUpdateOneWithoutStaffNestedInput
@@ -25997,6 +30703,7 @@ export namespace Prisma {
     leaveRequests?: LeaveRequestUpdateManyWithoutStaffNestedInput
     expenses?: ExpenseUpdateManyWithoutStaffNestedInput
     payroll?: PayrollRecordUpdateManyWithoutStaffNestedInput
+    documents?: StaffDocumentUpdateManyWithoutStaffNestedInput
   }
 
   export type StaffUncheckedUpdateWithoutCrewInput = {
@@ -26009,6 +30716,49 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     joined?: DateTimeFieldUpdateOperationsInput | Date | string
     birthday?: StringFieldUpdateOperationsInput | string
+    preferredName?: NullableStringFieldUpdateOperationsInput | string | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    personalPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine1?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postcode?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyRelation?: NullableStringFieldUpdateOperationsInput | string | null
+    employmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    contractEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    probationEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hoursPerWeek?: NullableFloatFieldUpdateOperationsInput | number | null
+    niNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    taxCode?: NullableStringFieldUpdateOperationsInput | string | null
+    taxResidency?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankSortCode?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdType?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rightToWork?: NullableStringFieldUpdateOperationsInput | string | null
+    visaType?: NullableStringFieldUpdateOperationsInput | string | null
+    visaExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ptsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    ptsExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    medicalExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    studentLoan?: BoolFieldUpdateOperationsInput | boolean
+    lineManager?: NullableStringFieldUpdateOperationsInput | string | null
+    noticePeriod?: NullableStringFieldUpdateOperationsInput | string | null
+    payType?: NullableStringFieldUpdateOperationsInput | string | null
+    payRatePence?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26016,6 +30766,7 @@ export namespace Prisma {
     leaveRequests?: LeaveRequestUncheckedUpdateManyWithoutStaffNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutStaffNestedInput
     payroll?: PayrollRecordUncheckedUpdateManyWithoutStaffNestedInput
+    documents?: StaffDocumentUncheckedUpdateManyWithoutStaffNestedInput
   }
 
   export type StaffUncheckedUpdateManyWithoutCrewInput = {
@@ -26028,6 +30779,49 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     joined?: DateTimeFieldUpdateOperationsInput | Date | string
     birthday?: StringFieldUpdateOperationsInput | string
+    preferredName?: NullableStringFieldUpdateOperationsInput | string | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    personalPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine1?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postcode?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyRelation?: NullableStringFieldUpdateOperationsInput | string | null
+    employmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    contractEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    probationEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hoursPerWeek?: NullableFloatFieldUpdateOperationsInput | number | null
+    niNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    taxCode?: NullableStringFieldUpdateOperationsInput | string | null
+    taxResidency?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankSortCode?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdType?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rightToWork?: NullableStringFieldUpdateOperationsInput | string | null
+    visaType?: NullableStringFieldUpdateOperationsInput | string | null
+    visaExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ptsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    ptsExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    medicalExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    studentLoan?: BoolFieldUpdateOperationsInput | boolean
+    lineManager?: NullableStringFieldUpdateOperationsInput | string | null
+    noticePeriod?: NullableStringFieldUpdateOperationsInput | string | null
+    payType?: NullableStringFieldUpdateOperationsInput | string | null
+    payRatePence?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26043,6 +30837,49 @@ export namespace Prisma {
     status: string
     joined: Date | string
     birthday: string
+    preferredName?: string | null
+    dateOfBirth?: Date | string | null
+    gender?: string | null
+    nationality?: string | null
+    personalEmail?: string | null
+    personalPhone?: string | null
+    addressLine1?: string | null
+    addressLine2?: string | null
+    city?: string | null
+    postcode?: string | null
+    country?: string | null
+    emergencyName?: string | null
+    emergencyPhone?: string | null
+    emergencyRelation?: string | null
+    employmentType?: string | null
+    workLocation?: string | null
+    contractEnd?: Date | string | null
+    probationEnd?: Date | string | null
+    hoursPerWeek?: number | null
+    niNumber?: string | null
+    taxId?: string | null
+    taxCode?: string | null
+    taxResidency?: string | null
+    bankAccountName?: string | null
+    bankSortCode?: string | null
+    bankAccountNumber?: string | null
+    iban?: string | null
+    govIdType?: string | null
+    govIdNumber?: string | null
+    govIdCountry?: string | null
+    govIdExpiry?: Date | string | null
+    rightToWork?: string | null
+    visaType?: string | null
+    visaExpiry?: Date | string | null
+    ptsNumber?: string | null
+    ptsExpiry?: Date | string | null
+    medicalExpiry?: Date | string | null
+    studentLoan?: boolean
+    lineManager?: string | null
+    noticePeriod?: string | null
+    payType?: string | null
+    payRatePence?: number | null
+    notes?: string | null
     userId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -26057,6 +30894,49 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     joined?: DateTimeFieldUpdateOperationsInput | Date | string
     birthday?: StringFieldUpdateOperationsInput | string
+    preferredName?: NullableStringFieldUpdateOperationsInput | string | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    personalPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine1?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postcode?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyRelation?: NullableStringFieldUpdateOperationsInput | string | null
+    employmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    contractEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    probationEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hoursPerWeek?: NullableFloatFieldUpdateOperationsInput | number | null
+    niNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    taxCode?: NullableStringFieldUpdateOperationsInput | string | null
+    taxResidency?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankSortCode?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdType?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rightToWork?: NullableStringFieldUpdateOperationsInput | string | null
+    visaType?: NullableStringFieldUpdateOperationsInput | string | null
+    visaExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ptsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    ptsExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    medicalExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    studentLoan?: BoolFieldUpdateOperationsInput | boolean
+    lineManager?: NullableStringFieldUpdateOperationsInput | string | null
+    noticePeriod?: NullableStringFieldUpdateOperationsInput | string | null
+    payType?: NullableStringFieldUpdateOperationsInput | string | null
+    payRatePence?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     crew?: CrewUpdateOneRequiredWithoutStaffNestedInput
@@ -26065,6 +30945,7 @@ export namespace Prisma {
     leaveRequests?: LeaveRequestUpdateManyWithoutStaffNestedInput
     expenses?: ExpenseUpdateManyWithoutStaffNestedInput
     payroll?: PayrollRecordUpdateManyWithoutStaffNestedInput
+    documents?: StaffDocumentUpdateManyWithoutStaffNestedInput
   }
 
   export type StaffUncheckedUpdateWithoutCurrentJobInput = {
@@ -26077,6 +30958,49 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     joined?: DateTimeFieldUpdateOperationsInput | Date | string
     birthday?: StringFieldUpdateOperationsInput | string
+    preferredName?: NullableStringFieldUpdateOperationsInput | string | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    personalPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine1?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postcode?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyRelation?: NullableStringFieldUpdateOperationsInput | string | null
+    employmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    contractEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    probationEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hoursPerWeek?: NullableFloatFieldUpdateOperationsInput | number | null
+    niNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    taxCode?: NullableStringFieldUpdateOperationsInput | string | null
+    taxResidency?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankSortCode?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdType?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rightToWork?: NullableStringFieldUpdateOperationsInput | string | null
+    visaType?: NullableStringFieldUpdateOperationsInput | string | null
+    visaExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ptsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    ptsExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    medicalExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    studentLoan?: BoolFieldUpdateOperationsInput | boolean
+    lineManager?: NullableStringFieldUpdateOperationsInput | string | null
+    noticePeriod?: NullableStringFieldUpdateOperationsInput | string | null
+    payType?: NullableStringFieldUpdateOperationsInput | string | null
+    payRatePence?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26084,6 +31008,7 @@ export namespace Prisma {
     leaveRequests?: LeaveRequestUncheckedUpdateManyWithoutStaffNestedInput
     expenses?: ExpenseUncheckedUpdateManyWithoutStaffNestedInput
     payroll?: PayrollRecordUncheckedUpdateManyWithoutStaffNestedInput
+    documents?: StaffDocumentUncheckedUpdateManyWithoutStaffNestedInput
   }
 
   export type StaffUncheckedUpdateManyWithoutCurrentJobInput = {
@@ -26096,6 +31021,49 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     joined?: DateTimeFieldUpdateOperationsInput | Date | string
     birthday?: StringFieldUpdateOperationsInput | string
+    preferredName?: NullableStringFieldUpdateOperationsInput | string | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    personalEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    personalPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine1?: NullableStringFieldUpdateOperationsInput | string | null
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    postcode?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyName?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyPhone?: NullableStringFieldUpdateOperationsInput | string | null
+    emergencyRelation?: NullableStringFieldUpdateOperationsInput | string | null
+    employmentType?: NullableStringFieldUpdateOperationsInput | string | null
+    workLocation?: NullableStringFieldUpdateOperationsInput | string | null
+    contractEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    probationEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    hoursPerWeek?: NullableFloatFieldUpdateOperationsInput | number | null
+    niNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    taxId?: NullableStringFieldUpdateOperationsInput | string | null
+    taxCode?: NullableStringFieldUpdateOperationsInput | string | null
+    taxResidency?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankSortCode?: NullableStringFieldUpdateOperationsInput | string | null
+    bankAccountNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    iban?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdType?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    govIdExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rightToWork?: NullableStringFieldUpdateOperationsInput | string | null
+    visaType?: NullableStringFieldUpdateOperationsInput | string | null
+    visaExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ptsNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    ptsExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    medicalExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    studentLoan?: BoolFieldUpdateOperationsInput | boolean
+    lineManager?: NullableStringFieldUpdateOperationsInput | string | null
+    noticePeriod?: NullableStringFieldUpdateOperationsInput | string | null
+    payType?: NullableStringFieldUpdateOperationsInput | string | null
+    payRatePence?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26115,9 +31083,13 @@ export namespace Prisma {
     from: Date | string
     to: Date | string
     days: number
+    startAt?: string
+    endAt?: string
+    deducts?: boolean
     reason: string
     status: string
     submitted: Date | string
+    decidedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -26152,6 +31124,19 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type StaffDocumentCreateManyStaffInput = {
+    id?: string
+    category: string
+    title: string
+    reference?: string | null
+    issuedOn?: Date | string | null
+    expiresOn?: Date | string | null
+    fileName?: string | null
+    url?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type AttendanceUpdateWithoutStaffInput = {
     id?: StringFieldUpdateOperationsInput | string
     date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26181,10 +31166,14 @@ export namespace Prisma {
     type?: StringFieldUpdateOperationsInput | string
     from?: DateTimeFieldUpdateOperationsInput | Date | string
     to?: DateTimeFieldUpdateOperationsInput | Date | string
-    days?: IntFieldUpdateOperationsInput | number
+    days?: FloatFieldUpdateOperationsInput | number
+    startAt?: StringFieldUpdateOperationsInput | string
+    endAt?: StringFieldUpdateOperationsInput | string
+    deducts?: BoolFieldUpdateOperationsInput | boolean
     reason?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     submitted?: DateTimeFieldUpdateOperationsInput | Date | string
+    decidedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -26194,10 +31183,14 @@ export namespace Prisma {
     type?: StringFieldUpdateOperationsInput | string
     from?: DateTimeFieldUpdateOperationsInput | Date | string
     to?: DateTimeFieldUpdateOperationsInput | Date | string
-    days?: IntFieldUpdateOperationsInput | number
+    days?: FloatFieldUpdateOperationsInput | number
+    startAt?: StringFieldUpdateOperationsInput | string
+    endAt?: StringFieldUpdateOperationsInput | string
+    deducts?: BoolFieldUpdateOperationsInput | boolean
     reason?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     submitted?: DateTimeFieldUpdateOperationsInput | Date | string
+    decidedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -26207,10 +31200,14 @@ export namespace Prisma {
     type?: StringFieldUpdateOperationsInput | string
     from?: DateTimeFieldUpdateOperationsInput | Date | string
     to?: DateTimeFieldUpdateOperationsInput | Date | string
-    days?: IntFieldUpdateOperationsInput | number
+    days?: FloatFieldUpdateOperationsInput | number
+    startAt?: StringFieldUpdateOperationsInput | string
+    endAt?: StringFieldUpdateOperationsInput | string
+    deducts?: BoolFieldUpdateOperationsInput | boolean
     reason?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     submitted?: DateTimeFieldUpdateOperationsInput | Date | string
+    decidedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -26301,6 +31298,45 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     paidOn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reference?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StaffDocumentUpdateWithoutStaffInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedOn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiresOn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fileName?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StaffDocumentUncheckedUpdateWithoutStaffInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedOn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiresOn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fileName?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StaffDocumentUncheckedUpdateManyWithoutStaffInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    issuedOn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiresOn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fileName?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
