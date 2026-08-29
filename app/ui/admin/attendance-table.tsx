@@ -3,14 +3,12 @@
 import { useMemo, useState } from 'react'
 import { STAT_ICON, StatCard } from '@/app/ui/admin/stat-card'
 import { useRegisterPageAction } from '@/app/ui/admin/page-action'
-import { addAttendanceEntry } from '@/app/actions/admin'
+import { AttendanceEntryDialog } from '@/app/ui/admin/attendance-entry-dialog'
 import {
-  attendanceFor,
   attendanceHours,
   attendanceWeek,
   staff,
   today,
-  weekHours,
   type AttendanceCode,
   type StaffMember,
 } from '@/app/lib/admin-data'
@@ -317,96 +315,17 @@ export function AttendanceTable({
           </p>
         </div>
 
-        {adding && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-white p-6 shadow-xl dark:border-zinc-800 dark:bg-zinc-950">
-              <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Add Attendance Entry</h3>
-              <form
-                onSubmit={async (e) => {
-                  e.preventDefault()
-                  const form = e.currentTarget
-                  const formData = new FormData(form)
-                  const staffRef = formData.get('staffRef') as string
-                  const date = formData.get('date') as string
-                  const code = formData.get('code') as string
-
-                  try {
-                    await addAttendanceEntry({ staffRef, date, code })
-                    setAdding(false)
-                  } catch (err) {
-                    alert(String(err))
-                  }
-                }}
-                className="mt-4 flex flex-col gap-4"
-              >
-                <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Staff Member
-                  </label>
-                  <select
-                    name="staffRef"
-                    required
-                    className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300"
-                  >
-                    <option value="">Select an employee...</option>
-                    {staffData.map((p) => (
-                      <option key={p.ref} value={p.ref}>
-                        {p.name} ({p.ref})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Date
-                  </label>
-                  <input
-                    type="date"
-                    name="date"
-                    required
-                    defaultValue={activeToday}
-                    className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Attendance Status
-                  </label>
-                  <select
-                    name="code"
-                    required
-                    className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300"
-                  >
-                    <option value="P">Present (P)</option>
-                    <option value="H">Half day (H)</option>
-                    <option value="L">Leave (L)</option>
-                    <option value="A">Absent (A)</option>
-                    <option value="-">Non-working (-)</option>
-                  </select>
-                </div>
-
-                <div className="flex justify-end gap-2 mt-2">
-                  <button
-                    type="button"
-                    onClick={() => setAdding(false)}
-                    className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
-                  >
-                    Save
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
       </section>
+
+      {adding ? (
+        <AttendanceEntryDialog
+          staff={staffData}
+          week={activeWeek}
+          patterns={patterns}
+          today={activeToday}
+          onClose={() => setAdding(false)}
+        />
+      ) : null}
     </div>
   )
 }

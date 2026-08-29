@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { LeaveRequests } from '@/app/ui/admin/leave-requests'
-import { getLeaveRequests, getStaff } from '@/app/actions/admin'
+import { getLeaveContext, getLeaveRequests, getStaff } from '@/app/actions/admin'
 
 export const metadata: Metadata = {
   title: 'Leaves',
@@ -9,8 +9,18 @@ export const metadata: Metadata = {
 
 // The title and primary action live in the topbar (app/ui/admin/topbar.tsx).
 export default async function LeavesPage() {
-  const leaves = await getLeaveRequests()
-  const staff = await getStaff()
+  const [leaves, staff, leaveContext] = await Promise.all([
+    getLeaveRequests(),
+    getStaff(),
+    getLeaveContext(),
+  ])
   const today = new Date().toISOString().split('T')[0]
-  return <LeaveRequests initialLeaves={leaves} initialStaff={staff} todayDate={today} />
+  return (
+    <LeaveRequests
+      initialLeaves={leaves}
+      initialStaff={staff}
+      leaveContext={leaveContext}
+      todayDate={today}
+    />
+  )
 }

@@ -13,7 +13,12 @@ import {
 import { STAT_ICON, StatCard } from '@/app/ui/admin/stat-card'
 import { useToast } from '@/app/ui/toast'
 import { useRegisterPageAction } from '@/app/ui/admin/page-action'
-import { decideLeaveRequest, addLeaveRequest } from '@/app/actions/admin'
+import { decideLeaveRequest } from '@/app/actions/admin'
+import {
+  LeaveRequestDialog,
+  type LeaveContext,
+} from '@/app/ui/admin/leave-request-dialog'
+import { formatDays } from '@/app/lib/leave'
 
 const STATUS: Record<LeaveStatus, { label: string; badge: string; tone: string }> =
   {
@@ -54,6 +59,14 @@ function range(from: string, to: string) {
   return from === to ? shortDate(from) : `${shortDate(from)} – ${shortDate(to)}`
 }
 
+/** Spells out a part-day booking, e.g. 'from the afternoon'. */
+function halfDayNote(r: LeaveRequest) {
+  const notes = []
+  if (r.startAt === 'afternoon') notes.push('from the afternoon')
+  if (r.endAt === 'lunchtime') notes.push('to lunchtime')
+  return notes.join(', ')
+}
+
 function initials(name: string) {
   const parts = name.trim().split(/\s+/)
   return (
@@ -64,10 +77,12 @@ function initials(name: string) {
 export function LeaveRequests({
   initialLeaves,
   initialStaff,
+  leaveContext,
   todayDate,
 }: {
   initialLeaves?: LeaveRequest[]
   initialStaff?: StaffMember[]
+  leaveContext?: LeaveContext
   todayDate?: string
 }) {
   const leavesData = initialLeaves || leaveRequests
@@ -252,12 +267,17 @@ export function LeaveRequests({
                         style={{ fontVariantNumeric: 'tabular-nums' }}
                       >
                         {range(r.from, r.to)}
+                        {halfDayNote(r) ? (
+                          <span className="block text-xs text-zinc-400 dark:text-zinc-600">
+                            {halfDayNote(r)}
+                          </span>
+                        ) : null}
                       </td>
                       <td
                         className="px-5 py-3 text-right text-zinc-600 dark:text-zinc-400"
                         style={{ fontVariantNumeric: 'tabular-nums' }}
                       >
-                        {r.days}
+                        {formatDays(r.days)}
                       </td>
                       <td className="max-w-56 px-5 py-3">
                         <span className="block truncate text-zinc-600 dark:text-zinc-400">
@@ -303,140 +323,16 @@ export function LeaveRequests({
           </table>
         </div>
 
-        {adding && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-white p-6 shadow-xl dark:border-zinc-800 dark:bg-zinc-950">
-              <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">New Leave Request</h3>
-              <form
-                onSubmit={async (e) => {
-                  e.preventDefault()
-                  const form = e.currentTarget
-                  const formData = new FormData(form)
-                  const staffRef = formData.get('staffRef') as string
-                  const type = formData.get('type') as string
-                  const from = formData.get('from') as string
-                  const to = formData.get('to') as string
-                  const days = parseInt(formData.get('days') as string, 10)
-                  const reason = formData.get('reason') as string
-
-                  try {
-                    await addLeaveRequest({ staffRef, type, from, to, days, reason })
-                    setAdding(false)
-                    toast('Leave request submitted successfully', 'success')
-                  } catch (err) {
-                    alert(String(err))
-                  }
-                }}
-                className="mt-4 flex flex-col gap-4"
-              >
-                <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Staff Member
-                  </label>
-                  <select
-                    name="staffRef"
-                    required
-                    className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300"
-                  >
-                    <option value="">Select an employee...</option>
-                    {staffData.map((p) => (
-                      <option key={p.ref} value={p.ref}>
-                        {p.name} ({p.ref})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Leave Type
-                  </label>
-                  <select
-                    name="type"
-                    required
-                    className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300"
-                  >
-                    <option value="annual">Annual leave</option>
-                    <option value="sick">Sick leave</option>
-                    <option value="unpaid">Unpaid leave</option>
-                    <option value="parental">Parental leave</option>
-                    <option value="compassionate">Compassionate leave</option>
-                  </select>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                      From Date
-                    </label>
-                    <input
-                      type="date"
-                      name="from"
-                      required
-                      className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                      To Date
-                    </label>
-                    <input
-                      type="date"
-                      name="to"
-                      required
-                      className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                      Working Days
-                    </label>
-                    <input
-                      type="number"
-                      name="days"
-                      required
-                      min="1"
-                      className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    Reason / Description
-                  </label>
-                  <textarea
-                    name="reason"
-                    required
-                    rows={2}
-                    placeholder="e.g. Family holiday"
-                    className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/40 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
-                  />
-                </div>
-
-                <div className="flex justify-end gap-2 mt-2">
-                  <button
-                    type="button"
-                    onClick={() => setAdding(false)}
-                    className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
-                  >
-                    Submit
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
       </section>
+
+      {adding && leaveContext ? (
+        <LeaveRequestDialog
+          staff={staffData}
+          context={leaveContext}
+          today={activeToday}
+          onClose={() => setAdding(false)}
+        />
+      ) : null}
     </div>
   )
 }

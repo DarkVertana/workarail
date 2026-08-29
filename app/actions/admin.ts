@@ -10,6 +10,7 @@ import { auth } from "@/app/lib/auth";
 import {
   type StaffMember,
   type LeaveRequest,
+  type LeaveType as LeaveTypeName,
   type Expense,
   type Invoice,
   type PayrollRecord,
@@ -22,8 +23,25 @@ import {
   computePay,
   payPeriod,
 } from "@/app/lib/admin-data";
+import {
+  LEAVE_POLICY,
+  computeLeave,
+  workingPatternFrom,
+  type EndAt,
+  type StartAt,
+} from "@/app/lib/leave";
+import { forRegion, getHolidays } from "@/app/lib/holidays";
 
 const SETTINGS_PATH = path.join(process.cwd(), "app/lib/settings.json");
+
+/**
+ * The holiday table leave deductions are measured against. The region matters:
+ * most UK bank holidays are not nationwide (the late August one covers England,
+ * Wales and Northern Ireland but not Scotland), so filtering to global-only
+ * holidays would silently charge staff for bank holidays.
+ */
+const LEAVE_HOLIDAY_COUNTRY = "GB";
+const LEAVE_HOLIDAY_REGION = "GB-ENG";
 
 const defaultSettings = {
   company: "Work à Rail",
@@ -264,6 +282,9 @@ export async function getLeaveRequests(): Promise<LeaveRequest[]> {
     from: toIsoDateString(r.from),
     to: toIsoDateString(r.to),
     days: r.days,
+    startAt: r.startAt as "morning" | "afternoon",
+    endAt: r.endAt as "lunchtime" | "end_of_day",
+    deducts: r.deducts,
     reason: r.reason,
     status: r.status as any,
     submitted: toIsoDateString(r.submitted),
@@ -276,7 +297,7 @@ export async function decideLeaveRequest(
 ) {
   const updated = await prisma.leaveRequest.update({
     where: { id },
-    data: { status },
+    data: { status, decidedAt: new Date() },
   });
   revalidatePath("/admin/leaves");
   revalidatePath("/admin/dashboard");
@@ -875,58 +896,309 @@ export async function addStaffMember(data: {
   return staff;
 }
 
-export async function addAttendanceEntry(data: {
-  staffRef: string;
-  date: string;
-  code: string;
-}) {
-  const parsedDate = new Date(data.date);
-  const attendance = await prisma.attendance.upsert({
-    where: {
-      staffRef_date: {
-        staffRef: data.staffRef,
-        date: parsedDate,
-      },
-    },
-    update: {
-      code: data.code,
-    },
-    create: {
-      staffRef: data.staffRef,
-      date: parsedDate,
-      code: data.code,
-    },
-  });
-  revalidatePath("/admin/timesheets");
-  revalidatePath("/admin/dashboard");
-  return attendance;
+const ATTENDANCE_CODES = ["P", "H", "L", "A", "-"] as const;
+
+/** Guards against a fat-fingered date range writing thousands of rows. */
+const MAX_ATTENDANCE_WRITES = 500;
+
+function isIsoDate(value: string) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value));
 }
 
-export async function addLeaveRequest(data: {
+/** Every day from `from` to `to` inclusive, as UTC midnights. */
+function daysBetweenInclusive(from: string, to: string) {
+  const days: Date[] = [];
+  const start = new Date(`${from}T00:00:00.000Z`);
+  const end = new Date(`${to}T00:00:00.000Z`);
+  for (let d = start; d <= end; d = new Date(d.getTime() + 86_400_000)) {
+    days.push(d);
+  }
+  return days;
+}
+
+export type AttendanceEntryInput = {
+  staffRefs: string[];
+  /** Single day: pass the same value for `from` and `to`. */
+  from: string;
+  to: string;
+  code: string;
+  /** Saturdays and Sundays are skipped unless this is set. */
+  includeWeekends?: boolean;
+  /** When false, days that already have an entry are left untouched. */
+  overwrite?: boolean;
+};
+
+/**
+ * Records attendance for any number of people over a day or a date range.
+ * Reports exactly what it did so the caller can tell the user whether existing
+ * entries were overwritten.
+ */
+export async function saveAttendanceEntries(input: AttendanceEntryInput) {
+  const refs = Array.from(new Set(input.staffRefs.filter(Boolean)));
+  const overwrite = input.overwrite ?? true;
+
+  if (refs.length === 0) {
+    return { error: "Select at least one employee." };
+  }
+  if (!isIsoDate(input.from) || !isIsoDate(input.to)) {
+    return { error: "Enter a valid date." };
+  }
+  if (input.to < input.from) {
+    return { error: "The end date is before the start date." };
+  }
+  if (!ATTENDANCE_CODES.includes(input.code as (typeof ATTENDANCE_CODES)[number])) {
+    return { error: `Unknown attendance code "${input.code}".` };
+  }
+
+  const known = await prisma.staff.findMany({
+    where: { ref: { in: refs } },
+    select: { ref: true },
+  });
+  if (known.length !== refs.length) {
+    const missing = refs.filter((ref) => !known.some((s) => s.ref === ref));
+    return { error: `No such employee: ${missing.join(", ")}.` };
+  }
+
+  const allDays = daysBetweenInclusive(input.from, input.to);
+  const days = input.includeWeekends
+    ? allDays
+    : allDays.filter((d) => d.getUTCDay() !== 0 && d.getUTCDay() !== 6);
+
+  if (days.length === 0) {
+    return {
+      error:
+        "That range only covers a weekend. Tick “include weekends” to record it.",
+    };
+  }
+  if (days.length * refs.length > MAX_ATTENDANCE_WRITES) {
+    return {
+      error: `That would write ${days.length * refs.length} entries — narrow the range or pick fewer people.`,
+    };
+  }
+
+  const existing = await prisma.attendance.findMany({
+    where: { staffRef: { in: refs }, date: { in: days } },
+    select: { staffRef: true, date: true },
+  });
+  const taken = new Set(
+    existing.map((e) => `${e.staffRef}|${toIsoDateString(e.date)}`)
+  );
+
+  let created = 0;
+  let updated = 0;
+  let skipped = 0;
+
+  const writes = [];
+  for (const staffRef of refs) {
+    for (const date of days) {
+      const isTaken = taken.has(`${staffRef}|${toIsoDateString(date)}`);
+      if (isTaken && !overwrite) {
+        skipped += 1;
+        continue;
+      }
+      if (isTaken) updated += 1;
+      else created += 1;
+      writes.push(
+        prisma.attendance.upsert({
+          where: { staffRef_date: { staffRef, date } },
+          update: { code: input.code },
+          create: { staffRef, date, code: input.code },
+        })
+      );
+    }
+  }
+
+  try {
+    await prisma.$transaction(writes);
+  } catch {
+    return { error: "Could not save the attendance entries." };
+  }
+
+  revalidatePath("/admin/timesheets");
+  revalidatePath("/admin/dashboard");
+  revalidatePath("/admin/payroll");
+
+  return {
+    ok: true as const,
+    created,
+    updated,
+    skipped,
+    days: days.length,
+    people: refs.length,
+  };
+}
+
+/**
+ * Everything the leave dialog needs to price a request before it is sent:
+ * the company's working pattern, the public holiday table, the allowance, and
+ * what each employee has already booked this year.
+ */
+export async function getLeaveContext() {
+  const settings = await getSettings();
+  const year = new Date().getFullYear();
+
+  const table = (await getHolidays(year, LEAVE_HOLIDAY_COUNTRY)) ?? [];
+  const next = (await getHolidays(year + 1, LEAVE_HOLIDAY_COUNTRY)) ?? [];
+  const holidays: Record<string, string> = {};
+  for (const h of forRegion([...table, ...next], LEAVE_HOLIDAY_REGION)) {
+    holidays[h.date] = h.localName || h.name;
+  }
+
+  const rows = await prisma.leaveRequest.findMany({
+    where: { status: { in: ["pending", "approved"] } },
+    select: {
+      staffRef: true,
+      days: true,
+      status: true,
+      deducts: true,
+      from: true,
+      to: true,
+      type: true,
+      id: true,
+    },
+  });
+
+  const balances: Record<string, { taken: number; pending: number }> = {};
+  for (const row of rows) {
+    // Only allowance-deducting leave counts against entitlement.
+    if (!row.deducts) continue;
+    if (row.from.getFullYear() !== year) continue;
+    const entry = (balances[row.staffRef] ??= { taken: 0, pending: 0 });
+    if (row.status === "approved") entry.taken += row.days;
+    else entry.pending += row.days;
+  }
+
+  return {
+    holidays,
+    workingDaysSetting: String(settings.workingDays ?? "Monday to Friday"),
+    entitlement:
+      Number(settings.leaveDays ?? 28) + Number(settings.carryOver ?? 0),
+    leaveDays: Number(settings.leaveDays ?? 28),
+    carryOver: Number(settings.carryOver ?? 0),
+    balances,
+    /** Live bookings, so the dialog can flag clashes as dates are picked. */
+    booked: rows.map((r) => ({
+      id: r.id,
+      staffRef: r.staffRef,
+      type: r.type,
+      status: r.status,
+      from: toIsoDateString(r.from),
+      to: toIsoDateString(r.to),
+    })),
+  };
+}
+
+type CreateLeaveResult =
+  | { error: string }
+  | { ok: true; id: string; days: number; approved: boolean; name: string };
+
+/**
+ * Creates a leave request. The day count is recalculated here from the dates
+ * and the holiday table rather than trusting the browser, so the stored
+ * deduction always matches company policy.
+ */
+export async function createLeaveRequest(input: {
   staffRef: string;
   type: string;
   from: string;
   to: string;
-  days: number;
-  reason: string;
-}) {
-  const id = `LR-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-  const leave = await prisma.leaveRequest.create({
+  startAt?: string;
+  endAt?: string;
+  reason?: string;
+  /** Admin override — skips the pending step, the way a manager can. */
+  approveNow?: boolean;
+}): Promise<CreateLeaveResult> {
+  const policy = LEAVE_POLICY[input.type as LeaveTypeName];
+  if (!policy) return { error: `Unknown leave type "${input.type}".` };
+
+  const staff = await prisma.staff.findUnique({
+    where: { ref: input.staffRef },
+    select: { ref: true, name: true, crewId: true },
+  });
+  if (!staff) return { error: "Select an employee." };
+
+  const context = await getLeaveContext();
+  const pattern = workingPatternFrom(context.workingDaysSetting);
+
+  const startAt = policy.halfDays
+    ? ((input.startAt as StartAt) ?? "morning")
+    : "morning";
+  const endAt = policy.halfDays
+    ? ((input.endAt as EndAt) ?? "end_of_day")
+    : "end_of_day";
+
+  const breakdown = computeLeave({
+    from: input.from,
+    to: input.to,
+    startAt,
+    endAt,
+    pattern,
+    holidays: context.holidays,
+    allowHalfDays: policy.halfDays,
+  });
+
+  if (breakdown.error) return { error: breakdown.error };
+  if (breakdown.days <= 0) {
+    return { error: "That request does not cover any working time." };
+  }
+
+  // An employee cannot be in two places at once.
+  const clash = context.booked.find(
+    (b) =>
+      b.staffRef === input.staffRef &&
+      b.from <= input.to &&
+      b.to >= input.from
+  );
+  if (clash) {
+    return {
+      error: `${staff.name} already has ${clash.status} leave from ${clash.from} to ${clash.to}.`,
+    };
+  }
+
+  if (policy.deducts) {
+    const balance = context.balances[input.staffRef] ?? {
+      taken: 0,
+      pending: 0,
+    };
+    const remaining = context.entitlement - balance.taken - balance.pending;
+    if (breakdown.days > remaining) {
+      return {
+        error: `That is ${breakdown.days} days but only ${remaining} remain of ${staff.name}'s allowance.`,
+      };
+    }
+  }
+
+  const id = `LV-${Date.now().toString(36).toUpperCase().slice(-6)}`;
+  const approved = Boolean(input.approveNow);
+
+  await prisma.leaveRequest.create({
     data: {
       id,
-      staffRef: data.staffRef,
-      type: data.type,
-      from: new Date(data.from),
-      to: new Date(data.to),
-      days: data.days,
-      reason: data.reason,
-      status: "pending",
+      staffRef: input.staffRef,
+      type: input.type,
+      from: new Date(`${input.from}T00:00:00.000Z`),
+      to: new Date(`${input.to}T00:00:00.000Z`),
+      days: breakdown.days,
+      startAt,
+      endAt,
+      deducts: policy.deducts,
+      reason: input.reason?.trim() || policy.label,
+      status: approved ? "approved" : "pending",
       submitted: new Date(),
+      decidedAt: approved ? new Date() : null,
     },
   });
+
   revalidatePath("/admin/leaves");
   revalidatePath("/admin/dashboard");
-  return leave;
+
+  return {
+    ok: true as const,
+    id,
+    days: breakdown.days,
+    approved,
+    name: staff.name,
+  };
 }
 
 export async function getClients() {
