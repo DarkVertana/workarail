@@ -124,10 +124,18 @@ model LeaveRequest {
   type      String   // 'annual' | 'sick' | 'unpaid' | 'parental' | 'compassionate'
   from      DateTime
   to        DateTime
-  days      Int
+  /** Working days deducted, halves included — 4.5 is a valid request. */
+  days      Float
+  /** Which half of the first day it starts in: 'morning' | 'afternoon'. */
+  startAt   String   @default("morning")
+  /** Which half of the last day it runs to: 'lunchtime' | 'end_of_day'. */
+  endAt     String   @default("end_of_day")
+  /** Whether these days come off the annual allowance. */
+  deducts   Boolean  @default(true)
   reason    String
   status    String   // 'pending' | 'approved' | 'rejected'
   submitted DateTime
+  decidedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

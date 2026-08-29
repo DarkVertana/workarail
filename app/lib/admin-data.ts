@@ -124,8 +124,14 @@ export type LeaveRequest = {
   /** Inclusive ISO range. */
   from: string
   to: string
-  /** Working days requested. */
+  /** Working days requested, halves included. */
   days: number
+  /** Which half of the first day it starts in. */
+  startAt?: 'morning' | 'afternoon'
+  /** Which half of the last day it runs to. */
+  endAt?: 'lunchtime' | 'end_of_day'
+  /** Whether these days come off the annual allowance. */
+  deducts?: boolean
   reason: string
   status: LeaveStatus
   submitted: string
