@@ -75,7 +75,7 @@ export function CrewPayslips({
 
             <button
               type="button"
-              onClick={() => setSlip({ record, person })}
+              onClick={() => setSlip({ record, person, periodLabel: payPeriodLabel })}
               className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
             >
               View payslip

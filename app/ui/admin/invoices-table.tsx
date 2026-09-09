@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react'
 import {
   formatMoney,
-  invoices,
-  today,
   type Attachment,
   type Invoice,
   type InvoiceStatus,
@@ -70,11 +68,11 @@ export function InvoicesTable({
   initialInvoices,
   todayDate,
 }: {
-  initialInvoices?: Invoice[]
-  todayDate?: string
+  initialInvoices: Invoice[]
+  todayDate: string
 }) {
-  const invoicesData = initialInvoices || invoices
-  const activeToday = todayDate || today
+  const invoicesData = initialInvoices
+  const activeToday = todayDate
   const [status, setStatus] = useState<InvoiceStatus | 'all'>('all')
   const [query, setQuery] = useState('')
   const [preview, setPreview] = useState<PreviewTarget | null>(null)
@@ -524,4 +522,3 @@ function ChevronDownIcon() {
     </svg>
   )
 }
-

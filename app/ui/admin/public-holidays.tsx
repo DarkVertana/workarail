@@ -6,6 +6,7 @@ import {
   regionsOf,
   isExtraCountry,
 } from '@/app/lib/holidays'
+import { getCompanyHolidays } from '@/app/actions/admin'
 import { HolidayFilter } from '@/app/ui/admin/holiday-filter'
 import { ManualHolidays } from '@/app/ui/admin/manual-holidays'
 
@@ -38,9 +39,10 @@ export async function PublicHolidays({
   region: string | null
   year: number
 }) {
-  const [countries, holidays] = await Promise.all([
+  const [countries, holidays, entries] = await Promise.all([
     getCountries(),
     getHolidays(year, country),
+    getCompanyHolidays(year),
   ])
 
   const unavailable = holidays === null
@@ -120,7 +122,7 @@ export async function PublicHolidays({
         </>
       )}
 
-      <ManualHolidays year={year} />
+      <ManualHolidays year={year} entries={entries} />
     </section>
   )
 }

@@ -174,8 +174,9 @@ anywhere in the money path.
 `/admin/settings` covers organisation details, SMTP, and the working pattern that leave
 maths depends on. Public holidays come from [Nager.Date](https://date.nager.at), with
 Google's public iCal feeds filling in eight countries Nager does not cover (IN, AE, SA, PK,
-TH, MY, IL, VN) and a manual entry panel for anywhere still missing. Both sources are
-cached for a day and degrade gracefully when unreachable.
+TH, MY, IL, VN) and a persistent manual entry panel for company-specific closures or
+anywhere still missing. Both sources are cached for a day and degrade gracefully when
+unreachable.
 
 `/admin/celebrations` surfaces upcoming birthdays and work anniversaries.
 
@@ -241,7 +242,7 @@ adapter, which is why the datasource block has no `url`.
 | Org | `Crew`, `Job`, `Staff`, `StaffDocument` |
 | Time | `Attendance` (unique per staff per date), `LeaveRequest` |
 | Money | `Client`, `Invoice`, `Expense`, `PayrollRecord`, `Attachment` |
-| Config | `SmtpSettings` (single row) |
+| Config | `SmtpSettings` (single row), `CompanyHoliday` |
 
 ---
 
@@ -265,10 +266,8 @@ They are not a test suite — there is no automated test coverage yet.
 
 These are honest known gaps rather than a wishlist:
 
-- **`app/lib/admin-data.ts` is half real, half mock.** Pages read from Prisma now, but this
-  file still exports the shared types and pure helpers (`formatMoney`, `computePay`,
-  `attendanceHours`) alongside its original hardcoded demo arrays and a fixed
-  `today = '2026-08-25'`. The helpers are load-bearing; the fake arrays are not.
+- **`app/lib/admin-data.ts` contains shared types and pure helpers only.** Pages read their
+  live data from Prisma, while the demo seed fixtures live under `scripts/demo-data.ts`.
 - **Admin and finance share one permission level.** There is no role column — access is
   derived solely from whether a `Staff` row exists for the session email, so any non-staff
   user can reach both `/admin/*` and `/finance/*`.

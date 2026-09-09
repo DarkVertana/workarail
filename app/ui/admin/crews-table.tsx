@@ -3,8 +3,6 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import Link from 'next/link'
 import {
-  staff,
-  today,
   type StaffMember,
   type StaffStatus,
 } from '@/app/lib/admin-data'
@@ -93,11 +91,11 @@ export function CrewsTable({
   jobs = [],
   todayDate,
 }: {
-  initialStaff?: StaffMember[]
+  initialStaff: StaffMember[]
   jobs?: Job[]
-  todayDate?: string
+  todayDate: string
 }) {
-  const activeToday = todayDate || today
+  const activeToday = todayDate
   const [page, setPage] = useState(0)
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<StaffStatus | 'all'>('all')
@@ -114,7 +112,7 @@ export function CrewsTable({
 
   const visible = COLUMNS.filter((c) => !hidden.has(c.key))
 
-  const staffData = initialStaff || staff
+  const staffData = initialStaff
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()

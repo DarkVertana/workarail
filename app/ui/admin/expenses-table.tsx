@@ -4,10 +4,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { useRegisterPageAction } from '@/app/ui/admin/page-action'
 import { useToast } from '@/app/ui/toast'
 import {
-  expenses,
   formatMoney,
-  staff,
-  today,
   type Attachment,
   type Expense,
   type ExpenseCategory,
@@ -80,13 +77,13 @@ export function ExpensesTable({
   initialStaff,
   todayDate,
 }: {
-  initialExpenses?: Expense[]
-  initialStaff?: StaffMember[]
-  todayDate?: string
+  initialExpenses: Expense[]
+  initialStaff: StaffMember[]
+  todayDate: string
 }) {
-  const expensesData = initialExpenses || expenses
-  const staffData = initialStaff || staff
-  const activeToday = todayDate || today
+  const expensesData = initialExpenses
+  const staffData = initialStaff
+  const activeToday = todayDate
 
   const nameFor = (ref: string) => staffData.find((p) => p.ref === ref)?.name ?? ref
 
@@ -392,9 +389,9 @@ function AddExpenseDialog({
   onAdd: (expense: Expense) => void
   nextId: string
   staff: StaffMember[]
-  todayDate?: string
+  todayDate: string
 }) {
-  const activeToday = todayDate || today
+  const activeToday = todayDate
   const ref = useRef<HTMLDialogElement>(null)
   const [fileName, setFileName] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)

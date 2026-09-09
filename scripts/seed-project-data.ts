@@ -10,7 +10,7 @@ import {
   expenses,
   payrollRuns,
   payPeriod,
-} from "../app/lib/admin-data";
+} from "./demo-data";
 
 function hashPassword(password: string): string {
   const salt = crypto.randomBytes(16).toString("hex");

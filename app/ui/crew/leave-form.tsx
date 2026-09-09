@@ -112,18 +112,21 @@ export function LeaveForm({
               }
 
               try {
-                await submitCrewLeaveRequest({
+                const result = await submitCrewLeaveRequest({
                   type,
                   from,
                   to,
-                  days,
                   reason,
                 })
+                if ('error' in result) {
+                  setError(result.error)
+                  return
+                }
                 setError(null)
                 setOpen(false)
-                toast(`Request submitted for ${days} day${days === 1 ? '' : 's'}.`)
-              } catch (err: any) {
-                setError(err.message || 'Failed to submit request.')
+                toast(`Request submitted for ${result.days} day${result.days === 1 ? '' : 's'}.`)
+              } catch (err: unknown) {
+                setError(err instanceof Error ? err.message : 'Failed to submit request.')
               }
             }}
           >

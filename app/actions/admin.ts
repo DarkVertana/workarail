@@ -21,7 +21,6 @@ import {
   type AttendanceCode,
   attendanceHours,
   computePay,
-  payPeriod,
 } from "@/app/lib/admin-data";
 import {
   LEAVE_POLICY,
@@ -176,6 +175,45 @@ export async function saveSettings(settings: any) {
   } catch (err) {
     console.error("Failed to save settings:", err);
     return { success: false, error: String(err) };
+  }
+}
+
+export async function getCompanyHolidays(year: number) {
+  return prisma.companyHoliday.findMany({
+    where: { date: { startsWith: String(year) } },
+    select: { id: true, date: true, name: true },
+    orderBy: { date: "asc" },
+  });
+}
+
+export async function addCompanyHoliday(data: { date: string; name: string }) {
+  const name = data.name.trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(data.date)) {
+    return { error: "Use a date in YYYY-MM-DD format." };
+  }
+  if (!name) return { error: "Give the holiday a name." };
+
+  try {
+    const holiday = await prisma.companyHoliday.upsert({
+      where: { date: data.date },
+      update: { name },
+      create: { date: data.date, name },
+      select: { id: true },
+    });
+    revalidatePath("/admin/settings");
+    return { ok: true as const, id: holiday.id };
+  } catch {
+    return { error: "Could not save the company holiday." };
+  }
+}
+
+export async function removeCompanyHoliday(id: string) {
+  try {
+    await prisma.companyHoliday.delete({ where: { id } });
+    revalidatePath("/admin/settings");
+    return { ok: true as const };
+  } catch {
+    return { error: "Could not remove the company holiday." };
   }
 }
 
@@ -1483,6 +1521,16 @@ export async function getLeaveContext() {
   for (const h of forRegion([...table, ...next], LEAVE_HOLIDAY_REGION)) {
     holidays[h.date] = h.localName || h.name;
   }
+  const manual = await prisma.companyHoliday.findMany({
+    where: {
+      OR: [
+        { date: { startsWith: String(year) } },
+        { date: { startsWith: String(year + 1) } },
+      ],
+    },
+    select: { date: true, name: true },
+  });
+  for (const holiday of manual) holidays[holiday.date] = holiday.name;
 
   const rows = await prisma.leaveRequest.findMany({
     where: { status: { in: ["pending", "approved"] } },
@@ -1695,4 +1743,3 @@ export async function getPendingCounts() {
     pendingExpenses,
   };
 }
-

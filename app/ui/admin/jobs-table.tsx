@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { recentActivity, type ActivityKind, type ActivityRow } from '@/app/lib/admin-data'
+import { type ActivityKind, type ActivityRow } from '@/app/lib/admin-data'
 
 // Status colours are reserved and always ship with a label — never colour alone.
 const STATUS: Record<string, { dot: string; text: string }> = {
@@ -25,8 +25,8 @@ function shortDate(iso: string) {
   return `${Number(d)} ${MON[Number(m) - 1]}`
 }
 
-export function JobsTable({ initialActivity }: { initialActivity?: ActivityRow[] }) {
-  const rows = initialActivity || recentActivity()
+export function JobsTable({ initialActivity }: { initialActivity: ActivityRow[] }) {
+  const rows = initialActivity
 
   return (
     <section className="rounded-xl border border-zinc-200 bg-white">

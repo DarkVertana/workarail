@@ -3,7 +3,6 @@
 import { useEffect, useRef } from 'react'
 import {
   formatMoney,
-  payPeriod,
   type PayrollRecord,
   type StaffMember,
 } from '@/app/lib/admin-data'
@@ -14,6 +13,7 @@ export type PayslipAdjustment = { label: string; amountPence: number }
 export type PayslipTarget = {
   record: PayrollRecord
   person: StaffMember
+  periodLabel: string
   /** One-off additions or deductions applied to this run. */
   adjustments?: PayslipAdjustment[]
 }
@@ -94,10 +94,12 @@ export function PayslipDialog({
 function Sheet({
   record,
   person,
+  periodLabel,
   adjustments = [],
 }: {
   record: PayrollRecord
   person: StaffMember
+  periodLabel: string
   adjustments?: PayslipAdjustment[]
 }) {
   const deductions = record.taxPence + record.niPence + record.pensionPence
@@ -114,7 +116,7 @@ function Sheet({
             Work à Rail
           </p>
           <p className="mt-0.5 text-xs text-zinc-500">
-            Payment slip · {payPeriod.label}
+            Payment slip · {periodLabel}
           </p>
         </div>
         <div className="text-right">

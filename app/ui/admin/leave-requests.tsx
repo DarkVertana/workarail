@@ -2,9 +2,6 @@
 
 import { useMemo, useState } from 'react'
 import {
-  leaveRequests,
-  staff,
-  today,
   type LeaveStatus,
   type LeaveType,
   type StaffMember,
@@ -80,14 +77,14 @@ export function LeaveRequests({
   leaveContext,
   todayDate,
 }: {
-  initialLeaves?: LeaveRequest[]
-  initialStaff?: StaffMember[]
+  initialLeaves: LeaveRequest[]
+  initialStaff: StaffMember[]
   leaveContext?: LeaveContext
-  todayDate?: string
+  todayDate: string
 }) {
-  const leavesData = initialLeaves || leaveRequests
-  const staffData = initialStaff || staff
-  const activeToday = todayDate || today
+  const leavesData = initialLeaves
+  const staffData = initialStaff
+  const activeToday = todayDate
 
   const nameFor = (ref: string) =>
     staffData.find((p) => p.ref === ref)?.name ?? ref
@@ -168,7 +165,7 @@ export function LeaveRequests({
       <section className="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 px-5 py-3 dark:border-zinc-800">
           <span className="text-sm text-zinc-500 dark:text-zinc-400">
-            {rows.length} of {leaveRequests.length} requests
+            {rows.length} of {leavesData.length} requests
           </span>
 
           <div className="flex flex-wrap items-center gap-2">
