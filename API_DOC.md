@@ -97,7 +97,6 @@ Submits a new annual, sick, or other leave request.
     "type": "annual",
     "from": "2026-09-01",
     "to": "2026-09-05",
-    "days": 5,
     "reason": "Family vacation"
   }
   ```

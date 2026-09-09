@@ -1,12 +1,13 @@
 'use client'
 
-import { useId, useState } from 'react'
+import { useId, useState, useTransition } from 'react'
 import { useToast } from '@/app/ui/toast'
+import { addCompanyHoliday, removeCompanyHoliday } from '@/app/actions/admin'
 
 const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 const DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
 
-type Entry = { id: number; date: string; name: string }
+type Entry = { id: string; date: string; name: string }
 
 function weekday(iso: string) {
   const [y, m, d] = iso.split('-').map(Number)
@@ -23,9 +24,13 @@ function longDate(iso: string) {
  * country is in Nager.Date's table, so this keeps the feature usable
  * everywhere rather than leaving those teams stuck.
  */
-export function ManualHolidays({ year }: { year: number }) {
-  // TODO: entries live in component state only — they reset on reload.
-  const [entries, setEntries] = useState<Entry[]>([])
+export function ManualHolidays({
+  year,
+  entries,
+}: {
+  year: number
+  entries: Entry[]
+}) {
   const [error, setError] = useState<string | null>(null)
   // Controlled inputs rather than a nested form element, which would be
   // invalid HTML inside the settings form and break hydration.
@@ -33,7 +38,7 @@ export function ManualHolidays({ year }: { year: number }) {
   const [name, setName] = useState('')
   const toast = useToast()
   const id = useId()
-  const nextId = entries.reduce((n, e) => Math.max(n, e.id), 0) + 1
+  const [pending, startTransition] = useTransition()
 
   const sorted = [...entries].sort((a, b) => a.date.localeCompare(b.date))
 
@@ -77,11 +82,18 @@ export function ManualHolidays({ year }: { year: number }) {
               setError(`Pick a date in ${year} to see it in this list.`)
               return
             }
-            setEntries((prev) => [...prev, { id: nextId, date, name: label }])
-            setError(null)
-            setName('')
-            toast(`${label} added to the holiday calendar.`)
+            startTransition(async () => {
+              const result = await addCompanyHoliday({ date, name: label })
+              if ('error' in result) {
+                setError(result.error ?? 'Could not save the company holiday.')
+                return
+              }
+              setError(null)
+              setName('')
+              toast(`${label} added to the holiday calendar.`)
+            })
           }}
+          disabled={pending}
           className="h-9 rounded-lg border border-zinc-300 px-3.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
         >
           Add
@@ -116,9 +128,17 @@ export function ManualHolidays({ year }: { year: number }) {
               <button
                 type="button"
                 onClick={() => {
-                  setEntries((prev) => prev.filter((x) => x.id !== e.id))
-                  toast(`${e.name} removed.`, 'info')
+                  startTransition(async () => {
+                    const result = await removeCompanyHoliday(e.id)
+                    if ('error' in result) {
+                      setError(result.error ?? 'Could not remove the company holiday.')
+                      return
+                    }
+                    setError(null)
+                    toast(`${e.name} removed.`, 'info')
+                  })
                 }}
+                disabled={pending}
                 aria-label={`Remove ${e.name}`}
                 className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-[#b02c2c] transition hover:bg-[#d03b3b]/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
               >

@@ -12,11 +12,11 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { type, from, to, days, reason } = body;
-    if (!type || !from || !to || typeof days !== "number" || !reason) {
+    const { type, from, to, reason } = body;
+    if (!type || !from || !to || !reason) {
       return NextResponse.json({ error: "Missing or invalid fields in request body" }, { status: 400 });
     }
-    const result = await submitCrewLeaveRequest({ type, from, to, days, reason });
+    const result = await submitCrewLeaveRequest({ type, from, to, reason });
     return NextResponse.json(result);
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Failed to submit leave request" }, { status: 500 });

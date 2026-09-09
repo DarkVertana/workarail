@@ -298,3 +298,10 @@ model SmtpSettings {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model CompanyHoliday {
+  id        String   @id @default(cuid())
+  date      String   @unique
+  name      String
+  createdAt DateTime @default(now())
+}

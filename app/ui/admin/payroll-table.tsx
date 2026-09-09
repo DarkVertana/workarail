@@ -4,9 +4,6 @@ import { useEffect, useId, useRef, useState } from 'react'
 import {
   computePay,
   formatMoney,
-  payPeriod,
-  payrollRuns,
-  staff,
   type PayrollRecord,
   type PayrollStatus,
   type StaffMember,
@@ -36,13 +33,13 @@ export function PayrollTable({
   initialStaff,
   activePayPeriod,
 }: {
-  initialPayrollRuns?: PayrollRecord[]
-  initialStaff?: StaffMember[]
-  activePayPeriod?: { year: number; month: number; label: string }
+  initialPayrollRuns: PayrollRecord[]
+  initialStaff: StaffMember[]
+  activePayPeriod: { year: number; month: number; label: string }
 }) {
-  const payrollRunsData = initialPayrollRuns || payrollRuns
-  const staffData = initialStaff || staff
-  const period = activePayPeriod || payPeriod
+  const payrollRunsData = initialPayrollRuns
+  const staffData = initialStaff
+  const period = activePayPeriod
 
   const personFor = (ref: string) => staffData.find((p) => p.ref === ref)
 
@@ -206,6 +203,7 @@ export function PayrollTable({
                               setSlip({
                                 record,
                                 person,
+                                periodLabel: period.label,
                                 adjustments: adjustments.filter(
                                   (a) => a.staffRef === person.ref
                                 ),

@@ -356,6 +356,13 @@ exports.Prisma.SmtpSettingsScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.CompanyHolidayScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  name: 'name',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -388,7 +395,8 @@ exports.Prisma.ModelName = {
   Invoice: 'Invoice',
   Expense: 'Expense',
   PayrollRecord: 'PayrollRecord',
-  SmtpSettings: 'SmtpSettings'
+  SmtpSettings: 'SmtpSettings',
+  CompanyHoliday: 'CompanyHoliday'
 };
 
 /**

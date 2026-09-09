@@ -5,11 +5,16 @@ import { auth } from "@/app/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { getSettings } from "@/app/actions/admin";
+import { getLeaveContext, getSettings } from "@/app/actions/admin";
 import {
   type AttendanceCode,
   attendanceHours,
 } from "@/app/lib/admin-data";
+import {
+  LEAVE_POLICY,
+  computeLeave,
+  workingPatternFrom,
+} from "@/app/lib/leave";
 
 // Helper constants
 const MONTHS = [
@@ -245,21 +250,63 @@ export async function submitCrewLeaveRequest(data: {
   type: string;
   from: string;
   to: string;
-  days: number;
   reason: string;
-}) {
+}): Promise<{ error: string } | { ok: true; id: string; days: number }> {
   const me = await getCrewSession();
-  const id = `LR-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+  const policy = LEAVE_POLICY[data.type as keyof typeof LEAVE_POLICY];
+  if (!policy) return { error: `Unknown leave type "${data.type}".` };
 
-  const leave = await prisma.leaveRequest.create({
+  const context = await getLeaveContext();
+  const pattern = workingPatternFrom(context.workingDaysSetting);
+  const breakdown = computeLeave({
+    from: data.from,
+    to: data.to,
+    startAt: "morning",
+    endAt: "end_of_day",
+    pattern,
+    holidays: context.holidays,
+    allowHalfDays: false,
+  });
+  if (breakdown.error) return { error: breakdown.error };
+  if (breakdown.days <= 0) {
+    return { error: "That request does not cover any working time." };
+  }
+
+  const clash = context.booked.find(
+    (booking) =>
+      booking.staffRef === me.ref &&
+      booking.from <= data.to &&
+      booking.to >= data.from
+  );
+  if (clash) {
+    return {
+      error: `You already have ${clash.status} leave from ${clash.from} to ${clash.to}.`,
+    };
+  }
+
+  if (policy.deducts) {
+    const balance = context.balances[me.ref] ?? { taken: 0, pending: 0 };
+    const remaining = context.entitlement - balance.taken - balance.pending;
+    if (breakdown.days > remaining) {
+      return {
+        error: `That is ${breakdown.days} days but only ${remaining} remain of your allowance.`,
+      };
+    }
+  }
+
+  const id = `LV-${Date.now().toString(36).toUpperCase().slice(-6)}`;
+  await prisma.leaveRequest.create({
     data: {
       id,
       staffRef: me.ref,
       type: data.type,
-      from: new Date(data.from),
-      to: new Date(data.to),
-      days: data.days,
-      reason: data.reason,
+      from: new Date(`${data.from}T00:00:00.000Z`),
+      to: new Date(`${data.to}T00:00:00.000Z`),
+      days: breakdown.days,
+      startAt: "morning",
+      endAt: "end_of_day",
+      deducts: policy.deducts,
+      reason: data.reason.trim() || policy.label,
       status: "pending",
       submitted: new Date(),
     },
@@ -269,7 +316,7 @@ export async function submitCrewLeaveRequest(data: {
   revalidatePath("/crew/leave");
   revalidatePath("/admin/leaves");
   revalidatePath("/admin/dashboard");
-  return leave;
+  return { ok: true, id, days: breakdown.days };
 }
 
 export async function submitCrewExpense(data: {
@@ -346,4 +393,3 @@ export async function getCrewLatestPayslip(staffRef: string) {
     reference: record.reference,
   };
 }
-

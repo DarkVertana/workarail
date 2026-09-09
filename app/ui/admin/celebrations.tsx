@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { staff, today, type StaffMember } from '@/app/lib/admin-data'
+import { type StaffMember } from '@/app/lib/admin-data'
 import { STAT_ICON, StatCard } from '@/app/ui/admin/stat-card'
 import { useToast } from '@/app/ui/toast'
 import { updateStaffDates } from '@/app/actions/admin'
@@ -112,11 +112,11 @@ export function Celebrations({
   initialStaff,
   todayDate,
 }: {
-  initialStaff?: StaffMember[]
-  todayDate?: string
+  initialStaff: StaffMember[]
+  todayDate: string
 }) {
-  const staffData = initialStaff || staff
-  const activeToday = todayDate || today
+  const staffData = initialStaff
+  const activeToday = todayDate
   const [kind, setKind] = useState<Kind | 'all'>('all')
   const [query, setQuery] = useState('')
   const [overrides, setOverrides] = useState<Record<string, Override>>({})

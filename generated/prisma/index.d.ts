@@ -93,6 +93,11 @@ export type PayrollRecord = $Result.DefaultSelection<Prisma.$PayrollRecordPayloa
  * 
  */
 export type SmtpSettings = $Result.DefaultSelection<Prisma.$SmtpSettingsPayload>
+/**
+ * Model CompanyHoliday
+ * 
+ */
+export type CompanyHoliday = $Result.DefaultSelection<Prisma.$CompanyHolidayPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -374,6 +379,16 @@ export class PrismaClient<
     * ```
     */
   get smtpSettings(): Prisma.SmtpSettingsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.companyHoliday`: Exposes CRUD operations for the **CompanyHoliday** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CompanyHolidays
+    * const companyHolidays = await prisma.companyHoliday.findMany()
+    * ```
+    */
+  get companyHoliday(): Prisma.CompanyHolidayDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -836,7 +851,8 @@ export namespace Prisma {
     Invoice: 'Invoice',
     Expense: 'Expense',
     PayrollRecord: 'PayrollRecord',
-    SmtpSettings: 'SmtpSettings'
+    SmtpSettings: 'SmtpSettings',
+    CompanyHoliday: 'CompanyHoliday'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -852,7 +868,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "session" | "account" | "verification" | "crew" | "job" | "staff" | "staffDocument" | "attendance" | "leaveRequest" | "attachment" | "client" | "invoice" | "expense" | "payrollRecord" | "smtpSettings"
+      modelProps: "user" | "session" | "account" | "verification" | "crew" | "job" | "staff" | "staffDocument" | "attendance" | "leaveRequest" | "attachment" | "client" | "invoice" | "expense" | "payrollRecord" | "smtpSettings" | "companyHoliday"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2040,6 +2056,80 @@ export namespace Prisma {
           }
         }
       }
+      CompanyHoliday: {
+        payload: Prisma.$CompanyHolidayPayload<ExtArgs>
+        fields: Prisma.CompanyHolidayFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CompanyHolidayFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyHolidayPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CompanyHolidayFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyHolidayPayload>
+          }
+          findFirst: {
+            args: Prisma.CompanyHolidayFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyHolidayPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CompanyHolidayFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyHolidayPayload>
+          }
+          findMany: {
+            args: Prisma.CompanyHolidayFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyHolidayPayload>[]
+          }
+          create: {
+            args: Prisma.CompanyHolidayCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyHolidayPayload>
+          }
+          createMany: {
+            args: Prisma.CompanyHolidayCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CompanyHolidayCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyHolidayPayload>[]
+          }
+          delete: {
+            args: Prisma.CompanyHolidayDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyHolidayPayload>
+          }
+          update: {
+            args: Prisma.CompanyHolidayUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyHolidayPayload>
+          }
+          deleteMany: {
+            args: Prisma.CompanyHolidayDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CompanyHolidayUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CompanyHolidayUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyHolidayPayload>[]
+          }
+          upsert: {
+            args: Prisma.CompanyHolidayUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyHolidayPayload>
+          }
+          aggregate: {
+            args: Prisma.CompanyHolidayAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCompanyHoliday>
+          }
+          groupBy: {
+            args: Prisma.CompanyHolidayGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CompanyHolidayGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CompanyHolidayCountArgs<ExtArgs>
+            result: $Utils.Optional<CompanyHolidayCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2179,6 +2269,7 @@ export namespace Prisma {
     expense?: ExpenseOmit
     payrollRecord?: PayrollRecordOmit
     smtpSettings?: SmtpSettingsOmit
+    companyHoliday?: CompanyHolidayOmit
   }
 
   /* Types for Logging */
@@ -21482,6 +21573,993 @@ export namespace Prisma {
 
 
   /**
+   * Model CompanyHoliday
+   */
+
+  export type AggregateCompanyHoliday = {
+    _count: CompanyHolidayCountAggregateOutputType | null
+    _min: CompanyHolidayMinAggregateOutputType | null
+    _max: CompanyHolidayMaxAggregateOutputType | null
+  }
+
+  export type CompanyHolidayMinAggregateOutputType = {
+    id: string | null
+    date: string | null
+    name: string | null
+    createdAt: Date | null
+  }
+
+  export type CompanyHolidayMaxAggregateOutputType = {
+    id: string | null
+    date: string | null
+    name: string | null
+    createdAt: Date | null
+  }
+
+  export type CompanyHolidayCountAggregateOutputType = {
+    id: number
+    date: number
+    name: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type CompanyHolidayMinAggregateInputType = {
+    id?: true
+    date?: true
+    name?: true
+    createdAt?: true
+  }
+
+  export type CompanyHolidayMaxAggregateInputType = {
+    id?: true
+    date?: true
+    name?: true
+    createdAt?: true
+  }
+
+  export type CompanyHolidayCountAggregateInputType = {
+    id?: true
+    date?: true
+    name?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type CompanyHolidayAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CompanyHoliday to aggregate.
+     */
+    where?: CompanyHolidayWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyHolidays to fetch.
+     */
+    orderBy?: CompanyHolidayOrderByWithRelationInput | CompanyHolidayOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CompanyHolidayWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyHolidays from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyHolidays.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CompanyHolidays
+    **/
+    _count?: true | CompanyHolidayCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CompanyHolidayMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CompanyHolidayMaxAggregateInputType
+  }
+
+  export type GetCompanyHolidayAggregateType<T extends CompanyHolidayAggregateArgs> = {
+        [P in keyof T & keyof AggregateCompanyHoliday]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCompanyHoliday[P]>
+      : GetScalarType<T[P], AggregateCompanyHoliday[P]>
+  }
+
+
+
+
+  export type CompanyHolidayGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CompanyHolidayWhereInput
+    orderBy?: CompanyHolidayOrderByWithAggregationInput | CompanyHolidayOrderByWithAggregationInput[]
+    by: CompanyHolidayScalarFieldEnum[] | CompanyHolidayScalarFieldEnum
+    having?: CompanyHolidayScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CompanyHolidayCountAggregateInputType | true
+    _min?: CompanyHolidayMinAggregateInputType
+    _max?: CompanyHolidayMaxAggregateInputType
+  }
+
+  export type CompanyHolidayGroupByOutputType = {
+    id: string
+    date: string
+    name: string
+    createdAt: Date
+    _count: CompanyHolidayCountAggregateOutputType | null
+    _min: CompanyHolidayMinAggregateOutputType | null
+    _max: CompanyHolidayMaxAggregateOutputType | null
+  }
+
+  type GetCompanyHolidayGroupByPayload<T extends CompanyHolidayGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CompanyHolidayGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CompanyHolidayGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CompanyHolidayGroupByOutputType[P]>
+            : GetScalarType<T[P], CompanyHolidayGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CompanyHolidaySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    date?: boolean
+    name?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["companyHoliday"]>
+
+  export type CompanyHolidaySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    date?: boolean
+    name?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["companyHoliday"]>
+
+  export type CompanyHolidaySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    date?: boolean
+    name?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["companyHoliday"]>
+
+  export type CompanyHolidaySelectScalar = {
+    id?: boolean
+    date?: boolean
+    name?: boolean
+    createdAt?: boolean
+  }
+
+  export type CompanyHolidayOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "date" | "name" | "createdAt", ExtArgs["result"]["companyHoliday"]>
+
+  export type $CompanyHolidayPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CompanyHoliday"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      date: string
+      name: string
+      createdAt: Date
+    }, ExtArgs["result"]["companyHoliday"]>
+    composites: {}
+  }
+
+  type CompanyHolidayGetPayload<S extends boolean | null | undefined | CompanyHolidayDefaultArgs> = $Result.GetResult<Prisma.$CompanyHolidayPayload, S>
+
+  type CompanyHolidayCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CompanyHolidayFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CompanyHolidayCountAggregateInputType | true
+    }
+
+  export interface CompanyHolidayDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CompanyHoliday'], meta: { name: 'CompanyHoliday' } }
+    /**
+     * Find zero or one CompanyHoliday that matches the filter.
+     * @param {CompanyHolidayFindUniqueArgs} args - Arguments to find a CompanyHoliday
+     * @example
+     * // Get one CompanyHoliday
+     * const companyHoliday = await prisma.companyHoliday.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CompanyHolidayFindUniqueArgs>(args: SelectSubset<T, CompanyHolidayFindUniqueArgs<ExtArgs>>): Prisma__CompanyHolidayClient<$Result.GetResult<Prisma.$CompanyHolidayPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CompanyHoliday that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CompanyHolidayFindUniqueOrThrowArgs} args - Arguments to find a CompanyHoliday
+     * @example
+     * // Get one CompanyHoliday
+     * const companyHoliday = await prisma.companyHoliday.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CompanyHolidayFindUniqueOrThrowArgs>(args: SelectSubset<T, CompanyHolidayFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CompanyHolidayClient<$Result.GetResult<Prisma.$CompanyHolidayPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CompanyHoliday that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyHolidayFindFirstArgs} args - Arguments to find a CompanyHoliday
+     * @example
+     * // Get one CompanyHoliday
+     * const companyHoliday = await prisma.companyHoliday.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CompanyHolidayFindFirstArgs>(args?: SelectSubset<T, CompanyHolidayFindFirstArgs<ExtArgs>>): Prisma__CompanyHolidayClient<$Result.GetResult<Prisma.$CompanyHolidayPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CompanyHoliday that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyHolidayFindFirstOrThrowArgs} args - Arguments to find a CompanyHoliday
+     * @example
+     * // Get one CompanyHoliday
+     * const companyHoliday = await prisma.companyHoliday.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CompanyHolidayFindFirstOrThrowArgs>(args?: SelectSubset<T, CompanyHolidayFindFirstOrThrowArgs<ExtArgs>>): Prisma__CompanyHolidayClient<$Result.GetResult<Prisma.$CompanyHolidayPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CompanyHolidays that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyHolidayFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CompanyHolidays
+     * const companyHolidays = await prisma.companyHoliday.findMany()
+     * 
+     * // Get first 10 CompanyHolidays
+     * const companyHolidays = await prisma.companyHoliday.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const companyHolidayWithIdOnly = await prisma.companyHoliday.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CompanyHolidayFindManyArgs>(args?: SelectSubset<T, CompanyHolidayFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyHolidayPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CompanyHoliday.
+     * @param {CompanyHolidayCreateArgs} args - Arguments to create a CompanyHoliday.
+     * @example
+     * // Create one CompanyHoliday
+     * const CompanyHoliday = await prisma.companyHoliday.create({
+     *   data: {
+     *     // ... data to create a CompanyHoliday
+     *   }
+     * })
+     * 
+     */
+    create<T extends CompanyHolidayCreateArgs>(args: SelectSubset<T, CompanyHolidayCreateArgs<ExtArgs>>): Prisma__CompanyHolidayClient<$Result.GetResult<Prisma.$CompanyHolidayPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CompanyHolidays.
+     * @param {CompanyHolidayCreateManyArgs} args - Arguments to create many CompanyHolidays.
+     * @example
+     * // Create many CompanyHolidays
+     * const companyHoliday = await prisma.companyHoliday.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CompanyHolidayCreateManyArgs>(args?: SelectSubset<T, CompanyHolidayCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CompanyHolidays and returns the data saved in the database.
+     * @param {CompanyHolidayCreateManyAndReturnArgs} args - Arguments to create many CompanyHolidays.
+     * @example
+     * // Create many CompanyHolidays
+     * const companyHoliday = await prisma.companyHoliday.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CompanyHolidays and only return the `id`
+     * const companyHolidayWithIdOnly = await prisma.companyHoliday.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CompanyHolidayCreateManyAndReturnArgs>(args?: SelectSubset<T, CompanyHolidayCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyHolidayPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a CompanyHoliday.
+     * @param {CompanyHolidayDeleteArgs} args - Arguments to delete one CompanyHoliday.
+     * @example
+     * // Delete one CompanyHoliday
+     * const CompanyHoliday = await prisma.companyHoliday.delete({
+     *   where: {
+     *     // ... filter to delete one CompanyHoliday
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CompanyHolidayDeleteArgs>(args: SelectSubset<T, CompanyHolidayDeleteArgs<ExtArgs>>): Prisma__CompanyHolidayClient<$Result.GetResult<Prisma.$CompanyHolidayPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CompanyHoliday.
+     * @param {CompanyHolidayUpdateArgs} args - Arguments to update one CompanyHoliday.
+     * @example
+     * // Update one CompanyHoliday
+     * const companyHoliday = await prisma.companyHoliday.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CompanyHolidayUpdateArgs>(args: SelectSubset<T, CompanyHolidayUpdateArgs<ExtArgs>>): Prisma__CompanyHolidayClient<$Result.GetResult<Prisma.$CompanyHolidayPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CompanyHolidays.
+     * @param {CompanyHolidayDeleteManyArgs} args - Arguments to filter CompanyHolidays to delete.
+     * @example
+     * // Delete a few CompanyHolidays
+     * const { count } = await prisma.companyHoliday.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CompanyHolidayDeleteManyArgs>(args?: SelectSubset<T, CompanyHolidayDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CompanyHolidays.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyHolidayUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CompanyHolidays
+     * const companyHoliday = await prisma.companyHoliday.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CompanyHolidayUpdateManyArgs>(args: SelectSubset<T, CompanyHolidayUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CompanyHolidays and returns the data updated in the database.
+     * @param {CompanyHolidayUpdateManyAndReturnArgs} args - Arguments to update many CompanyHolidays.
+     * @example
+     * // Update many CompanyHolidays
+     * const companyHoliday = await prisma.companyHoliday.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more CompanyHolidays and only return the `id`
+     * const companyHolidayWithIdOnly = await prisma.companyHoliday.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CompanyHolidayUpdateManyAndReturnArgs>(args: SelectSubset<T, CompanyHolidayUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyHolidayPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one CompanyHoliday.
+     * @param {CompanyHolidayUpsertArgs} args - Arguments to update or create a CompanyHoliday.
+     * @example
+     * // Update or create a CompanyHoliday
+     * const companyHoliday = await prisma.companyHoliday.upsert({
+     *   create: {
+     *     // ... data to create a CompanyHoliday
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CompanyHoliday we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CompanyHolidayUpsertArgs>(args: SelectSubset<T, CompanyHolidayUpsertArgs<ExtArgs>>): Prisma__CompanyHolidayClient<$Result.GetResult<Prisma.$CompanyHolidayPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of CompanyHolidays.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyHolidayCountArgs} args - Arguments to filter CompanyHolidays to count.
+     * @example
+     * // Count the number of CompanyHolidays
+     * const count = await prisma.companyHoliday.count({
+     *   where: {
+     *     // ... the filter for the CompanyHolidays we want to count
+     *   }
+     * })
+    **/
+    count<T extends CompanyHolidayCountArgs>(
+      args?: Subset<T, CompanyHolidayCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CompanyHolidayCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CompanyHoliday.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyHolidayAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CompanyHolidayAggregateArgs>(args: Subset<T, CompanyHolidayAggregateArgs>): Prisma.PrismaPromise<GetCompanyHolidayAggregateType<T>>
+
+    /**
+     * Group by CompanyHoliday.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyHolidayGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CompanyHolidayGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CompanyHolidayGroupByArgs['orderBy'] }
+        : { orderBy?: CompanyHolidayGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CompanyHolidayGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCompanyHolidayGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CompanyHoliday model
+   */
+  readonly fields: CompanyHolidayFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CompanyHoliday.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CompanyHolidayClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CompanyHoliday model
+   */
+  interface CompanyHolidayFieldRefs {
+    readonly id: FieldRef<"CompanyHoliday", 'String'>
+    readonly date: FieldRef<"CompanyHoliday", 'String'>
+    readonly name: FieldRef<"CompanyHoliday", 'String'>
+    readonly createdAt: FieldRef<"CompanyHoliday", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CompanyHoliday findUnique
+   */
+  export type CompanyHolidayFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyHoliday
+     */
+    select?: CompanyHolidaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyHoliday
+     */
+    omit?: CompanyHolidayOmit<ExtArgs> | null
+    /**
+     * Filter, which CompanyHoliday to fetch.
+     */
+    where: CompanyHolidayWhereUniqueInput
+  }
+
+  /**
+   * CompanyHoliday findUniqueOrThrow
+   */
+  export type CompanyHolidayFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyHoliday
+     */
+    select?: CompanyHolidaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyHoliday
+     */
+    omit?: CompanyHolidayOmit<ExtArgs> | null
+    /**
+     * Filter, which CompanyHoliday to fetch.
+     */
+    where: CompanyHolidayWhereUniqueInput
+  }
+
+  /**
+   * CompanyHoliday findFirst
+   */
+  export type CompanyHolidayFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyHoliday
+     */
+    select?: CompanyHolidaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyHoliday
+     */
+    omit?: CompanyHolidayOmit<ExtArgs> | null
+    /**
+     * Filter, which CompanyHoliday to fetch.
+     */
+    where?: CompanyHolidayWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyHolidays to fetch.
+     */
+    orderBy?: CompanyHolidayOrderByWithRelationInput | CompanyHolidayOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CompanyHolidays.
+     */
+    cursor?: CompanyHolidayWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyHolidays from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyHolidays.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CompanyHolidays.
+     */
+    distinct?: CompanyHolidayScalarFieldEnum | CompanyHolidayScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyHoliday findFirstOrThrow
+   */
+  export type CompanyHolidayFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyHoliday
+     */
+    select?: CompanyHolidaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyHoliday
+     */
+    omit?: CompanyHolidayOmit<ExtArgs> | null
+    /**
+     * Filter, which CompanyHoliday to fetch.
+     */
+    where?: CompanyHolidayWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyHolidays to fetch.
+     */
+    orderBy?: CompanyHolidayOrderByWithRelationInput | CompanyHolidayOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CompanyHolidays.
+     */
+    cursor?: CompanyHolidayWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyHolidays from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyHolidays.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CompanyHolidays.
+     */
+    distinct?: CompanyHolidayScalarFieldEnum | CompanyHolidayScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyHoliday findMany
+   */
+  export type CompanyHolidayFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyHoliday
+     */
+    select?: CompanyHolidaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyHoliday
+     */
+    omit?: CompanyHolidayOmit<ExtArgs> | null
+    /**
+     * Filter, which CompanyHolidays to fetch.
+     */
+    where?: CompanyHolidayWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyHolidays to fetch.
+     */
+    orderBy?: CompanyHolidayOrderByWithRelationInput | CompanyHolidayOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CompanyHolidays.
+     */
+    cursor?: CompanyHolidayWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyHolidays from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyHolidays.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CompanyHolidays.
+     */
+    distinct?: CompanyHolidayScalarFieldEnum | CompanyHolidayScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyHoliday create
+   */
+  export type CompanyHolidayCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyHoliday
+     */
+    select?: CompanyHolidaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyHoliday
+     */
+    omit?: CompanyHolidayOmit<ExtArgs> | null
+    /**
+     * The data needed to create a CompanyHoliday.
+     */
+    data: XOR<CompanyHolidayCreateInput, CompanyHolidayUncheckedCreateInput>
+  }
+
+  /**
+   * CompanyHoliday createMany
+   */
+  export type CompanyHolidayCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CompanyHolidays.
+     */
+    data: CompanyHolidayCreateManyInput | CompanyHolidayCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CompanyHoliday createManyAndReturn
+   */
+  export type CompanyHolidayCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyHoliday
+     */
+    select?: CompanyHolidaySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyHoliday
+     */
+    omit?: CompanyHolidayOmit<ExtArgs> | null
+    /**
+     * The data used to create many CompanyHolidays.
+     */
+    data: CompanyHolidayCreateManyInput | CompanyHolidayCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CompanyHoliday update
+   */
+  export type CompanyHolidayUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyHoliday
+     */
+    select?: CompanyHolidaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyHoliday
+     */
+    omit?: CompanyHolidayOmit<ExtArgs> | null
+    /**
+     * The data needed to update a CompanyHoliday.
+     */
+    data: XOR<CompanyHolidayUpdateInput, CompanyHolidayUncheckedUpdateInput>
+    /**
+     * Choose, which CompanyHoliday to update.
+     */
+    where: CompanyHolidayWhereUniqueInput
+  }
+
+  /**
+   * CompanyHoliday updateMany
+   */
+  export type CompanyHolidayUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CompanyHolidays.
+     */
+    data: XOR<CompanyHolidayUpdateManyMutationInput, CompanyHolidayUncheckedUpdateManyInput>
+    /**
+     * Filter which CompanyHolidays to update
+     */
+    where?: CompanyHolidayWhereInput
+    /**
+     * Limit how many CompanyHolidays to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CompanyHoliday updateManyAndReturn
+   */
+  export type CompanyHolidayUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyHoliday
+     */
+    select?: CompanyHolidaySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyHoliday
+     */
+    omit?: CompanyHolidayOmit<ExtArgs> | null
+    /**
+     * The data used to update CompanyHolidays.
+     */
+    data: XOR<CompanyHolidayUpdateManyMutationInput, CompanyHolidayUncheckedUpdateManyInput>
+    /**
+     * Filter which CompanyHolidays to update
+     */
+    where?: CompanyHolidayWhereInput
+    /**
+     * Limit how many CompanyHolidays to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CompanyHoliday upsert
+   */
+  export type CompanyHolidayUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyHoliday
+     */
+    select?: CompanyHolidaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyHoliday
+     */
+    omit?: CompanyHolidayOmit<ExtArgs> | null
+    /**
+     * The filter to search for the CompanyHoliday to update in case it exists.
+     */
+    where: CompanyHolidayWhereUniqueInput
+    /**
+     * In case the CompanyHoliday found by the `where` argument doesn't exist, create a new CompanyHoliday with this data.
+     */
+    create: XOR<CompanyHolidayCreateInput, CompanyHolidayUncheckedCreateInput>
+    /**
+     * In case the CompanyHoliday was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CompanyHolidayUpdateInput, CompanyHolidayUncheckedUpdateInput>
+  }
+
+  /**
+   * CompanyHoliday delete
+   */
+  export type CompanyHolidayDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyHoliday
+     */
+    select?: CompanyHolidaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyHoliday
+     */
+    omit?: CompanyHolidayOmit<ExtArgs> | null
+    /**
+     * Filter which CompanyHoliday to delete.
+     */
+    where: CompanyHolidayWhereUniqueInput
+  }
+
+  /**
+   * CompanyHoliday deleteMany
+   */
+  export type CompanyHolidayDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CompanyHolidays to delete
+     */
+    where?: CompanyHolidayWhereInput
+    /**
+     * Limit how many CompanyHolidays to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CompanyHoliday without action
+   */
+  export type CompanyHolidayDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyHoliday
+     */
+    select?: CompanyHolidaySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyHoliday
+     */
+    omit?: CompanyHolidayOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -21777,6 +22855,16 @@ export namespace Prisma {
   };
 
   export type SmtpSettingsScalarFieldEnum = (typeof SmtpSettingsScalarFieldEnum)[keyof typeof SmtpSettingsScalarFieldEnum]
+
+
+  export const CompanyHolidayScalarFieldEnum: {
+    id: 'id',
+    date: 'date',
+    name: 'name',
+    createdAt: 'createdAt'
+  };
+
+  export type CompanyHolidayScalarFieldEnum = (typeof CompanyHolidayScalarFieldEnum)[keyof typeof CompanyHolidayScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -23344,6 +24432,53 @@ export namespace Prisma {
     from?: StringWithAggregatesFilter<"SmtpSettings"> | string
     createdAt?: DateTimeWithAggregatesFilter<"SmtpSettings"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"SmtpSettings"> | Date | string
+  }
+
+  export type CompanyHolidayWhereInput = {
+    AND?: CompanyHolidayWhereInput | CompanyHolidayWhereInput[]
+    OR?: CompanyHolidayWhereInput[]
+    NOT?: CompanyHolidayWhereInput | CompanyHolidayWhereInput[]
+    id?: StringFilter<"CompanyHoliday"> | string
+    date?: StringFilter<"CompanyHoliday"> | string
+    name?: StringFilter<"CompanyHoliday"> | string
+    createdAt?: DateTimeFilter<"CompanyHoliday"> | Date | string
+  }
+
+  export type CompanyHolidayOrderByWithRelationInput = {
+    id?: SortOrder
+    date?: SortOrder
+    name?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CompanyHolidayWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    date?: string
+    AND?: CompanyHolidayWhereInput | CompanyHolidayWhereInput[]
+    OR?: CompanyHolidayWhereInput[]
+    NOT?: CompanyHolidayWhereInput | CompanyHolidayWhereInput[]
+    name?: StringFilter<"CompanyHoliday"> | string
+    createdAt?: DateTimeFilter<"CompanyHoliday"> | Date | string
+  }, "id" | "date">
+
+  export type CompanyHolidayOrderByWithAggregationInput = {
+    id?: SortOrder
+    date?: SortOrder
+    name?: SortOrder
+    createdAt?: SortOrder
+    _count?: CompanyHolidayCountOrderByAggregateInput
+    _max?: CompanyHolidayMaxOrderByAggregateInput
+    _min?: CompanyHolidayMinOrderByAggregateInput
+  }
+
+  export type CompanyHolidayScalarWhereWithAggregatesInput = {
+    AND?: CompanyHolidayScalarWhereWithAggregatesInput | CompanyHolidayScalarWhereWithAggregatesInput[]
+    OR?: CompanyHolidayScalarWhereWithAggregatesInput[]
+    NOT?: CompanyHolidayScalarWhereWithAggregatesInput | CompanyHolidayScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CompanyHoliday"> | string
+    date?: StringWithAggregatesFilter<"CompanyHoliday"> | string
+    name?: StringWithAggregatesFilter<"CompanyHoliday"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"CompanyHoliday"> | Date | string
   }
 
   export type UserCreateInput = {
@@ -25040,6 +26175,55 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type CompanyHolidayCreateInput = {
+    id?: string
+    date: string
+    name: string
+    createdAt?: Date | string
+  }
+
+  export type CompanyHolidayUncheckedCreateInput = {
+    id?: string
+    date: string
+    name: string
+    createdAt?: Date | string
+  }
+
+  export type CompanyHolidayUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyHolidayUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyHolidayCreateManyInput = {
+    id?: string
+    date: string
+    name: string
+    createdAt?: Date | string
+  }
+
+  export type CompanyHolidayUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyHolidayUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    date?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -26201,6 +27385,27 @@ export namespace Prisma {
 
   export type SmtpSettingsSumOrderByAggregateInput = {
     port?: SortOrder
+  }
+
+  export type CompanyHolidayCountOrderByAggregateInput = {
+    id?: SortOrder
+    date?: SortOrder
+    name?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CompanyHolidayMaxOrderByAggregateInput = {
+    id?: SortOrder
+    date?: SortOrder
+    name?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CompanyHolidayMinOrderByAggregateInput = {
+    id?: SortOrder
+    date?: SortOrder
+    name?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type SessionCreateNestedManyWithoutUserInput = {

@@ -8,7 +8,7 @@ import {
   invoices,
   expenses,
   payPeriod,
-} from "../app/lib/admin-data";
+} from "./demo-data";
 
 const ADMIN_EMAIL = "admin@workarail.com";
 const STAFF_PASSWORD = "Pass1234";

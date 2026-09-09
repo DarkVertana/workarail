@@ -124,8 +124,8 @@ export function FinanceSidebar({
     email: string
     avatarUrl?: string | null
   }
-  pendingLeaves?: number
-  pendingExpenses?: number
+  pendingLeaves: number
+  pendingExpenses: number
 }) {
   return (
     <AdminSidebar
