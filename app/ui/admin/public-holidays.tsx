@@ -122,7 +122,7 @@ export async function PublicHolidays({
         </>
       )}
 
-          <ManualHolidays year={year} entries={entries} />
+      <ManualHolidays year={year} entries={entries} />
     </section>
   )
 }
